@@ -43,6 +43,64 @@ const RESULT_LABELS = {
   },
 };
 
+const HINDI_DEMO_STEPS: Record<string, { action: string; deadline: string; forum: string }> = {
+  'case-01-kanpur-demo:ns-1': {
+    action: 'वर्ष 2021-2026 की नगर पालिका संपत्ति कर रसीदें जमा करें',
+    deadline: '14 अगस्त 2026',
+    forum: 'कोर्ट रूम नंबर 4, अपर जिला न्यायाधीश चतुर्थ, कानपुर नगर',
+  },
+  'case-01-kanpur-demo:ns-2': {
+    action: 'मुद्दे तय करने की सुनवाई के लिए अदालत में उपस्थित हों',
+    deadline: '14 अगस्त 2026',
+    forum: 'कोर्ट रूम नंबर 4, कानपुर जिला न्यायालय',
+  },
+  'case-02-interim-stay:ns-1': {
+    action: 'प्लॉट बी-12 पर कोई निर्माण या बदलाव न करें और यथास्थिति बनाए रखें',
+    deadline: '28 अगस्त 2026 तक',
+    forum: 'प्लॉट बी-12, किदवई नगर, कानपुर',
+  },
+  'case-02-interim-stay:ns-2': {
+    action: 'केडीए का जवाब दाखिल होने के बाद अगली सुनवाई में उपस्थित हों',
+    deadline: '28 अगस्त 2026',
+    forum: 'सिविल जज (सीनियर डिवीजन), कानपुर नगर',
+  },
+  'case-03-bail-order:ns-1': {
+    action: '₹50,000 का निजी मुचलका और ₹50,000-₹50,000 की दो स्थानीय जमानतें जमा करें',
+    deadline: 'प्रमाणित प्रति मिलने के 10 दिनों के भीतर',
+    forum: 'मुख्य महानगर मजिस्ट्रेट न्यायालय, कानपुर नगर',
+  },
+  'case-04-maintenance-order:ns-1': {
+    action: 'पत्नी के बैंक खाते में ₹12,000 अंतरिम भरण-पोषण जमा करें',
+    deadline: '1 अगस्त 2026 से हर महीने की 5 तारीख तक',
+    forum: 'बैंक हस्तांतरण / परिवार न्यायालय, कानपुर',
+  },
+  'case-06-ambiguous-notice-refusal:ns-1': {
+    action: 'प्रतिवादियों को पंजीकृत नोटिस जारी करने की प्रक्रिया पूरी करें',
+    deadline: '7 दिनों के भीतर',
+    forum: 'सिविल जज न्यायालय रजिस्ट्री, कानपुर',
+  },
+  'case-07-judgment-dismissal:ns-1': {
+    action: '₹15,000 प्रतिपूरक लागत जमा करें',
+    deadline: '30 दिनों के भीतर, यानी 7 अगस्त 2026 तक',
+    forum: 'जिला विधिक सेवा प्राधिकरण, कानपुर नगर',
+  },
+  'case-08-tenancy-written-statement:ns-1': {
+    action: 'अदालत में लिखित बयान दाखिल करें और उसकी प्रति मकान मालिक को दें',
+    deadline: '18 सितंबर 2026 तक',
+    forum: 'वरिष्ठ सिविल जज न्यायालय, कानपुर नगर',
+  },
+  'case-09-anticipatory-bail:ns-1': {
+    action: 'बुलाए जाने पर पुलिस जांच में शामिल हों और गिरफ्तारी की कोशिश पर ₹1,00,000 का मुचलका दें',
+    deadline: 'तुरंत / जब भी बुलाया जाए',
+    forum: 'थाना स्वरूप नगर, कानपुर नगर',
+  },
+  'case-10-execution-warrant:ns-1': {
+    action: 'संपत्ति कुर्की रोकने के लिए अदालत में ₹88,500 जमा करें',
+    deadline: '30 सितंबर 2026 तक',
+    forum: 'सब-जज प्रथम श्रेणी न्यायालय, कानपुर नगर',
+  },
+};
+
 export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
   currentCase,
   selectedLanguage,
@@ -213,26 +271,31 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
 
                   {analysis.nextSteps && analysis.nextSteps.length > 0 ? (
                     <div className="space-y-3">
-                      {analysis.nextSteps.map((step, idx) => (
-                        <div key={idx} className="p-4 bg-slate-100 border border-slate-300 rounded-xl space-y-2">
+                      {analysis.nextSteps.map((step, idx) => {
+                        const localizedStep =
+                          selectedLanguage === 'hi' && isCuratedDemo
+                            ? HINDI_DEMO_STEPS[`${currentCase.id}:${step.id}`] || step
+                            : step;
+                        return (
+                        <div key={step.id || idx} className="p-4 bg-slate-100 border border-slate-300 rounded-xl space-y-2">
                           <div className="flex items-start justify-between gap-2">
                             <span className="font-bold text-slate-900 text-xs sm:text-sm">
-                              {idx + 1}. {step.action}
+                              {idx + 1}. {localizedStep.action}
                             </span>
                           </div>
 
                           <div className="flex flex-wrap items-center gap-4 text-xs text-slate-900 font-medium">
                             <span className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-slate-300">
                               <Calendar className="h-3.5 w-3.5 text-black" />
-                              {labels.deadline} <strong className="text-black ml-1">{step.deadline}</strong>
+                              {labels.deadline} <strong className="text-black ml-1">{localizedStep.deadline}</strong>
                             </span>
                             <span className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-slate-300">
                               <MapPin className="h-3.5 w-3.5 text-black" />
-                              {labels.forum} <strong className="text-black ml-1">{step.forum}</strong>
+                              {labels.forum} <strong className="text-black ml-1">{localizedStep.forum}</strong>
                             </span>
                           </div>
                         </div>
-                      ))}
+                      )})}
                     </div>
                   ) : (
                     <p className="text-xs text-slate-500 italic p-3 bg-slate-50 rounded-xl border border-slate-200">
