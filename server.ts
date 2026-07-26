@@ -117,7 +117,7 @@ app.get("/api/health", (req, res) => {
 // Analyze Court Order Endpoint
 app.post("/api/analyze-document", async (req, res) => {
   try {
-    const { imageBase64, textContent, language = "hi" } = req.body;
+    const { imageBase64, imagesBase64, textContent, language = "en" } = req.body;
 
     if (!ai) {
       return res.status(503).json({
@@ -127,39 +127,54 @@ app.post("/api/analyze-document", async (req, res) => {
 
     let contentsParts: any[] = [];
 
-    if (imageBase64) {
-      let mimeType = "image/jpeg";
-      let cleanBase64 = imageBase64;
-
-      if (imageBase64.startsWith("data:")) {
-        const matches = imageBase64.match(/^data:([^;]+);base64,(.*)$/);
-        if (matches) {
-          mimeType = matches[1];
-          cleanBase64 = matches[2];
-        } else {
-          cleanBase64 = imageBase64.replace(/^data:[^;]+;base64,/, "");
-        }
+    // Collect all base64 payloads (single or array)
+    const fileList: string[] = [];
+    if (Array.isArray(imagesBase64) && imagesBase64.length > 0) {
+      fileList.push(...imagesBase64);
+    } else if (imageBase64) {
+      if (Array.isArray(imageBase64)) {
+        fileList.push(...imageBase64);
+      } else {
+        fileList.push(imageBase64);
       }
+    }
+
+    if (fileList.length > 0) {
+      fileList.forEach((fileBase64, index) => {
+        let mimeType = "image/jpeg";
+        let cleanBase64 = fileBase64;
+
+        if (fileBase64.startsWith("data:")) {
+          const matches = fileBase64.match(/^data:([^;]+);base64,(.*)$/);
+          if (matches) {
+            mimeType = matches[1];
+            cleanBase64 = matches[2];
+          } else {
+            cleanBase64 = fileBase64.replace(/^data:[^;]+;base64,/, "");
+          }
+        }
+
+        contentsParts.push({
+          inlineData: {
+            mimeType: mimeType,
+            data: cleanBase64,
+          },
+        });
+      });
 
       contentsParts.push({
-        inlineData: {
-          mimeType: mimeType,
-          data: cleanBase64,
-        },
-      });
-      contentsParts.push({
-        text: `${SARVAM_DOC_AI_PROMPT}\n\nAnalyze this court order document (Image or PDF) carefully with Sarvam Doc AI. Extract all text, preserve paragraph numbering, tag attribution for each paragraph, isolate verbatim operative direction, extract next steps, and determine if refusal is required.`,
+        text: `${SARVAM_DOC_AI_PROMPT}\n\nAnalyze these ${fileList.length} court order page(s)/document(s) carefully with Sarvam Doc AI. Extract all text across all pages in chronological page order, preserve paragraph numbering, tag attribution for each paragraph, isolate verbatim operative direction, extract next steps, and determine if refusal is required.`,
       });
     } else if (textContent) {
       contentsParts.push({
         text: `${SARVAM_DOC_AI_PROMPT}\n\nCOURT DOCUMENT TEXT TO ANALYZE VIA SARVAM DOC AI:\n"""\n${textContent}\n"""`,
       });
     } else {
-      return res.status(400).json({ error: "Missing imageBase64 or textContent payload." });
+      return res.status(400).json({ error: "Missing imageBase64 / imagesBase64 or textContent payload." });
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: "gemini-2.5-flash",
       contents: { parts: contentsParts },
       config: {
         responseMimeType: "application/json",
@@ -222,7 +237,7 @@ Return JSON format:
 }`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: "gemini-2.5-flash",
       contents: [{ parts: [{ text: prompt }] }],
       config: {
         responseMimeType: "application/json",

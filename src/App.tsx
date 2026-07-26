@@ -8,12 +8,12 @@ import { Scale } from 'lucide-react';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<'upload' | 'result'>('upload');
-  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>('hi');
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>('en');
   const [currentCase, setCurrentCase] = useState<BenchmarkCase>(BENCHMARK_CASES[0]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Handle "Read the Document" click
-  const handleReadDocument = async (payload: { imageBase64?: string; textContent?: string; sampleCase?: BenchmarkCase }) => {
+  const handleReadDocument = async (payload: { imageBase64?: string; imagesBase64?: string[]; textContent?: string; sampleCase?: BenchmarkCase }) => {
     // If a pre-tagged sample case was picked
     if (payload.sampleCase) {
       setCurrentCase(payload.sampleCase);
@@ -22,7 +22,7 @@ export default function App() {
       return;
     }
 
-    // If a custom image or text was uploaded/pasted
+    // If custom images/PDFs or text was uploaded/pasted
     setIsLoading(true);
     try {
       const response = await fetch('/api/analyze-document', {
@@ -30,6 +30,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           imageBase64: payload.imageBase64,
+          imagesBase64: payload.imagesBase64,
           textContent: payload.textContent,
           language: selectedLanguage,
         }),

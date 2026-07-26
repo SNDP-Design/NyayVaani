@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Bot, Volume2, Calendar, MapPin, AlertCircle, FileText, CheckCircle2, ChevronRight, Eye, ShieldCheck, Share2, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, Bot, Volume2, Calendar, MapPin, AlertCircle, FileText, CheckCircle2, ChevronRight, ShieldCheck, Share2, Sparkles } from 'lucide-react';
 import { BenchmarkCase, SupportedLanguage } from '../types';
 import { VoiceAIAgent } from './VoiceAIAgent';
 import { LitigantAudioPlayer } from './LitigantAudioPlayer';
@@ -19,8 +19,6 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
   onBackToUpload,
 }) => {
   const [isVoiceAgentOpen, setIsVoiceAgentOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'summary' | 'paragraphs'>('summary');
-  const [isImageExpanded, setIsImageExpanded] = useState(false);
   const t = getTranslation(selectedLanguage);
 
   const analysis = currentCase.analysis;
@@ -63,41 +61,6 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
           </div>
         </div>
 
-        {/* Right Controls: Language Selector & Voice AI Agent CTA */}
-        <div className="flex items-center gap-3 shrink-0">
-          
-          {/* Language Selector */}
-          <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-300 text-xs">
-            <span className="text-slate-500 font-medium">{t.languageLabel}</span>
-            <select
-              value={selectedLanguage}
-              onChange={(e) => onLanguageChange(e.target.value as SupportedLanguage)}
-              className="bg-transparent font-bold text-slate-900 focus:outline-none cursor-pointer"
-            >
-              <option value="hi">हिंदी (Hindi)</option>
-              <option value="en">English</option>
-              <option value="bn">বাংলা (Bengali)</option>
-              <option value="ta">தமிழ் (Tamil)</option>
-              <option value="te">తెలుగు (Telugu)</option>
-              <option value="mr">मराठी (Marathi)</option>
-              <option value="gu">ગુજરાતી (Gujarati)</option>
-              <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
-            </select>
-          </div>
-
-          {/* Voice AI CTA Button */}
-          <button
-            onClick={() => setIsVoiceAgentOpen(true)}
-            className="px-4 py-2 bg-black hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer border border-slate-900"
-          >
-            <div className="relative">
-              <Bot className="h-4 w-4 text-white" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full animate-ping"></span>
-            </div>
-            <span>{t.askVoiceAiButton}</span>
-          </button>
-        </div>
-
       </div>
 
       {/* Main Two-Column View */}
@@ -106,42 +69,18 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
         {/* LEFT COLUMN: Document Thumbnail & Verbatim Operative Clause */}
         <div className="lg:col-span-5 space-y-6">
           
-          {/* Document Thumbnail Preview Card */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          {/* Document Details Metadata */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                 <FileText className="h-4 w-4 text-black" />
-                {t.docPreviewTitle}
+                Case Metadata
               </span>
               <span className="text-[11px] font-mono text-slate-900 bg-slate-100 px-2 py-0.5 rounded font-semibold border border-slate-300">
                 Sarvam Doc AI Processed
               </span>
             </div>
-
-            {/* Thumbnail Display */}
-            <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-900 group aspect-[4/3] flex items-center justify-center">
-              <img
-                src={
-                  currentCase.photocopyStyle === 'distorted_photocopy_stamp'
-                    ? 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=800'
-                    : 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=800'
-                }
-                alt={currentCase.title}
-                className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
-              
-              <button
-                onClick={() => setIsImageExpanded(true)}
-                className="absolute bottom-3 right-3 bg-white/90 hover:bg-white text-slate-900 px-3 py-1.5 rounded-lg text-xs font-bold shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
-              >
-                <Eye className="h-3.5 w-3.5" />
-                <span>{t.expandPhoto}</span>
-              </button>
-            </div>
-
-            {/* Document Details Metadata */}
-            <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-xs pt-1">
               <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
                 <span className="text-[10px] text-slate-400 uppercase font-mono font-bold block">Case Number</span>
                 <span className="font-bold text-slate-800 mt-0.5 block truncate">{currentCase.caseNumber}</span>
@@ -203,30 +142,11 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
           {/* Main Summary Panel */}
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-5">
             
-            {/* View Tabs */}
+            {/* View Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setActiveTab('summary')}
-                  className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                    activeTab === 'summary'
-                      ? 'bg-black text-white shadow-xs'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {t.plainSummaryTitle}
-                </button>
-                <button
-                  onClick={() => setActiveTab('paragraphs')}
-                  className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                    activeTab === 'paragraphs'
-                      ? 'bg-black text-white shadow-xs'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {t.attributionTitle} ({analysis.paragraphs?.length || 0})
-                </button>
-              </div>
+              <h3 className="text-sm font-extrabold text-slate-900">
+                {t.plainSummaryTitle}
+              </h3>
 
               {/* Call Voice AI Icon */}
               <button
@@ -238,9 +158,8 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
               </button>
             </div>
 
-            {/* TAB 1: SUMMARY & NEXT STEPS */}
-            {activeTab === 'summary' && (
-              <div className="space-y-6">
+            {/* SUMMARY & NEXT STEPS */}
+            <div className="space-y-6">
                 
                 {/* Plain Language Explanation Box */}
                 <div className="space-y-2">
@@ -310,55 +229,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                   </button>
                 </div>
 
-              </div>
-            )}
-
-            {/* TAB 2: PARAGRAPH BREAKDOWN */}
-            {activeTab === 'paragraphs' && (
-              <div className="space-y-3">
-                <p className="text-xs text-slate-500">
-                  {t.attributionTitle}:
-                </p>
-
-                <div className="space-y-3">
-                  {analysis.paragraphs?.map((para) => (
-                    <div
-                      key={para.id}
-                      className={`p-4 rounded-xl border text-xs space-y-2 ${
-                        para.category === 'court_direction'
-                          ? 'bg-slate-100 border-slate-400'
-                          : para.category === 'rejected_claim'
-                          ? 'bg-slate-200 border-slate-400'
-                          : 'bg-slate-50 border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold font-mono text-slate-900">
-                          Paragraph {para.paragraphNumber} • {para.speaker}
-                        </span>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono ${
-                          para.category === 'court_direction'
-                            ? 'bg-black text-white'
-                            : para.category === 'rejected_claim'
-                            ? 'bg-slate-700 text-white'
-                            : 'bg-slate-200 text-slate-700'
-                        }`}>
-                          {para.category.replace('_', ' ')}
-                        </span>
-                      </div>
-
-                      <p className="text-slate-800 font-mono leading-relaxed">{para.text}</p>
-
-                      {para.notes && (
-                        <p className="text-[11px] text-slate-500 font-sans italic border-t border-slate-200/60 pt-1.5">
-                          Note: {para.notes}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            </div>
 
           </div>
 
@@ -387,29 +258,6 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
         isOpen={isVoiceAgentOpen}
         onClose={() => setIsVoiceAgentOpen(false)}
       />
-
-      {/* Full Photo Expansion Modal */}
-      {isImageExpanded && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="relative max-w-4xl max-h-[90vh] bg-slate-900 rounded-2xl overflow-hidden p-2">
-            <button
-              onClick={() => setIsImageExpanded(false)}
-              className="absolute top-4 right-4 bg-slate-800 text-white p-2 rounded-full hover:bg-slate-700 cursor-pointer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <img
-              src={
-                currentCase.photocopyStyle === 'distorted_photocopy_stamp'
-                  ? 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200'
-                  : 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=1200'
-              }
-              alt="Court Order"
-              className="max-h-[85vh] object-contain mx-auto rounded-xl"
-            />
-          </div>
-        </div>
-      )}
 
     </div>
   );
