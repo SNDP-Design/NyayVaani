@@ -1,0 +1,6 @@
+{
+  "name": "NyayVaani - Court Order Interpreter for Litigants",
+  "description": "Document Intelligence system for Indian court orders. Isolates operative court directions, attributes claims, provides plain-language explanations with audio, and refuses ambiguous orders.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

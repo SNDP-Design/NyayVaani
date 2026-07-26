@@ -1,0 +1,18 @@
+{
+  "short_name": "NyayVaani",
+  "name": "NyayVaani - Court Order Voice AI",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#F8FAFC",
+  "theme_color": "#4F46E5",
+  "display": "standalone",
+  "orientation": "portrait",
+  "description": "Court order document intelligence and Voice AI assistant for Indian litigants."
+}
