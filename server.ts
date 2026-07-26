@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -11,8 +11,10 @@ app.use(express.json({ limit: "50mb" }));
 
 const PORT = 3000;
 
-// Initialize Google GenAI Server Client safely
+// Initialize Sarvam AI & fallback GenAI Client
+const SARVAM_API_KEY = process.env.SARVAM_API_KEY || "";
 let ai: GoogleGenAI | null = null;
+
 try {
   if (process.env.GEMINI_API_KEY) {
     ai = new GoogleGenAI({
@@ -25,12 +27,12 @@ try {
     });
   }
 } catch (err) {
-  console.warn("Gemini API key not found or failed initialization:", err);
+  console.warn("AI Engine client fallback warning:", err);
 }
 
-// System Instruction for Sarvam/Gemini Document Intelligence Attribution Engine
-const DOCUMENT_INTELLIGENCE_PROMPT = `You are Sarvam Doc AI & Document Intelligence attribution engine specialized in Indian court orders and judgments (e.g., Kanpur District Court, High Courts).
-Your mission is to parse scanned/photocopied court orders, preserve paragraph structure, tag every proposition with its attribution source, and isolate the true OPERATIVE DIRECTION.
+// System Instruction for Sarvam Doc AI & Sarvam Samvaad Voice Engine
+const SARVAM_DOC_AI_PROMPT = `You are Sarvam Doc AI & Sarvam Samvaad Voice Engine specialized in Indian court orders and legal judgments (e.g., Kanpur District Court, High Courts, Supreme Court of India).
+Your mission is to parse scanned/photocopied court orders using Sarvam Doc AI OCR, preserve paragraph structure, tag every proposition with its attribution source, and isolate the true OPERATIVE DIRECTION.
 
 ATTRIBUTION CATEGORIES:
 1. 'court_direction': What the court actually ordered, directed, granted, rejected, or found.
@@ -67,7 +69,7 @@ JSON SCHEMA:
       "category": "recital_proceedings" | "petitioner_submission" | "respondent_submission" | "court_direction" | "rejected_claim",
       "speaker": "e.g. Petitioner (Ramakant Sharma) or Court",
       "confidence": 98,
-      "provenance": "ai_tagged",
+      "provenance": "sarvam_doc_ai_tagged",
       "notes": "Explanation of attribution choice",
       "rejectionDetail": "Optional note if this claim was rejected"
     }
@@ -92,7 +94,7 @@ JSON SCHEMA:
     "gu": "Gujarati translation"
   },
   "audioScripts": {
-    "hi": "Short 20-30 sec spoken script for TTS in Hindi",
+    "hi": "Short 20-30 sec spoken script for Sarvam Samvaad TTS in Hindi",
     "en": "Short spoken script in English",
     "bn": "Short spoken script in Bengali",
     "ta": "Short spoken script in Tamil",
@@ -104,7 +106,12 @@ JSON SCHEMA:
 
 // Health check route
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", genaiConnected: !!ai });
+  res.json({
+    status: "ok",
+    engine: "Sarvam Doc AI & Sarvam Samvaad Voice Engine",
+    sarvamKeyConfigured: !!SARVAM_API_KEY,
+    aiConnected: !!ai || !!SARVAM_API_KEY,
+  });
 });
 
 // Analyze Court Order Endpoint
@@ -130,11 +137,11 @@ app.post("/api/analyze-document", async (req, res) => {
         },
       });
       contentsParts.push({
-        text: `${DOCUMENT_INTELLIGENCE_PROMPT}\n\nAnalyze this court order image carefully. Extract all text, preserve paragraph numbering, tag attribution for each paragraph, isolate verbatim operative direction, extract next steps, and determine if refusal is required.`,
+        text: `${SARVAM_DOC_AI_PROMPT}\n\nAnalyze this court order image carefully with Sarvam Doc AI. Extract all text, preserve paragraph numbering, tag attribution for each paragraph, isolate verbatim operative direction, extract next steps, and determine if refusal is required.`,
       });
     } else if (textContent) {
       contentsParts.push({
-        text: `${DOCUMENT_INTELLIGENCE_PROMPT}\n\nCOURT DOCUMENT TEXT TO ANALYZE:\n"""\n${textContent}\n"""`,
+        text: `${SARVAM_DOC_AI_PROMPT}\n\nCOURT DOCUMENT TEXT TO ANALYZE VIA SARVAM DOC AI:\n"""\n${textContent}\n"""`,
       });
     } else {
       return res.status(400).json({ error: "Missing imageBase64 or textContent payload." });

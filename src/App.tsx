@@ -94,6 +94,7 @@ export default function App() {
           <UploadScreen
             onReadDocument={handleReadDocument}
             isLoading={isLoading}
+            selectedLanguage={selectedLanguage}
           />
         ) : (
           <DocumentResultView

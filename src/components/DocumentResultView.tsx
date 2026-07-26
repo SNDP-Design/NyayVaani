@@ -3,6 +3,7 @@ import { ArrowLeft, Bot, Volume2, Calendar, MapPin, AlertCircle, FileText, Check
 import { BenchmarkCase, SupportedLanguage } from '../types';
 import { VoiceAIAgent } from './VoiceAIAgent';
 import { LitigantAudioPlayer } from './LitigantAudioPlayer';
+import { getTranslation } from '../utils/translations';
 
 interface DocumentResultViewProps {
   currentCase: BenchmarkCase;
@@ -20,13 +21,14 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
   const [isVoiceAgentOpen, setIsVoiceAgentOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'summary' | 'paragraphs'>('summary');
   const [isImageExpanded, setIsImageExpanded] = useState(false);
+  const t = getTranslation(selectedLanguage);
 
   const analysis = currentCase.analysis;
   const isRefusal = currentCase.isRefusalCase || analysis.isRefusalState;
 
   // Selected explanation & audio script
-  const plainExplanation = analysis.plainLanguageExplanations?.[selectedLanguage] || analysis.plainLanguageExplanations?.['en'] || 'Analysis completed.';
-  const audioScript = analysis.audioScripts?.[selectedLanguage] || analysis.audioScripts?.['en'] || plainExplanation;
+  const plainExplanation = analysis.plainLanguageExplanations?.[selectedLanguage] || analysis.plainLanguageExplanations?.[selectedLanguage === 'hi' ? 'en' : 'hi'] || 'Analysis completed.';
+  const audioScript = analysis.audioScripts?.[selectedLanguage] || analysis.audioScripts?.[selectedLanguage === 'hi' ? 'en' : 'hi'] || plainExplanation;
 
   return (
     <div className="max-w-7xl mx-auto py-6 px-4 space-y-6">
@@ -41,7 +43,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
             className="p-2 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-bold border border-slate-200"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Upload Another Document</span>
+            <span>{t.backToUpload}</span>
           </button>
 
           <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
@@ -51,7 +53,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
               <h2 className="text-base font-bold text-slate-900">{currentCase.title}</h2>
               {isRefusal && (
                 <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded border border-rose-200 uppercase font-mono">
-                  Incomplete / Refusal State
+                  {t.refusalWarningTitle}
                 </span>
               )}
             </div>
@@ -66,7 +68,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
           
           {/* Language Selector */}
           <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs">
-            <span className="text-slate-500 font-medium">Language:</span>
+            <span className="text-slate-500 font-medium">{t.languageLabel}</span>
             <select
               value={selectedLanguage}
               onChange={(e) => onLanguageChange(e.target.value as SupportedLanguage)}
@@ -91,7 +93,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
               <Bot className="h-4 w-4 text-white" />
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
             </div>
-            <span>Talk to Voice AI</span>
+            <span>{t.askVoiceAiButton}</span>
           </button>
         </div>
 
@@ -211,7 +213,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
-                  Document Summary & Next Steps
+                  {t.plainSummaryTitle}
                 </button>
                 <button
                   onClick={() => setActiveTab('paragraphs')}
@@ -221,7 +223,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
-                  Paragraph Breakdown ({analysis.paragraphs?.length || 0})
+                  {t.attributionTitle} ({analysis.paragraphs?.length || 0})
                 </button>
               </div>
 
@@ -231,7 +233,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                 className="text-indigo-600 hover:text-indigo-800 text-xs font-bold flex items-center gap-1 cursor-pointer"
               >
                 <Bot className="h-4 w-4" />
-                <span>Ask AI</span>
+                <span>{t.askVoiceAiButton}</span>
               </button>
             </div>
 
@@ -242,7 +244,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                 {/* Plain Language Explanation Box */}
                 <div className="space-y-2">
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-                    Plain-Language Explanation ({selectedLanguage.toUpperCase()}):
+                    {t.plainSummaryTitle} ({selectedLanguage.toUpperCase()}):
                   </span>
                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm leading-relaxed text-slate-800 font-sans">
                     {plainExplanation}
@@ -253,7 +255,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                 <div className="space-y-3">
                   <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block flex items-center gap-1.5">
                     <CheckCircle2 className="h-4 w-4 text-indigo-600" />
-                    Required Next Steps for Litigant
+                    {t.nextStepsTitle}
                   </span>
 
                   {analysis.nextSteps && analysis.nextSteps.length > 0 ? (

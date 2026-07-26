@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Scale, Bot, Upload, Download, Sparkles } from 'lucide-react';
 import { SupportedLanguage } from '../types';
+import { getTranslation } from '../utils/translations';
 
 interface HeaderProps {
   currentStep: 'upload' | 'result';
@@ -19,6 +20,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
+  const t = getTranslation(selectedLanguage);
 
   useEffect(() => {
     const handleBeforeInstall = (e: Event) => {
@@ -60,14 +62,14 @@ export const Header: React.FC<HeaderProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
-                  NyayVaani
+                  {t.appTitle}
                 </h1>
                 <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300 hidden sm:inline-block font-mono">
-                  PWA Ready
+                  {t.pwaReady}
                 </span>
               </div>
               <p className="text-xs text-slate-500 hidden sm:block">
-                Court Order Document Intelligence & Voice AI Assistant
+                {t.appSubtitle}
               </p>
             </div>
           </div>
@@ -82,12 +84,12 @@ export const Header: React.FC<HeaderProps> = ({
               className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Download className="h-3.5 w-3.5 text-emerald-600" />
-              <span>Install App</span>
+              <span>{t.installApp}</span>
             </button>
 
             {/* Language Selector */}
             <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs">
-              <span className="text-slate-500 hidden sm:inline">Language:</span>
+              <span className="text-slate-500 hidden sm:inline">{t.languageLabel}</span>
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value as SupportedLanguage)}
@@ -110,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({
                   className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-200"
                 >
                   <Upload className="h-3.5 w-3.5 text-indigo-600" />
-                  <span className="hidden sm:inline">Upload New</span>
+                  <span className="hidden sm:inline">{t.uploadNew}</span>
                 </button>
 
                 {onOpenVoiceAI && (
@@ -119,7 +121,7 @@ export const Header: React.FC<HeaderProps> = ({
                     className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs border border-indigo-500"
                   >
                     <Bot className="h-4 w-4" />
-                    <span>Voice AI</span>
+                    <span>{t.voiceAi}</span>
                   </button>
                 )}
               </>

@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { Upload, Camera, FileText, Sparkles, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import { BENCHMARK_CASES } from '../data/benchmarkCases';
-import { BenchmarkCase } from '../types';
+import { BenchmarkCase, SupportedLanguage } from '../types';
+import { getTranslation } from '../utils/translations';
 
 interface UploadScreenProps {
   onReadDocument: (payload: { imageBase64?: string; textContent?: string; sampleCase?: BenchmarkCase }) => void;
   isLoading: boolean;
+  selectedLanguage?: SupportedLanguage;
 }
 
-export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLoading }) => {
+export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLoading, selectedLanguage = 'hi' }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [pastedText, setPastedText] = useState<string>('');
   const [selectedSample, setSelectedSample] = useState<BenchmarkCase | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const t = getTranslation(selectedLanguage);
 
   // Handle image upload from file input
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,13 +81,13 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
       <div className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 px-3.5 py-1.5 rounded-full text-indigo-700 font-semibold text-xs shadow-xs">
           <Sparkles className="h-4 w-4 text-indigo-600 animate-pulse" />
-          <span>NyayVaani • AI Document & Voice Intelligence</span>
+          <span>{t.uploadHeroBadge}</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-          Upload Court Order & Listen to What it Means
+          {t.uploadHeading}
         </h1>
         <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-          Upload a photo of your court order or judgment. NyayVaani will read the document, isolate the judge's exact ruling, and let you speak with our Voice AI Assistant.
+          {t.uploadSubheading}
         </p>
       </div>
 
@@ -144,9 +147,9 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
 
               <div className="space-y-3">
                 <p className="text-base font-bold text-slate-900">
-                  Drag & Drop court order picture here, or{' '}
+                  {t.dragDropTitle}{' '}
                   <label className="text-indigo-600 hover:text-indigo-800 underline cursor-pointer font-extrabold">
-                    browse files
+                    {t.browseFiles}
                     <input
                       type="file"
                       accept="image/*"
@@ -160,7 +163,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                 <div className="flex items-center justify-center gap-3 pt-1">
                   <label className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs flex items-center gap-2 border border-indigo-200 cursor-pointer shadow-xs transition-colors">
                     <Camera className="h-4 w-4 text-indigo-600" />
-                    <span>Take Photo with Phone Camera</span>
+                    <span>{t.takePhotoButton}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -172,7 +175,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                 </div>
 
                 <p className="text-xs text-slate-500">
-                  Supports photocopies, phone camera photos, scanned pages (JPG, PNG, WEBP)
+                  {t.uploadNote}
                 </p>
               </div>
             </>
@@ -183,9 +186,9 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
         <div className="space-y-3 pt-2 border-t border-slate-100">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-              Or Try With Sample Court Document:
+              {t.sampleCasesTitle}
             </span>
-            <span className="text-[11px] text-slate-400">Hand-tagged authentic court orders</span>
+            <span className="text-[11px] text-slate-400">{t.sampleCasesSub}</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -246,12 +249,12 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
             {isLoading ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Reading & Analyzing Document with Sarvam Doc AI...</span>
+                <span>{t.analyzingTitle}</span>
               </>
             ) : (
               <>
                 <Sparkles className="h-5 w-5 text-indigo-200 group-hover:rotate-12 transition-transform" />
-                <span>Read the Document</span>
+                <span>{selectedSample ? `Analyze: ${selectedSample.title}` : selectedImage ? 'Read Uploaded Court Order' : 'Read Court Document'}</span>
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </>
             )}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Volume2, VolumeX, Send, Sparkles, Bot, X, RefreshCw, MessageSquare, AlertCircle } from 'lucide-react';
 import { AnalysisResult } from '../types';
+import { getTranslation } from '../utils/translations';
 
 interface VoiceAIAgentProps {
   analysis: AnalysisResult;
@@ -34,6 +35,15 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
 
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const t = getTranslation(selectedLanguage);
+
+  // Suggested questions from translations
+  const sampleQuestions = [
+    t.suggestedQ1,
+    t.suggestedQ2,
+    t.suggestedQ3,
+    t.suggestedQ4,
+  ];
 
   // Initialize introductory greeting
   useEffect(() => {
@@ -194,13 +204,6 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
       setIsLoading(false);
     }
   };
-
-  const sampleQuestions = [
-    'What did the judge decide?',
-    'What is my next deadline?',
-    'Did the court reject any claim?',
-    'Which court room do I visit?',
-  ];
 
   if (!isOpen) return null;
 
