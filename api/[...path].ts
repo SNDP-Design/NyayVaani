@@ -233,7 +233,7 @@ function languageMap(
 async function translateExplanation(
   englishText: string,
 ): Promise<Record<string, string>> {
-  const cleanEnglish = englishText.trim().slice(0, 2000);
+  const cleanEnglish = englishText.trim().slice(0, 1000);
   if (!sarvam || !cleanEnglish) {
     return languageMap({}, cleanEnglish);
   }
@@ -247,8 +247,9 @@ async function translateExplanation(
             input: cleanEnglish,
             source_language_code: "en-IN",
             target_language_code: languageCode,
-            model: "sarvam-translate:v1",
+            model: "mayura:v1",
             mode: "formal",
+            output_script: "fully-native",
           } as any,
           { timeoutInSeconds: 30, maxRetries: 1 },
         );
@@ -771,21 +772,9 @@ ${question.trim()}`,
       answer = completionText(retry);
     }
 
-    const targetLanguage = LANGUAGE_CODES[language];
-    if (language !== "en" && targetLanguage) {
-      const translation = await client.text.translate(
-        {
-          input: answer.slice(0, 2000),
-          source_language_code: "en-IN",
-          target_language_code: targetLanguage,
-          model: "sarvam-translate:v1",
-          mode: "formal",
-        } as any,
-        { timeoutInSeconds: 30, maxRetries: 1 },
-      );
-      if (typeof translation.translated_text === "string" && translation.translated_text.trim()) {
-        answer = translation.translated_text.trim();
-      }
+    if (language !== "en" && LANGUAGE_CODES[language]) {
+      const localizedAnswers = await translateExplanation(answer);
+      answer = localizedAnswers[language] || answer;
     }
 
     const keyFact =
@@ -795,6 +784,7 @@ ${question.trim()}`,
       answer,
       keyFact,
       suggestedFollowups: [],
+      responseLanguage: language,
     });
   } catch (error: any) {
     console.error("Sarvam question-answering error:", error);
