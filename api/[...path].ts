@@ -718,8 +718,9 @@ app.post("/api/ask-question", async (req, res) => {
 court litigants. Answer only from the supplied document analysis. Clearly separate
 what the court ordered from what either party claimed. If the answer is absent,
 say that the document does not state it. Do not give legal advice. Reply in
-${toLanguageCode(language)} using simple spoken language. Give a direct answer in
-2 to 4 short sentences. Return normal text, not JSON or Markdown.`,
+simple English. Give a direct answer in 2 to 4 short sentences. Return normal
+text, not JSON or Markdown. NyayVaani will localize the answer with Sarvam
+Translate when the user selected another language.`,
       },
       ...historyMessages,
       {
@@ -768,6 +769,23 @@ ${question.trim()}`,
         { timeoutInSeconds: 60, maxRetries: 1 },
       );
       answer = completionText(retry);
+    }
+
+    const targetLanguage = LANGUAGE_CODES[language];
+    if (language !== "en" && targetLanguage) {
+      const translation = await client.text.translate(
+        {
+          input: answer.slice(0, 2000),
+          source_language_code: "en-IN",
+          target_language_code: targetLanguage,
+          model: "sarvam-translate:v1",
+          mode: "formal",
+        } as any,
+        { timeoutInSeconds: 30, maxRetries: 1 },
+      );
+      if (typeof translation.translated_text === "string" && translation.translated_text.trim()) {
+        answer = translation.translated_text.trim();
+      }
     }
 
     const keyFact =
