@@ -46,8 +46,7 @@ const COURT_ANALYSIS_SCHEMA = {
     "operativeParagraphNumbers",
     "paragraphs",
     "nextSteps",
-    "plainLanguageExplanations",
-    "audioScripts",
+    "plainLanguageExplanation",
   ],
   properties: {
     title: { type: "string" },
@@ -127,36 +126,7 @@ const COURT_ANALYSIS_SCHEMA = {
         },
       },
     },
-    plainLanguageExplanations: {
-      type: "object",
-      additionalProperties: false,
-      required: ["hi", "en", "bn", "ta", "te", "mr", "gu", "pa"],
-      properties: {
-        hi: { type: "string" },
-        en: { type: "string" },
-        bn: { type: "string" },
-        ta: { type: "string" },
-        te: { type: "string" },
-        mr: { type: "string" },
-        gu: { type: "string" },
-        pa: { type: "string" },
-      },
-    },
-    audioScripts: {
-      type: "object",
-      additionalProperties: false,
-      required: ["hi", "en", "bn", "ta", "te", "mr", "gu", "pa"],
-      properties: {
-        hi: { type: "string" },
-        en: { type: "string" },
-        bn: { type: "string" },
-        ta: { type: "string" },
-        te: { type: "string" },
-        mr: { type: "string" },
-        gu: { type: "string" },
-        pa: { type: "string" },
-      },
-    },
+    plainLanguageExplanation: { type: "string", maxLength: 1600 },
   },
 };
 
@@ -174,9 +144,10 @@ Rules:
    explain why. Never guess a court direction.
 4. Every next step must come only from the operative direction and must include its
    exact quoted source. Use "Not stated" when the document gives no deadline or forum.
-5. Explanations must be plain, calm, non-legal-advice language. Produce Hindi,
-   English, Bengali, Tamil, Telugu, Marathi, Gujarati, and Punjabi versions.
-6. Audio scripts must be concise and natural for Sarvam Bulbul v3.
+5. Produce one concise English plain-language explanation of no more than 100
+   words. It must be calm and clearly state that it is not legal advice.
+6. NyayVaani will localize that explanation with Sarvam Translate and read it
+   aloud with Sarvam Bulbul v3.
 7. Confidence scores must reflect extraction ambiguity and must never be presented
    as a guarantee.
 8. Keep the response compact. Include at most 24 legally significant paragraphs
@@ -259,6 +230,85 @@ function languageMap(
   );
 }
 
+async function translateExplanation(
+  englishText: string,
+): Promise<Record<string, string>> {
+  const cleanEnglish = englishText.trim().slice(0, 2000);
+  if (!sarvam || !cleanEnglish) {
+    return languageMap({}, cleanEnglish);
+  }
+
+  const translations = await Promise.all(
+    Object.entries(LANGUAGE_CODES).map(async ([language, languageCode]) => {
+      if (language === "en") return [language, cleanEnglish] as const;
+      try {
+        const result = await sarvam.text.translate(
+          {
+            input: cleanEnglish,
+            source_language_code: "en-IN",
+            target_language_code: languageCode,
+            model: "sarvam-translate:v1",
+            mode: "formal",
+          } as any,
+          { timeoutInSeconds: 30, maxRetries: 1 },
+        );
+        const translated =
+          typeof result.translated_text === "string"
+            ? result.translated_text.trim()
+            : "";
+        return [language, translated || cleanEnglish] as const;
+      } catch (error) {
+        console.error(`Sarvam translation failed for ${language}:`, error);
+        return [language, cleanEnglish] as const;
+      }
+    }),
+  );
+
+  return Object.fromEntries(translations);
+}
+
+async function translateNextSteps(
+  steps: Array<Record<string, any>>,
+  language: string,
+): Promise<Array<Record<string, any>>> {
+  const targetLanguage = LANGUAGE_CODES[language];
+  if (!sarvam || !targetLanguage || language === "en") return steps;
+
+  return Promise.all(
+    steps.map(async (step) => {
+      const fields = [step.action, step.deadline, step.forum].map((value) =>
+        String(value || "Not stated").trim(),
+      );
+      try {
+        const result = await sarvam.text.translate(
+          {
+            input: fields.map((value, index) => `${index + 1}. ${value}`).join("\n"),
+            source_language_code: "en-IN",
+            target_language_code: targetLanguage,
+            model: "sarvam-translate:v1",
+            mode: "formal",
+          } as any,
+          { timeoutInSeconds: 30, maxRetries: 1 },
+        );
+        const translatedFields = String(result.translated_text || "")
+          .split(/\r?\n/)
+          .map((line) => line.replace(/^\s*\d+\s*[.)-]\s*/, "").trim())
+          .filter(Boolean);
+        if (translatedFields.length !== 3) return step;
+        return {
+          ...step,
+          action: translatedFields[0],
+          deadline: translatedFields[1],
+          forum: translatedFields[2],
+        };
+      } catch (error) {
+        console.error("Sarvam next-step translation failed:", error);
+        return step;
+      }
+    }),
+  );
+}
+
 function normalizeCourtAnalysis(value: unknown): any {
   const raw =
     value && typeof value === "object" ? (value as Record<string, any>) : {};
@@ -311,11 +361,15 @@ function normalizeCourtAnalysis(value: unknown): any {
   const explanationFallback = isRefusalState
     ? "NyayVaani could not identify a reliable operative court direction in this document."
     : "NyayVaani analyzed the court order. Verify all extracted directions against the original document.";
-  const explanations = languageMap(
-    raw.plainLanguageExplanations,
-    explanationFallback,
-  );
-  const audioScripts = languageMap(raw.audioScripts, explanations.en);
+  const explanation =
+    typeof raw.plainLanguageExplanation === "string" &&
+    raw.plainLanguageExplanation.trim()
+      ? raw.plainLanguageExplanation.trim()
+      : typeof raw.plainLanguageExplanations?.en === "string" &&
+          raw.plainLanguageExplanations.en.trim()
+        ? raw.plainLanguageExplanations.en.trim()
+        : explanationFallback;
+  const explanations = languageMap({}, explanation);
 
   return {
     title: String(raw.title || "Uploaded Court Document"),
@@ -342,7 +396,7 @@ function normalizeCourtAnalysis(value: unknown): any {
     paragraphs,
     nextSteps,
     plainLanguageExplanations: explanations,
-    audioScripts,
+    audioScripts: explanations,
     documentId: `sarvam-${randomUUID()}`,
     processedAt: new Date().toISOString(),
   };
@@ -536,7 +590,14 @@ ${JSON.stringify(COURT_ANALYSIS_SCHEMA)}`,
     );
   }
 
-  return normalizeCourtAnalysis(rawAnalysis);
+  const analysis = normalizeCourtAnalysis(rawAnalysis);
+  const localizedExplanation = await translateExplanation(
+    analysis.plainLanguageExplanations.en,
+  );
+  analysis.plainLanguageExplanations = localizedExplanation;
+  analysis.audioScripts = localizedExplanation;
+  analysis.nextSteps = await translateNextSteps(analysis.nextSteps, language);
+  return analysis;
 }
 
 function sarvamErrorMessage(error: any): string {
