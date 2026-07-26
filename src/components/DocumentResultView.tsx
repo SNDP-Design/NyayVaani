@@ -12,6 +12,37 @@ interface DocumentResultViewProps {
   onBackToUpload: () => void;
 }
 
+const RESULT_LABELS = {
+  en: {
+    caseMetadata: 'Case Metadata',
+    curatedDemo: 'Curated Demo Data',
+    visionProcessed: 'Sarvam Vision Processed',
+    caseNumber: 'Case Number',
+    courtForum: 'Court Forum',
+    refused: 'Refused',
+    isolatedParagraph: 'Isolated Paragraph',
+    demoQuoteNote: 'Curated sample text. This demo was not extracted from an uploaded document.',
+    visionQuoteNote: 'Extracted by Sarvam Vision. Please verify this quote against the original order.',
+    deadline: 'Deadline:',
+    forum: 'Forum:',
+    noSteps: 'No future compliance steps were identified for this order.',
+  },
+  hi: {
+    caseMetadata: 'मामले की जानकारी',
+    curatedDemo: 'चुना हुआ डेमो डेटा',
+    visionProcessed: 'सर्वम विज़न द्वारा संसाधित',
+    caseNumber: 'मामला संख्या',
+    courtForum: 'अदालत',
+    refused: 'विश्लेषण रोका गया',
+    isolatedParagraph: 'अलग किया गया मुख्य पैराग्राफ',
+    demoQuoteNote: 'यह तैयार किया गया नमूना है। इसे किसी अपलोड किए गए दस्तावेज़ से नहीं निकाला गया है।',
+    visionQuoteNote: 'सर्वम विज़न द्वारा निकाला गया। कृपया मूल आदेश से इस उद्धरण की पुष्टि करें।',
+    deadline: 'अंतिम तिथि:',
+    forum: 'अदालत/स्थान:',
+    noSteps: 'इस आदेश में आगे पालन करने के लिए कोई कदम नहीं मिला।',
+  },
+};
+
 export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
   currentCase,
   selectedLanguage,
@@ -23,6 +54,8 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
 
   const analysis = currentCase.analysis;
   const isRefusal = currentCase.isRefusalCase || analysis.isRefusalState;
+  const isCuratedDemo = !currentCase.id.startsWith('custom-');
+  const labels = selectedLanguage === 'hi' ? RESULT_LABELS.hi : RESULT_LABELS.en;
 
   // Selected explanation & audio script
   const plainExplanation = analysis.plainLanguageExplanations?.[selectedLanguage] || analysis.plainLanguageExplanations?.[selectedLanguage === 'hi' ? 'en' : 'hi'] || 'Analysis completed.';
@@ -74,19 +107,19 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                 <FileText className="h-4 w-4 text-black" />
-                Case Metadata
+                {labels.caseMetadata}
               </span>
               <span className="text-[11px] font-mono text-slate-900 bg-slate-100 px-2 py-0.5 rounded font-semibold border border-slate-300">
-                Sarvam Vision Processed
+                {isCuratedDemo ? labels.curatedDemo : labels.visionProcessed}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs pt-1">
               <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                <span className="text-[10px] text-slate-400 uppercase font-mono font-bold block">Case Number</span>
+                <span className="text-[10px] text-slate-400 uppercase font-mono font-bold block">{labels.caseNumber}</span>
                 <span className="font-bold text-slate-800 mt-0.5 block truncate">{currentCase.caseNumber}</span>
               </div>
               <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                <span className="text-[10px] text-slate-400 uppercase font-mono font-bold block">Court Forum</span>
+                <span className="text-[10px] text-slate-400 uppercase font-mono font-bold block">{labels.courtForum}</span>
                 <span className="font-bold text-slate-800 mt-0.5 block truncate">{currentCase.courtName}</span>
               </div>
             </div>
@@ -106,7 +139,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
               <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
                 isRefusal ? 'bg-slate-300 text-slate-900' : 'bg-slate-800 text-slate-100'
               }`}>
-                {isRefusal ? 'Refused' : 'Isolated Paragraph'}
+                {isRefusal ? labels.refused : labels.isolatedParagraph}
               </span>
             </div>
 
@@ -121,7 +154,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                   "{analysis.operativeDirectionVerbatim}"
                 </p>
                 <p className="text-[11px] text-slate-300">
-                  Extracted by Sarvam Vision. Please verify this quote against the original order.
+                  {isCuratedDemo ? labels.demoQuoteNote : labels.visionQuoteNote}
                 </p>
               </div>
             )}
@@ -191,11 +224,11 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                           <div className="flex flex-wrap items-center gap-4 text-xs text-slate-900 font-medium">
                             <span className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-slate-300">
                               <Calendar className="h-3.5 w-3.5 text-black" />
-                              Deadline: <strong className="text-black ml-1">{step.deadline}</strong>
+                              {labels.deadline} <strong className="text-black ml-1">{step.deadline}</strong>
                             </span>
                             <span className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-slate-300">
                               <MapPin className="h-3.5 w-3.5 text-black" />
-                              Forum: <strong className="text-black ml-1">{step.forum}</strong>
+                              {labels.forum} <strong className="text-black ml-1">{step.forum}</strong>
                             </span>
                           </div>
                         </div>
@@ -203,7 +236,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                     </div>
                   ) : (
                     <p className="text-xs text-slate-500 italic p-3 bg-slate-50 rounded-xl border border-slate-200">
-                      No future compliance steps derived for this specific order type.
+                      {labels.noSteps}
                     </p>
                   )}
                 </div>

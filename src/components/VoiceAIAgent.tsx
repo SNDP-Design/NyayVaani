@@ -114,7 +114,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
       });
       const data = await response.json();
       if (!response.ok || !data.success || !data.audioBase64) {
-        throw new Error(data.details || data.error || 'Sarvam voice is temporarily unavailable.');
+        throw new Error(data.error || 'Sarvam voice is temporarily unavailable.');
       }
 
       const audio = new Audio(`data:audio/wav;base64,${data.audioBase64}`);
@@ -152,7 +152,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
       });
       const data = await response.json();
       if (!response.ok || !data.success || !data.transcript) {
-        throw new Error(data.details || data.error || 'Sarvam could not understand the recording.');
+        throw new Error(data.error || 'Sarvam could not understand the recording.');
       }
       setInputText(data.transcript);
       await handleSendQuestion(data.transcript);
@@ -274,7 +274,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
           speakText(data.answer);
         }
       } else {
-        throw new Error(data.details || data.error || 'Sarvam could not answer this question.');
+        throw new Error(data.error || 'Sarvam could not answer this question.');
       }
     } catch (error: any) {
       console.error('Ask Question error:', error);

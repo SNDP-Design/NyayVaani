@@ -67,6 +67,7 @@ const COURT_ANALYSIS_SCHEMA = {
     },
     paragraphs: {
       type: "array",
+      maxItems: 24,
       items: {
         type: "object",
         additionalProperties: false,
@@ -104,6 +105,7 @@ const COURT_ANALYSIS_SCHEMA = {
     },
     nextSteps: {
       type: "array",
+      maxItems: 8,
       items: {
         type: "object",
         additionalProperties: false,
@@ -158,21 +160,6 @@ const COURT_ANALYSIS_SCHEMA = {
   },
 };
 
-const QUESTION_RESPONSE_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  required: ["answer", "keyFact", "suggestedFollowups"],
-  properties: {
-    answer: { type: "string" },
-    keyFact: { type: "string" },
-    suggestedFollowups: {
-      type: "array",
-      maxItems: 3,
-      items: { type: "string" },
-    },
-  },
-};
-
 const COURT_ANALYSIS_INSTRUCTION = `You are NyayVaani, a careful Indian court-order
 analysis assistant powered only by Sarvam AI. The document text was extracted by
 Sarvam Vision. Analyze only that extracted text.
@@ -191,12 +178,17 @@ Rules:
    English, Bengali, Tamil, Telugu, Marathi, Gujarati, and Punjabi versions.
 6. Audio scripts must be concise and natural for Sarvam Bulbul v3.
 7. Confidence scores must reflect extraction ambiguity and must never be presented
-   as a guarantee.`;
+   as a guarantee.
+8. Keep the response compact. Include at most 24 legally significant paragraphs
+   and at most 8 next steps. Do not reproduce the entire document.
+9. Write nextSteps action, deadline, and forum in the user's preferred language.
+   Keep quotedSource verbatim from the extracted document.`;
 
 function requireSarvam(res: express.Response): SarvamAIClient | null {
   if (!sarvam) {
     res.status(503).json({
-      error: "Sarvam AI is not configured. Add SARVAM_API_KEY to the server environment.",
+      error: "Sarvam AI is temporarily unavailable. Please contact the NyayVaani team.",
+      code: "SARVAM_NOT_CONFIGURED",
     });
     return null;
   }
@@ -209,7 +201,7 @@ function toLanguageCode(language: string): string {
 
 function parseJsonContent(content: unknown): any {
   if (typeof content !== "string" || !content.trim()) {
-    throw new Error("Sarvam returned an empty structured response.");
+    throw new Error("SARVAM_EMPTY_RESPONSE");
   }
 
   const cleaned = content
@@ -222,7 +214,138 @@ function parseJsonContent(content: unknown): any {
     firstBrace >= 0 && lastBrace >= firstBrace
       ? cleaned.slice(firstBrace, lastBrace + 1)
       : cleaned;
-  return JSON.parse(jsonText);
+  try {
+    return JSON.parse(jsonText);
+  } catch {
+    throw new Error("SARVAM_INVALID_JSON_RESPONSE");
+  }
+}
+
+function completionText(completion: any): string {
+  const message = completion?.choices?.[0]?.message;
+  const content =
+    typeof message?.content === "string" ? message.content.trim() : "";
+  if (content) return content;
+  if (typeof message?.refusal === "string" && message.refusal.trim()) {
+    throw new Error("SARVAM_REFUSED_RESPONSE");
+  }
+  throw new Error("SARVAM_EMPTY_RESPONSE");
+}
+
+function clampConfidence(value: unknown, fallback = 50): number {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return fallback;
+  const percentage = numeric > 0 && numeric <= 1 ? numeric * 100 : numeric;
+  return Math.min(100, Math.max(0, percentage));
+}
+
+function languageMap(
+  value: unknown,
+  fallback: string,
+): Record<string, string> {
+  const source =
+    value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+  const english =
+    typeof source.en === "string" && source.en.trim()
+      ? source.en.trim()
+      : fallback;
+  return Object.fromEntries(
+    Object.keys(LANGUAGE_CODES).map((language) => [
+      language,
+      typeof source[language] === "string" && source[language].trim()
+        ? source[language].trim()
+        : english,
+    ]),
+  );
+}
+
+function normalizeCourtAnalysis(value: unknown): any {
+  const raw =
+    value && typeof value === "object" ? (value as Record<string, any>) : {};
+  const operativeDirection =
+    typeof raw.operativeDirectionVerbatim === "string"
+      ? raw.operativeDirectionVerbatim.trim()
+      : "";
+  const isRefusalState = Boolean(raw.isRefusalState) || !operativeDirection;
+  const paragraphs = Array.isArray(raw.paragraphs)
+    ? raw.paragraphs.slice(0, 24).map((paragraph: any, index: number) => {
+        const allowedCategories = new Set([
+          "court_direction",
+          "petitioner_submission",
+          "respondent_submission",
+          "recital_proceedings",
+          "rejected_claim",
+          "unknown_unclear",
+        ]);
+        return {
+          id: `p-${index + 1}`,
+          paragraphNumber: Number.isFinite(Number(paragraph?.paragraphNumber))
+            ? Number(paragraph.paragraphNumber)
+            : index + 1,
+          text: String(paragraph?.text || ""),
+          category: allowedCategories.has(paragraph?.category)
+            ? paragraph.category
+            : "unknown_unclear",
+          speaker: String(paragraph?.speaker || "Not stated"),
+          confidence: clampConfidence(paragraph?.confidence),
+          notes: String(paragraph?.notes || ""),
+          rejectionDetail: String(paragraph?.rejectionDetail || ""),
+          provenance: "ai_tagged",
+        };
+      })
+    : [];
+  const nextSteps = Array.isArray(raw.nextSteps)
+    ? raw.nextSteps.slice(0, 8).map((step: any, index: number) => ({
+        id: `step-${index + 1}`,
+        action: String(step?.action || ""),
+        deadline: String(step?.deadline || "Not stated"),
+        forum: String(step?.forum || "Not stated"),
+        sourceParagraphId:
+          typeof step?.sourceParagraphId === "string" &&
+          /^p-\d+$/.test(step.sourceParagraphId)
+            ? step.sourceParagraphId
+            : "",
+        quotedSource: String(step?.quotedSource || ""),
+      }))
+    : [];
+  const explanationFallback = isRefusalState
+    ? "NyayVaani could not identify a reliable operative court direction in this document."
+    : "NyayVaani analyzed the court order. Verify all extracted directions against the original document.";
+  const explanations = languageMap(
+    raw.plainLanguageExplanations,
+    explanationFallback,
+  );
+  const audioScripts = languageMap(raw.audioScripts, explanations.en);
+
+  return {
+    title: String(raw.title || "Uploaded Court Document"),
+    caseNumber: String(raw.caseNumber || "Not stated"),
+    courtName: String(raw.courtName || "Not stated"),
+    orderDate: String(raw.orderDate || "Not stated"),
+    isPhotocopyQuality: Boolean(raw.isPhotocopyQuality),
+    hasSealsAndSkew: Boolean(raw.hasSealsAndSkew),
+    isRefusalState,
+    refusalReason: isRefusalState
+      ? String(
+          raw.refusalReason ||
+            "A reliable operative direction could not be identified. Please verify the complete court order.",
+        )
+      : String(raw.refusalReason || ""),
+    refusalConfidence: clampConfidence(raw.refusalConfidence),
+    overallConfidence: clampConfidence(raw.overallConfidence),
+    operativeDirectionVerbatim: operativeDirection,
+    operativeParagraphNumbers: Array.isArray(raw.operativeParagraphNumbers)
+      ? raw.operativeParagraphNumbers
+          .map((number: unknown) => Number(number))
+          .filter(Number.isFinite)
+      : [],
+    paragraphs,
+    nextSteps,
+    plainLanguageExplanations: explanations,
+    audioScripts,
+    documentId: `sarvam-${randomUUID()}`,
+    processedAt: new Date().toISOString(),
+  };
 }
 
 function decodeDataUrl(value: string): {
@@ -344,57 +467,106 @@ async function analyzeCourtText(
     throw new Error("Sarvam AI is not configured.");
   }
 
-  const completion = await sarvam.chat.completions({
-    model: "sarvam-105b",
-    messages: [
-      { role: "system", content: COURT_ANALYSIS_INSTRUCTION },
-      {
-        role: "user",
-        content: `Preferred user language: ${toLanguageCode(language)}
+  const messages = [
+    { role: "system", content: COURT_ANALYSIS_INSTRUCTION },
+    {
+      role: "user",
+      content: `Preferred user language: ${toLanguageCode(language)}
 
 SARVAM VISION EXTRACTED COURT DOCUMENT:
 """
 ${extractedText}
 """`,
-      },
-    ],
-    temperature: 0.1,
-    reasoning_effort: "medium",
-    max_tokens: 10000,
-    n: 1,
-    response_format: {
-      type: "json_schema",
-      json_schema: {
-        name: "court_order_analysis",
-        strict: true,
-        schema: COURT_ANALYSIS_SCHEMA,
-      },
     },
-  } as any);
+  ];
 
-  const analysis = parseJsonContent(
-    (completion as any).choices?.[0]?.message?.content,
-  );
-  analysis.documentId = `sarvam-${randomUUID()}`;
-  analysis.processedAt = new Date().toISOString();
-  analysis.paragraphs = Array.isArray(analysis.paragraphs)
-    ? analysis.paragraphs.map((paragraph: any) => ({
-        ...paragraph,
-        provenance: "ai_tagged",
-      }))
-    : [];
-  return analysis;
+  let rawAnalysis: any;
+  try {
+    const completion = await sarvam.chat.completions(
+      {
+        model: "sarvam-105b",
+        messages,
+        temperature: 0.1,
+        reasoning_effort: "low",
+        max_tokens: 4096,
+        n: 1,
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "court_order_analysis",
+            strict: true,
+            schema: COURT_ANALYSIS_SCHEMA,
+          },
+        },
+      } as any,
+      { timeoutInSeconds: 120, maxRetries: 1 },
+    );
+    rawAnalysis = parseJsonContent(
+      (completion as any).choices?.[0]?.message?.content,
+    );
+  } catch (error: any) {
+    if (
+      error?.message !== "SARVAM_EMPTY_RESPONSE" &&
+      error?.message !== "SARVAM_INVALID_JSON_RESPONSE"
+    ) {
+      throw error;
+    }
+
+    const fallbackCompletion = await sarvam.chat.completions(
+      {
+        model: "sarvam-105b",
+        messages: [
+          ...messages,
+          {
+            role: "system",
+            content: `Return one compact, valid JSON object only. Do not use a
+markdown fence or commentary. Match this JSON schema exactly:
+${JSON.stringify(COURT_ANALYSIS_SCHEMA)}`,
+          },
+        ],
+        temperature: 0,
+        reasoning_effort: "low",
+        max_tokens: 4096,
+        n: 1,
+      } as any,
+      { timeoutInSeconds: 120, maxRetries: 1 },
+    );
+    rawAnalysis = parseJsonContent(
+      (fallbackCompletion as any).choices?.[0]?.message?.content,
+    );
+  }
+
+  return normalizeCourtAnalysis(rawAnalysis);
 }
 
 function sarvamErrorMessage(error: any): string {
   const statusCode = error?.statusCode || error?.status;
-  if (statusCode === 403) {
-    return "The Sarvam API key is missing, invalid, or does not have access to this feature.";
+  const errorCode = error?.body?.error?.code;
+  if (statusCode === 403 || errorCode === "invalid_api_key_error") {
+    return "Sarvam authentication is unavailable. Please contact the NyayVaani team.";
   }
   if (statusCode === 429) {
-    return "Sarvam is receiving too many requests. Please wait briefly and try again.";
+    return "Sarvam is busy right now. Please wait briefly and try again.";
   }
-  return error?.message || "The Sarvam request could not be completed.";
+  if (
+    error?.message === "SARVAM_EMPTY_RESPONSE" ||
+    error?.message === "SARVAM_INVALID_JSON_RESPONSE" ||
+    error?.message === "SARVAM_REFUSED_RESPONSE"
+  ) {
+    return "Sarvam could not produce a complete response. Please try again.";
+  }
+  if (statusCode === 400) {
+    return "Sarvam could not process this request. Please try a shorter document or question.";
+  }
+  return "NyayVaani could not complete the Sarvam request. Please try again.";
+}
+
+function errorStatus(error: any): number {
+  const statusCode = Number(error?.statusCode || error?.status);
+  if (statusCode === 403) return 503;
+  if (statusCode === 429) return 429;
+  if (statusCode === 400) return 422;
+  return 502;
 }
 
 app.get("/api/health", (_req, res) => {
@@ -449,9 +621,9 @@ app.post("/api/analyze-document", async (req, res) => {
     return res.json({ success: true, analysis });
   } catch (error: any) {
     console.error("Sarvam document analysis error:", error);
-    return res.status(500).json({
-      error: "Sarvam could not analyze this court document.",
-      details: sarvamErrorMessage(error),
+    return res.status(errorStatus(error)).json({
+      error: sarvamErrorMessage(error),
+      code: "SARVAM_ANALYSIS_FAILED",
     });
   }
 });
@@ -478,55 +650,78 @@ app.post("/api/ask-question", async (req, res) => {
         }))
       : [];
 
-    const completion = await client.chat.completions({
-      model: "sarvam-30b",
-      messages: [
-        {
-          role: "system",
-          content: `You are NyayVaani, a careful Sarvam-powered assistant for Indian
+    const messages = [
+      {
+        role: "system",
+        content: `You are NyayVaani, a careful Sarvam-powered assistant for Indian
 court litigants. Answer only from the supplied document analysis. Clearly separate
 what the court ordered from what either party claimed. If the answer is absent,
 say that the document does not state it. Do not give legal advice. Reply in
-${toLanguageCode(language)} using simple spoken language.`,
-        },
-        ...historyMessages,
-        {
-          role: "user",
-          content: `DOCUMENT ANALYSIS:
+${toLanguageCode(language)} using simple spoken language. Give a direct answer in
+2 to 4 short sentences. Return normal text, not JSON or Markdown.`,
+      },
+      ...historyMessages,
+      {
+        role: "user",
+        content: `DOCUMENT ANALYSIS:
 ${JSON.stringify(documentAnalysis)}
 
 QUESTION:
 ${question.trim()}`,
-        },
-      ],
-      temperature: 0.15,
-      reasoning_effort: "low",
-      max_tokens: 900,
-      n: 1,
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "document_question_answer",
-          strict: true,
-          schema: QUESTION_RESPONSE_SCHEMA,
-        },
       },
-    } as any);
+    ];
 
-    const result = parseJsonContent(
-      (completion as any).choices?.[0]?.message?.content,
-    );
+    let answer = "";
+    try {
+      const completion = await client.chat.completions(
+        {
+          model: "sarvam-30b",
+          messages,
+          temperature: 0.15,
+          reasoning_effort: "low",
+          max_tokens: 1500,
+          n: 1,
+        } as any,
+        { timeoutInSeconds: 60, maxRetries: 1 },
+      );
+      answer = completionText(completion);
+    } catch (error: any) {
+      if (error?.message !== "SARVAM_EMPTY_RESPONSE") throw error;
+      const retry = await client.chat.completions(
+        {
+          model: "sarvam-30b",
+          messages: [
+            messages[0],
+            messages[messages.length - 1],
+            {
+              role: "user",
+              content:
+                "Answer the question now in plain text using only the supplied document.",
+            },
+          ],
+          temperature: 0,
+          reasoning_effort: "low",
+          max_tokens: 1500,
+          n: 1,
+        } as any,
+        { timeoutInSeconds: 60, maxRetries: 1 },
+      );
+      answer = completionText(retry);
+    }
+
+    const keyFact =
+      answer.split(/(?<=[.!?।])\s+/)[0]?.slice(0, 240) || "";
     return res.json({
       success: true,
-      answer: result.answer,
-      keyFact: result.keyFact,
-      suggestedFollowups: result.suggestedFollowups || [],
+      answer,
+      keyFact,
+      suggestedFollowups: [],
     });
   } catch (error: any) {
     console.error("Sarvam question-answering error:", error);
-    return res.status(500).json({
-      error: "Sarvam could not answer this question.",
-      details: sarvamErrorMessage(error),
+    return res.status(errorStatus(error)).json({
+      error: sarvamErrorMessage(error),
+      code: "SARVAM_QUESTION_FAILED",
     });
   }
 });
@@ -570,9 +765,9 @@ app.post("/api/generate-tts", async (req, res) => {
     });
   } catch (error: any) {
     console.error("Sarvam text-to-speech error:", error);
-    return res.status(500).json({
-      error: "Sarvam could not generate speech.",
-      details: sarvamErrorMessage(error),
+    return res.status(errorStatus(error)).json({
+      error: sarvamErrorMessage(error),
+      code: "SARVAM_TTS_FAILED",
     });
   }
 });
@@ -611,9 +806,9 @@ app.post("/api/transcribe-speech", async (req, res) => {
     });
   } catch (error: any) {
     console.error("Sarvam speech-to-text error:", error);
-    return res.status(500).json({
-      error: "Sarvam could not transcribe the recording.",
-      details: sarvamErrorMessage(error),
+    return res.status(errorStatus(error)).json({
+      error: sarvamErrorMessage(error),
+      code: "SARVAM_STT_FAILED",
     });
   }
 });

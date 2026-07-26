@@ -5,12 +5,14 @@ import { DocumentResultView } from './components/DocumentResultView';
 import { BENCHMARK_CASES } from './data/benchmarkCases';
 import { BenchmarkCase, SupportedLanguage } from './types';
 import { Scale } from 'lucide-react';
+import { getTranslation } from './utils/translations';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<'upload' | 'result'>('upload');
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>('en');
   const [currentCase, setCurrentCase] = useState<BenchmarkCase>(BENCHMARK_CASES[0]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const t = getTranslation(selectedLanguage);
 
   // Handle "Read the Document" click
   const handleReadDocument = async (payload: { imageBase64?: string; imagesBase64?: string[]; textContent?: string; sampleCase?: BenchmarkCase }) => {
@@ -64,8 +66,8 @@ export default function App() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         alert(
-          'Sarvam could not analyze this court document: ' +
-          (data.details || data.error || 'Please try again.'),
+          data.error ||
+          'Sarvam could not analyze this court document. Please try again.',
         );
       }
     } catch (err: any) {
@@ -119,7 +121,7 @@ export default function App() {
           </div>
 
           <p className="text-[11px] text-slate-500">
-            Litigant Assistance & Literacy Tool • Not legal representation
+            {t.footerLitigantNote}
           </p>
         </div>
       </footer>

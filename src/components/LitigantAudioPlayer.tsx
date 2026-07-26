@@ -12,6 +12,17 @@ interface LitigantAudioPlayerProps {
   onGenerateAudio?: () => Promise<string | null>;
 }
 
+const AUDIO_GENERATING_LABELS: Record<SupportedLanguage, string> = {
+  en: 'Generating speech with Sarvam Bulbul v3...',
+  hi: 'सर्वम बुलबुल से आवाज़ बनाई जा रही है...',
+  bn: 'সর্বম বুলবুল দিয়ে কণ্ঠ তৈরি হচ্ছে...',
+  ta: 'சர்வம் புல்புல் மூலம் குரல் உருவாக்கப்படுகிறது...',
+  te: 'సర్వం బుల్బుల్‌తో వాయిస్ తయారవుతోంది...',
+  mr: 'सर्वम बुलबुलद्वारे आवाज तयार होत आहे...',
+  gu: 'સર્વમ બુલબુલથી અવાજ તૈયાર થઈ રહ્યો છે...',
+  pa: 'ਸਰਵਮ ਬੁਲਬੁਲ ਨਾਲ ਆਵਾਜ਼ ਤਿਆਰ ਹੋ ਰਹੀ ਹੈ...',
+};
+
 export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
   textToRead,
   audioScript,
@@ -54,7 +65,7 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
     });
     const data = await response.json();
     if (!response.ok || !data.success || !data.audioBase64) {
-      throw new Error(data.details || data.error || 'Sarvam voice is temporarily unavailable.');
+      throw new Error(data.error || 'Sarvam voice is temporarily unavailable.');
     }
     return data.audioBase64;
   };
@@ -159,7 +170,7 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
             {isGenerating ? (
               <>
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                <span>{t.analyzingTitle}</span>
+                <span>{AUDIO_GENERATING_LABELS[activeLang]}</span>
               </>
             ) : isPlaying ? (
               <>
