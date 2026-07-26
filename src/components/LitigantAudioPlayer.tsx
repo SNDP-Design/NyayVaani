@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Play, Pause, RotateCcw, Sparkles, RefreshCw, Radio } from 'lucide-react';
+import { Play, Pause, RefreshCw, Radio, AlertCircle } from 'lucide-react';
 import { SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 
@@ -27,14 +27,37 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [audioError, setAudioError] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const synthRef = useRef<SpeechSynthesis | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      synthRef.current = window.speechSynthesis;
-    }
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
   }, []);
+
+  const generateSarvamAudio = async (): Promise<string | null> => {
+    if (onGenerateAudio) {
+      return onGenerateAudio();
+    }
+
+    const response = await fetch('/api/generate-tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text,
+        language: activeLang,
+        speaker: 'shubh',
+        pace: playbackSpeed,
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success || !data.audioBase64) {
+      throw new Error(data.details || data.error || 'Sarvam voice is temporarily unavailable.');
+    }
+    return data.audioBase64;
+  };
 
   // Handle Play/Pause
   const togglePlay = async () => {
@@ -42,58 +65,34 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
       if (audioRef.current) {
         audioRef.current.pause();
       }
-      if (synthRef.current) {
-        synthRef.current.cancel();
-      }
       setIsPlaying(false);
       return;
     }
 
-    // Attempt Gemini TTS or Web Speech API Fallback
-    if (onGenerateAudio) {
-      setIsGenerating(true);
-      try {
-        const audioBase64 = await onGenerateAudio();
-        if (audioBase64) {
-          // Play raw audio base64 or blob
-          const sound = new Audio(`data:audio/wav;base64,${audioBase64}`);
-          sound.playbackRate = playbackSpeed;
-          sound.onended = () => setIsPlaying(false);
-          sound.play();
-          audioRef.current = sound;
-          setIsPlaying(true);
-          setIsGenerating(false);
-          return;
-        }
-      } catch (err) {
-        console.warn("TTS generation error, falling back to Web Speech API:", err);
+    setAudioError('');
+    setIsGenerating(true);
+    try {
+      const audioBase64 = await generateSarvamAudio();
+      if (!audioBase64) {
+        throw new Error('Sarvam Bulbul returned no audio.');
       }
-      setIsGenerating(false);
-    }
 
-    // Fallback: Web Speech API
-    if (synthRef.current) {
-      synthRef.current.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = playbackSpeed;
-      
-      const langCodes: Record<SupportedLanguage, string> = {
-        hi: 'hi-IN',
-        en: 'en-IN',
-        bn: 'bn-IN',
-        ta: 'ta-IN',
-        te: 'te-IN',
-        mr: 'mr-IN',
-        gu: 'gu-IN',
-        pa: 'pa-IN'
+      const sound = new Audio(`data:audio/wav;base64,${audioBase64}`);
+      sound.playbackRate = playbackSpeed;
+      sound.onended = () => setIsPlaying(false);
+      sound.onerror = () => {
+        setIsPlaying(false);
+        setAudioError('The Sarvam audio could not be played on this device.');
       };
-
-      utterance.lang = langCodes[activeLang] || 'hi-IN';
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = () => setIsPlaying(false);
-
-      synthRef.current.speak(utterance);
+      await sound.play();
+      audioRef.current = sound;
       setIsPlaying(true);
+    } catch (err: any) {
+      console.warn('Sarvam TTS generation error:', err);
+      setAudioError(err?.message || 'Sarvam voice is temporarily unavailable.');
+      setIsPlaying(false);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -119,7 +118,7 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
                 {t.listenTitle}
               </h4>
               <span className="text-[10px] bg-slate-200 text-slate-900 px-2 py-0.5 rounded font-semibold">
-                Sarvam / Bulbul TTS
+                Sarvam Bulbul v3
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -191,6 +190,13 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
               }}
             ></span>
           ))}
+        </div>
+      )}
+
+      {audioError && (
+        <div className="mt-3 pt-3 border-t border-slate-200 flex items-start gap-2 text-xs text-red-700">
+          <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+          <span>{audioError}</span>
         </div>
       )}
     </div>

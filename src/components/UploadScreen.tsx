@@ -70,6 +70,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
   const [pastedText, setPastedText] = useState<string>('');
   const [selectedSample, setSelectedSample] = useState<BenchmarkCase | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [uploadError, setUploadError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const t = getTranslation(selectedLanguage);
@@ -78,6 +79,23 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     const fileArray = Array.from(files);
     if (fileArray.length === 0) return;
 
+    const existingPdfCount = uploadedFiles.filter((file) => file.isPdf).length;
+    const incomingPdfCount = fileArray.filter(
+      (file) => file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'),
+    ).length;
+    const totalCount = uploadedFiles.length + fileArray.length;
+    const totalPdfCount = existingPdfCount + incomingPdfCount;
+
+    if (totalCount > 10) {
+      setUploadError('Sarvam Vision accepts one PDF up to 10 pages, or up to 10 page images.');
+      return;
+    }
+    if (totalPdfCount > 1 || (totalPdfCount === 1 && totalCount > 1)) {
+      setUploadError('Please upload one PDF by itself, or upload multiple JPG/PNG page images together.');
+      return;
+    }
+
+    setUploadError('');
     setSelectedSample(null);
     setIsCompressing(true);
 
@@ -146,10 +164,12 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
 
   const handleRemoveFile = (id: string) => {
     setUploadedFiles((prev) => prev.filter((f) => f.id !== id));
+    setUploadError('');
   };
 
   const handleClearAllFiles = () => {
     setUploadedFiles([]);
+    setUploadError('');
   };
 
   // Handle Click on "Read the Document"
@@ -208,6 +228,13 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
           className="hidden"
         />
 
+        {uploadError && (
+          <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-800">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <span>{uploadError}</span>
+          </div>
+        )}
+
         {/* Drag & Drop Upload Zone */}
         <div
           onDragEnter={handleDrag}
@@ -253,7 +280,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                     className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold rounded-xl text-xs flex items-center gap-1.5 cursor-pointer border border-slate-300 transition-colors"
                   >
                     <Plus className="h-3.5 w-3.5 text-black" />
-                    <span>Add More Images/PDFs</span>
+                    <span>Add More Images</span>
                   </button>
 
                   {/* Add Photo / Snap Camera */}
@@ -327,7 +354,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
               </div>
 
               <p className="text-xs text-slate-500 text-center font-medium">
-                Tip: You can select or photograph multiple court order pages together. Sarvam Doc AI will analyze all pages sequentially!
+                Tip: You can select or photograph up to 10 court-order pages together. Sarvam Vision keeps them in page order.
               </p>
             </div>
           ) : selectedSample ? (
@@ -387,7 +414,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                 </div>
 
                 <p className="text-xs text-slate-500 font-medium">
-                  Upload single or multi-page court orders in PDF or Image format at once
+                  Upload one PDF (up to 10 pages) or up to 10 JPG/PNG court-order images
                 </p>
               </div>
             </>
@@ -408,6 +435,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
               <button
                 key={caseItem.id}
                 onClick={() => {
+                  setUploadError('');
                   setSelectedSample(caseItem);
                   setUploadedFiles([]);
                 }}

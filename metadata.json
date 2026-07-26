@@ -1,6 +1,6 @@
 {
   "name": "NyayVaani - Court Order Voice AI & Document Intelligence",
-  "description": "Sarvam Doc AI & Voice AI system for Indian court orders. Isolates operative court directions, attributes claims, provides plain-language explanations with Sarvam Samvaad voice AI, and refuses ambiguous orders.",
+  "description": "Sarvam-only document and voice intelligence for Indian court orders, powered by Sarvam Vision, Sarvam-105B, Saaras v3, and Bulbul v3.",
   "requestFramePermissions": ["camera"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": ["SARVAM_VISION", "SARVAM_CHAT", "SAARAS_SPEECH_TO_TEXT", "BULBUL_TEXT_TO_SPEECH"]
 }

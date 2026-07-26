@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2, VolumeX, Send, Sparkles, Bot, X, RefreshCw, MessageSquare, AlertCircle } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, Send, Sparkles, Bot, X, RefreshCw } from 'lucide-react';
 import { AnalysisResult } from '../types';
 import { getTranslation } from '../utils/translations';
 
@@ -28,12 +28,16 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [speechSupported, setSpeechSupported] = useState(true);
   const [autoSpeak, setAutoSpeak] = useState(true);
 
-  const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimeoutRef = useRef<number | null>(null);
+  const spokenAudioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const t = getTranslation(selectedLanguage);
 
@@ -71,78 +75,157 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  // Setup Web Speech API for Mic Speech-To-Text
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const rec = new SpeechRecognition();
-      rec.continuous = false;
-      rec.interimResults = false;
-      rec.lang = selectedLanguage === 'hi' ? 'hi-IN' : 'en-US';
-
-      rec.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setInputText(transcript);
-        setIsListening(false);
-        handleSendQuestion(transcript);
-      };
-
-      rec.onerror = (event: any) => {
-        console.warn('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
-
-      rec.onend = () => {
-        setIsListening(false);
-      };
-
-      recognitionRef.current = rec;
-    } else {
-      setSpeechSupported(false);
-    }
-  }, [selectedLanguage]);
-
-  // Toggle Voice Recording
-  const toggleListening = () => {
-    if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in this browser. You can type your question instead.');
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      try {
-        setIsListening(true);
-        recognitionRef.current.start();
-      } catch (err) {
-        console.error('Mic start error:', err);
-        setIsListening(false);
+    return () => {
+      if (recordingTimeoutRef.current) {
+        window.clearTimeout(recordingTimeoutRef.current);
       }
-    }
+      if (mediaRecorderRef.current?.state === 'recording') {
+        mediaRecorderRef.current.onstop = null;
+        mediaRecorderRef.current.stop();
+      }
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      spokenAudioRef.current?.pause();
+    };
+  }, []);
+
+  const blobToDataUrl = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ''));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
   };
 
-  // Speak Text Function
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel(); // stop previous speech
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = selectedLanguage === 'hi' ? 'hi-IN' : 'en-US';
-      utterance.rate = 0.95; // Slightly calmer pace for litigants
+  const speakText = async (text: string) => {
+    stopSpeaking();
+    setIsSpeaking(true);
+    try {
+      const response = await fetch('/api/generate-tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          language: selectedLanguage,
+          speaker: 'shubh',
+          pace: 0.95,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success || !data.audioBase64) {
+        throw new Error(data.details || data.error || 'Sarvam voice is temporarily unavailable.');
+      }
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-
-      window.speechSynthesis.speak(utterance);
+      const audio = new Audio(`data:audio/wav;base64,${data.audioBase64}`);
+      spokenAudioRef.current = audio;
+      audio.onended = () => setIsSpeaking(false);
+      audio.onerror = () => setIsSpeaking(false);
+      await audio.play();
+    } catch (error) {
+      console.error('Sarvam Bulbul playback error:', error);
+      setIsSpeaking(false);
     }
   };
 
   const stopSpeaking = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+    if (spokenAudioRef.current) {
+      spokenAudioRef.current.pause();
+      spokenAudioRef.current.currentTime = 0;
+      spokenAudioRef.current = null;
+    }
+    setIsSpeaking(false);
+  };
+
+  const transcribeRecording = async (audioBlob: Blob) => {
+    setIsTranscribing(true);
+    try {
+      const audioBase64 = await blobToDataUrl(audioBlob);
+      const response = await fetch('/api/transcribe-speech', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          audioBase64,
+          mimeType: audioBlob.type || 'audio/webm',
+          language: selectedLanguage,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success || !data.transcript) {
+        throw new Error(data.details || data.error || 'Sarvam could not understand the recording.');
+      }
+      setInputText(data.transcript);
+      await handleSendQuestion(data.transcript);
+    } catch (error: any) {
+      console.error('Sarvam Saaras transcription error:', error);
+      alert(error?.message || 'Sarvam could not understand the recording. Please try again or type your question.');
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const stopRecording = () => {
+    if (recordingTimeoutRef.current) {
+      window.clearTimeout(recordingTimeoutRef.current);
+      recordingTimeoutRef.current = null;
+    }
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+  };
+
+  const toggleListening = async () => {
+    if (isListening) {
+      stopRecording();
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+      alert('Audio recording is not supported in this browser. You can type your question instead.');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+      audioChunksRef.current = [];
+
+      const preferredMimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']
+        .find((type) => MediaRecorder.isTypeSupported(type));
+      const recorder = new MediaRecorder(
+        stream,
+        preferredMimeType ? { mimeType: preferredMimeType } : undefined,
+      );
+      mediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      recorder.onstop = () => {
+        setIsListening(false);
+        mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+        mediaStreamRef.current = null;
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: recorder.mimeType || 'audio/webm',
+        });
+        if (audioBlob.size > 0) {
+          void transcribeRecording(audioBlob);
+        }
+      };
+      recorder.onerror = () => {
+        setIsListening(false);
+        mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      };
+
+      recorder.start();
+      setIsListening(true);
+      recordingTimeoutRef.current = window.setTimeout(stopRecording, 28000);
+    } catch (error) {
+      console.error('Microphone recording error:', error);
+      setIsListening(false);
+      alert('Microphone access is needed to ask Sarvam by voice. You can type your question instead.');
     }
   };
 
@@ -169,6 +252,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
         body: JSON.stringify({
           documentAnalysis: analysis,
           question: textToSend,
+          history: messages.slice(-6),
           language: selectedLanguage,
         }),
       });
@@ -190,25 +274,41 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
           speakText(data.answer);
         }
       } else {
-        throw new Error(data.error || 'Failed to get answer');
+        throw new Error(data.details || data.error || 'Sarvam could not answer this question.');
       }
     } catch (error: any) {
       console.error('Ask Question error:', error);
-      const fallbackMsg: Message = {
+      const errorMsg: Message = {
         id: `err-${Date.now()}`,
         sender: 'agent',
-        text: `Based on your document "${analysis.title || 'Court Order'}": ${
-          analysis.plainLanguageExplanations?.[selectedLanguage] ||
-          analysis.operativeDirectionVerbatim ||
-          'The court order has been analyzed. Please check the summary on screen.'
-        }`,
+        text: error?.message || 'Sarvam could not answer that question right now. Please try again.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
-      setMessages((prev) => [...prev, fallbackMsg]);
+      setMessages((prev) => [...prev, errorMsg]);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!isOpen) {
+      if (recordingTimeoutRef.current) {
+        window.clearTimeout(recordingTimeoutRef.current);
+        recordingTimeoutRef.current = null;
+      }
+      if (mediaRecorderRef.current?.state === 'recording') {
+        mediaRecorderRef.current.onstop = null;
+        mediaRecorderRef.current.stop();
+      }
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+      spokenAudioRef.current?.pause();
+      spokenAudioRef.current = null;
+      setIsListening(false);
+      setIsSpeaking(false);
+      setIsTranscribing(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -262,7 +362,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
           <div className="bg-slate-100 border-b border-slate-300 px-4 py-2 flex items-center justify-between text-xs text-slate-900 font-medium">
             <div className="flex items-center gap-2">
               <Volume2 className="h-4 w-4 text-black animate-pulse" />
-              <span>NyayVaani is speaking aloud...</span>
+                <span>Sarvam Bulbul is speaking aloud...</span>
               <div className="flex gap-1 items-end h-3 ml-2">
                 <span className="w-1 bg-black h-2 animate-bounce"></span>
                 <span className="w-1 bg-black h-3 animate-bounce [animation-delay:0.2s]"></span>
@@ -357,14 +457,23 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
             <button
               type="button"
               onClick={toggleListening}
-              title={isListening ? 'Listening... click to stop' : 'Click to speak your question'}
+              disabled={isTranscribing}
+              title={isListening ? 'Recording... click to stop' : 'Record a question for Sarvam Saaras'}
               className={`p-3 rounded-xl transition-all cursor-pointer ${
                 isListening
                   ? 'bg-slate-900 text-white animate-pulse shadow-lg ring-2 ring-slate-400'
+                  : isTranscribing
+                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   : 'bg-slate-200 text-slate-900 hover:bg-slate-300'
               }`}
             >
-              {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+              {isTranscribing ? (
+                <RefreshCw className="h-5 w-5 animate-spin" />
+              ) : isListening ? (
+                <MicOff className="h-5 w-5" />
+              ) : (
+                <Mic className="h-5 w-5" />
+              )}
             </button>
 
             {/* Question Text Input */}
@@ -372,7 +481,13 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder={isListening ? t.voiceListening : t.typeQuestionPlaceholder}
+              placeholder={
+                isTranscribing
+                  ? 'Sarvam Saaras is transcribing...'
+                  : isListening
+                  ? t.voiceListening
+                  : t.typeQuestionPlaceholder
+              }
               className="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-black focus:bg-white"
             />
 
@@ -392,7 +507,12 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
 
           {isListening && (
             <p className="text-[11px] text-slate-900 font-bold mt-1.5 text-center flex items-center justify-center gap-1 animate-pulse">
-              <Mic className="h-3.5 w-3.5" /> Speak now into your microphone...
+              <Mic className="h-3.5 w-3.5" /> Recording for Sarvam Saaras — click the microphone when finished
+            </p>
+          )}
+          {isTranscribing && (
+            <p className="text-[11px] text-slate-700 font-bold mt-1.5 text-center">
+              Sarvam Saaras v3 is turning your voice into text...
             </p>
           )}
         </div>

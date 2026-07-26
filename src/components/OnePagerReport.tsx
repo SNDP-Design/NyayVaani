@@ -28,7 +28,7 @@ export const OnePagerReport: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
           <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
             <span className="text-[10px] text-indigo-600 font-mono font-bold">STEP 1</span>
-            <h4 className="font-bold text-slate-900">Sarvam Doc AI Capture</h4>
+            <h4 className="font-bold text-slate-900">Sarvam Vision Capture</h4>
             <p className="text-slate-600 text-[11px]">Camera capture of photocopied order with auto-deskew, seal detection, and binarization cleaner.</p>
           </div>
 

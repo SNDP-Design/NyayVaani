@@ -77,7 +77,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                 Case Metadata
               </span>
               <span className="text-[11px] font-mono text-slate-900 bg-slate-100 px-2 py-0.5 rounded font-semibold border border-slate-300">
-                Sarvam Doc AI Processed
+                Sarvam Vision Processed
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs pt-1">
@@ -121,7 +121,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                   "{analysis.operativeDirectionVerbatim}"
                 </p>
                 <p className="text-[11px] text-slate-300">
-                  ⚡ Guaranteed exact quote from the judge's order paragraph.
+                  Extracted by Sarvam Vision. Please verify this quote against the original order.
                 </p>
               </div>
             )}

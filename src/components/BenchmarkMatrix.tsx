@@ -59,7 +59,7 @@ export const BenchmarkMatrix: React.FC<BenchmarkMatrixProps> = ({ onSelectCase }
 
           <div className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 shrink-0">
             <Scale className="h-4 w-4 text-indigo-600" />
-            <span className="text-xs font-semibold text-slate-700">Sarvam Doc AI + Gemini 3.6 Flash Engine</span>
+            <span className="text-xs font-semibold text-slate-700">Sarvam Vision + Sarvam-105B Engine</span>
           </div>
         </div>
 

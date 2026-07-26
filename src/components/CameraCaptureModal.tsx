@@ -110,7 +110,7 @@ export const CameraCaptureModal: React.FC<CameraCaptureModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900">Capture or Upload Court Order</h2>
-              <p className="text-xs text-slate-500">Photocopied, skewed, or sealed document input with Sarvam pre-processing</p>
+              <p className="text-xs text-slate-500">Photocopied, skewed, or sealed document input with Sarvam Vision</p>
             </div>
           </div>
           <button
@@ -225,7 +225,7 @@ Para 5: Application 6C for mandatory demolition is REJECTED. Defendant Ashok Ver
                         Align Court Order within frame
                       </div>
                       <div className="text-[10px] text-slate-300 text-center bg-slate-900/80 px-2 py-1 rounded">
-                        Sarvam Doc AI auto-detects seals & orientation
+                        Sarvam Vision extracts text, structure, and reading order
                       </div>
                     </div>
                   </>
@@ -273,7 +273,7 @@ Para 5: Application 6C for mandatory demolition is REJECTED. Defendant Ashok Ver
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                 <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                   <Sliders className="h-3.5 w-3.5 text-indigo-600" />
-                  Sarvam Doc AI Pre-Processing Pipeline
+                  Sarvam Vision Capture Preparation
                 </span>
                 <span className="text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded font-semibold border border-emerald-200">
                   Active
@@ -343,7 +343,7 @@ Para 5: Application 6C for mandatory demolition is REJECTED. Defendant Ashok Ver
             {isLoading ? (
               <>
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                <span>Running Sarvam Doc AI & Gemini 3.6...</span>
+                <span>Running Sarvam Vision & Sarvam-105B...</span>
               </>
             ) : (
               <>

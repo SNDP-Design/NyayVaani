@@ -47,7 +47,7 @@ export default function App() {
           courtName: data.analysis.courtName || 'District Court / High Court',
           photocopyStyle: 'distorted_photocopy_stamp',
           isRefusalCase: !!data.analysis.isRefusalState,
-          demoHighlight: 'Analyzed custom uploaded court order via Sarvam Doc AI & Gemini',
+          demoHighlight: 'Digitized by Sarvam Vision and analyzed by Sarvam-105B',
           documentText: payload.textContent || 'Scanned Court Order Document',
           analysis: data.analysis,
           humanGroundTruth: {
@@ -63,11 +63,14 @@ export default function App() {
         setCurrentStep('result');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        alert('Failed to analyze court document: ' + (data.error || 'Unknown error'));
+        alert(
+          'Sarvam could not analyze this court document: ' +
+          (data.details || data.error || 'Please try again.'),
+        );
       }
     } catch (err: any) {
       console.error('Analysis call error:', err);
-      alert('Error connecting to server. Please check server logs.');
+      alert('NyayVaani could not reach Sarvam AI. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +115,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2 font-semibold text-slate-700">
             <Scale className="h-4 w-4 text-indigo-600" />
-            <span>NyayVaani Voice & Document Intelligence • Sarvam Doc AI</span>
+            <span>NyayVaani Voice & Document Intelligence • Sarvam AI</span>
           </div>
 
           <p className="text-[11px] text-slate-500">

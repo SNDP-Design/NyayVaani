@@ -71,7 +71,7 @@ export const OperativeAnalysis: React.FC<OperativeAnalysisProps> = ({
           <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <span>Source: Paragraph {analysis.operativeParagraphNumbers?.join(', ')} of Court Order</span>
             <span className="text-green-400 flex items-center gap-1 font-semibold">
-              <ShieldCheck className="h-3.5 w-3.5" /> 100% Verbatim Quote
+              <ShieldCheck className="h-3.5 w-3.5" /> Verify Against Original
             </span>
           </div>
         </div>
