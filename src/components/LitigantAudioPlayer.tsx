@@ -1,22 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX, Play, Pause, RotateCcw, Sparkles, RefreshCw, Radio } from 'lucide-react';
 import { SupportedLanguage } from '../types';
+import { getTranslation } from '../utils/translations';
 
 interface LitigantAudioPlayerProps {
-  textToRead: string;
-  language: SupportedLanguage;
+  textToRead?: string;
+  audioScript?: string;
+  language?: SupportedLanguage;
+  selectedLanguage?: SupportedLanguage;
+  title?: string;
   onGenerateAudio?: () => Promise<string | null>;
 }
 
 export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
   textToRead,
+  audioScript,
   language,
+  selectedLanguage,
+  title,
   onGenerateAudio
 }) => {
+  const activeLang = selectedLanguage || language || 'hi';
+  const text = audioScript || textToRead || '';
+  const t = getTranslation(activeLang);
+
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
 
@@ -64,7 +74,7 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
     // Fallback: Web Speech API
     if (synthRef.current) {
       synthRef.current.cancel();
-      const utterance = new SpeechSynthesisUtterance(textToRead);
+      const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = playbackSpeed;
       
       const langCodes: Record<SupportedLanguage, string> = {
@@ -74,10 +84,11 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
         ta: 'ta-IN',
         te: 'te-IN',
         mr: 'mr-IN',
-        gu: 'gu-IN'
+        gu: 'gu-IN',
+        pa: 'pa-IN'
       };
 
-      utterance.lang = langCodes[language] || 'hi-IN';
+      utterance.lang = langCodes[activeLang] || 'hi-IN';
       utterance.onend = () => setIsPlaying(false);
       utterance.onerror = () => setIsPlaying(false);
 
@@ -105,14 +116,14 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h4 className="text-xs font-bold text-indigo-950 uppercase tracking-wider">
-                Voice Read Aloud Engine
+                {t.listenTitle}
               </h4>
               <span className="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-semibold">
-                Bulbul / Mayura TTS
+                Sarvam / Bulbul TTS
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Listen to the order in your native spoken tongue
+              {t.listenSub}
             </p>
           </div>
         </div>
@@ -149,17 +160,17 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
             {isGenerating ? (
               <>
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                <span>Synthesizing Voice...</span>
+                <span>{t.analyzingTitle}</span>
               </>
             ) : isPlaying ? (
               <>
                 <Pause className="h-4 w-4" />
-                <span>Pause Audio</span>
+                <span>Pause</span>
               </>
             ) : (
               <>
                 <Play className="h-4 w-4" />
-                <span>Listen Aloud</span>
+                <span>{t.playAudioButton}</span>
               </>
             )}
           </button>

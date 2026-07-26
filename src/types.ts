@@ -52,6 +52,7 @@ export interface AnalysisResult {
     te: string; // Telugu
     mr: string; // Marathi
     gu: string; // Gujarati
+    pa?: string; // Punjabi
   };
   audioScripts: {
     hi: string;
@@ -61,6 +62,7 @@ export interface AnalysisResult {
     te: string;
     mr: string;
     gu: string;
+    pa?: string;
   };
   overallConfidence: number;
   processedAt: string;
@@ -87,7 +89,7 @@ export interface BenchmarkCase {
   };
 }
 
-export type SupportedLanguage = 'hi' | 'en' | 'bn' | 'ta' | 'te' | 'mr' | 'gu';
+export type SupportedLanguage = 'hi' | 'en' | 'bn' | 'ta' | 'te' | 'mr' | 'gu' | 'pa';
 
 export interface LanguageOption {
   code: SupportedLanguage;

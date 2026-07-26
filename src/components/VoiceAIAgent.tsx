@@ -45,10 +45,15 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
     t.suggestedQ4,
   ];
 
-  // Initialize introductory greeting
+  // Initialize or update introductory greeting when language or case changes
   useEffect(() => {
-    if (analysis && messages.length === 0) {
-      const initialGreeting = `Namaste! I am NyayVaani Voice AI. I have read your document for "${analysis.title || 'Court Order'}". You can ask me anything about this order, such as "What did the judge decide?", "What is my deadline?", or "Did the court reject my claim?".`;
+    if (analysis) {
+      const initialGreeting = selectedLanguage === 'hi'
+        ? `नमस्ते! मैं न्यायवाणी वॉयस एआई हूं। मैंने आपका अदालती आदेश पढ़ लिया है। आप मुझसे इस आदेश के बारे में कुछ भी पूछ सकते हैं, जैसे "जज साहब ने क्या फैसला सुनाया?", "मेरी अगली तारीख कब है?", या "क्या कोर्ट ने मेरी मांग खारिज की?"।`
+        : selectedLanguage === 'pa'
+        ? `ਸਤਿ ਸ਼੍ਰੀ ਅਕਾਲ! ਮੈਂ ਨਿਆਇਵਾਣੀ ਵੋਇਸ AI ਹਾਂ। ਮੈਂ ਤੁਹਾਡਾ ਅਦਾਲਤੀ ਹੁਕਮ ਪੜ੍ਹ ਲਿਆ ਹੈ। ਤੁਸੀਂ ਮੈਨੂੰ ਇਸ ਹੁਕਮ ਬਾਰੇ ਕੁਝ ਵੀ ਪੁੱਛ ਸਕਦੇ ਹੋ, ਜਿਵੇਂ "ਜੱਜ ਸਾਹਿਬ ਨੇ ਕੀ ਫੈਸਲਾ ਸੁਣਾਇਆ?", "ਮੇਰੀ ਅਗਲੀ ਤਾਰੀਖ ਕਦੋਂ ਹੈ?", ਜਾਂ "ਕੀ ਕੋਰਟ ਨੇ ਮੇਰੀ ਮੰਗ ਖਾਰਜ ਕੀਤੀ?"।`
+        : `Hello! I am NyayVaani Voice AI. I have analyzed your court document for "${analysis.title || 'Court Order'}". Feel free to ask me any question in your language!`;
+
       setMessages([
         {
           id: 'msg-init',
@@ -59,7 +64,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
         },
       ]);
     }
-  }, [analysis]);
+  }, [analysis, selectedLanguage]);
 
   // Scroll to bottom of chat
   useEffect(() => {
@@ -367,7 +372,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder={isListening ? 'Listening to your voice...' : 'Ask a question about this document...'}
+              placeholder={isListening ? t.voiceListening : t.typeQuestionPlaceholder}
               className="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white"
             />
 

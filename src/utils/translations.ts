@@ -75,6 +75,17 @@ export interface TranslationDictionary {
   audioPaused: string;
   audioSpeed: string;
 
+  // New missing keys for full language reactivity
+  docPreviewTitle: string;
+  expandPhoto: string;
+  voiceAiTitle: string;
+  voiceAiSub: string;
+  listenTitle: string;
+  listenSub: string;
+  playAudioButton: string;
+  voiceListening: string;
+  typeQuestionPlaceholder: string;
+
   // Footer
   footerLitigantNote: string;
 }
@@ -148,6 +159,16 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     audioPaused: "Paused",
     audioSpeed: "Speed",
 
+    docPreviewTitle: "Document Thumbnail",
+    expandPhoto: "Expand Photo",
+    voiceAiTitle: "Have questions about this document?",
+    voiceAiSub: "Click below to talk with NyayVaani Voice AI in real-time!",
+    listenTitle: "Voice Read Aloud Engine",
+    listenSub: "Listen to the order in your native spoken tongue",
+    playAudioButton: "Listen Aloud",
+    voiceListening: "Listening to your voice...",
+    typeQuestionPlaceholder: "Ask a question about this document...",
+
     footerLitigantNote: "Litigant Assistance & Literacy Tool • Not legal representation"
   },
 
@@ -218,6 +239,16 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     audioPlaying: "सर्वम संवाद आवाज़ बज रही है...",
     audioPaused: "रुका हुआ",
     audioSpeed: "गति",
+
+    docPreviewTitle: "दस्तावेज़ का फोटो नमुना",
+    expandPhoto: "फोटो बड़ी करें",
+    voiceAiTitle: "क्या इस दस्तावेज़ के बारे में कोई प्रश्न है?",
+    voiceAiSub: "न्यायवाणी वॉइस AI से सीधे अपनी भाषा में बात करने के लिए नीचे क्लिक करें!",
+    listenTitle: "आवाज़ में पढ़कर सुनाने वाला इंजन",
+    listenSub: "अपने अदालत के आदेश को अपनी मातृभाषा में सुनें",
+    playAudioButton: "बोलकर सुनें",
+    voiceListening: "आपकी आवाज़ सुनी जा रही है...",
+    typeQuestionPlaceholder: "इस दस्तावेज़ के बारे में अपना प्रश्न पूछें...",
 
     footerLitigantNote: "नागरिक सहायता एवं विधिक साक्षरता उपकरण • कानूनी प्रतिनिधित्व नहीं"
   },
@@ -290,6 +321,16 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     audioPaused: "থামানো হয়েছে",
     audioSpeed: "গতি",
 
+    docPreviewTitle: "নথির থাম্বনেইল",
+    expandPhoto: "ছবি বড় করুন",
+    voiceAiTitle: "এই নথি নিয়ে কোনো প্রশ্ন আছে?",
+    voiceAiSub: "ন্যায়বাণী ভয়েস AI-এর সাথে সরাসরি কথা বলতে নিচে ক্লিক করুন!",
+    listenTitle: "ভয়েস পাঠ সহায়ক ইঞ্জিন",
+    listenSub: "আপনার নিজের ভাষায় আদালতের নির্দেশ শুনুন",
+    playAudioButton: "ভয়েসে শুনুন",
+    voiceListening: "আপনার কথা শোনা হচ্ছে...",
+    typeQuestionPlaceholder: "এই নথি নিয়ে আপনার প্রশ্ন লিখুন...",
+
     footerLitigantNote: "বিচারপ্রার্থী সহায়তা ও আইনি সচেতনতা সরঞ্জাম • এটি আইনি পরামর্শ নয়"
   },
 
@@ -360,6 +401,16 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     audioPlaying: "குரல் ஒலிக்கிறது...",
     audioPaused: "நிறுத்தப்பட்டது",
     audioSpeed: "வேகம்",
+
+    docPreviewTitle: "ஆவணப் படம்",
+    expandPhoto: "படத்தைப் பெரிதாக்குக",
+    voiceAiTitle: "இந்த ஆவணம் குறித்து கேள்விகள் உள்ளதா?",
+    voiceAiSub: "நியாயவாணி குரல் AI-யிடம் பேச கீழே கிளிக் செய்யவும்!",
+    listenTitle: "குரல் வாசிப்பு இயந்திரம்",
+    listenSub: "நீதிமன்ற உத்தரவை உங்கள் சொந்த மொழியில் கேளுங்கள்",
+    playAudioButton: "ஒலியில் கேட்கவும்",
+    voiceListening: "உங்கள் குரல் கேட்கப்படுகிறது...",
+    typeQuestionPlaceholder: "கேள்வியைக் கேளுங்கள்...",
 
     footerLitigantNote: "சட்ட விழிப்புணர்வு கருவி • இது சட்ட ஆலோசனை அல்ல"
   },
@@ -432,6 +483,16 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     audioPaused: "ఆపబడింది",
     audioSpeed: "వేగం",
 
+    docPreviewTitle: "డాక్యుమెంట్ థంబ్‌నెయిల్",
+    expandPhoto: "ఫోటోను పెద్దది చేయండి",
+    voiceAiTitle: "ఈ పత్రం గురించి ప్రశ్నలు ఉన్నాయా?",
+    voiceAiSub: "న్యాయవాణి వాయిస్ AI తో మాట్లాడటానికి క్లిక్ చేయండి!",
+    listenTitle: "వాయిస్ చదివి వినిపించే ఇంజిన్",
+    listenSub: "మీ మాతృభాషలో ఆర్డర్‌ను వినండి",
+    playAudioButton: "వినిపించు",
+    voiceListening: "మీ వాయిస్ వినబడుతోంది...",
+    typeQuestionPlaceholder: "ప్రశ్నను అడగండి...",
+
     footerLitigantNote: "న్యాయ అవగాహన సాధనం • ఇది చట్టపరమైన సలహా కాదు"
   },
 
@@ -502,6 +563,16 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     audioPlaying: "सर्वम आवाज सुरू आहे...",
     audioPaused: "थांबवले",
     audioSpeed: "वेग",
+
+    docPreviewTitle: "दस्तऐवजाची छोटी प्रत",
+    expandPhoto: "फोटो मोठा करा",
+    voiceAiTitle: "या दस्तऐवजाबद्दल प्रश्न आहेत का?",
+    voiceAiSub: "न्यायवाणी व्हॉइस AI सोबत थेट बोलण्यासाठी खाली क्लिक करा!",
+    listenTitle: "वाचून दाखवणारे व्हॉइस इंजिन",
+    listenSub: "तुमच्या मातृभाषेत कोर्टाचा आदेश ऐका",
+    playAudioButton: "ऐका",
+    voiceListening: "तुमचा आवाज ऐकला जात आहे...",
+    typeQuestionPlaceholder: "प्रश्न विचारा...",
 
     footerLitigantNote: "कायदेशीर साक्षरता साधन • कायदेशीर सल्ला नाही"
   },
@@ -574,7 +645,98 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     audioPaused: "અટકાવેલું",
     audioSpeed: "ઝડપ",
 
+    docPreviewTitle: "દસ્તાવેજની નાની છબી",
+    expandPhoto: "ફોટો મોટો કરો",
+    voiceAiTitle: "આ દસ્તાવેજ વિશે પ્રશ્નો છે?",
+    voiceAiSub: "ન્યાયવાણી વોઇસ AI સાથે વાત કરવા ક્લિક કરો!",
+    listenTitle: "અવાજમાં વાંચી સંભળાવતું એન્જિન",
+    listenSub: "તમારી માતૃભાષામાં ઓર્ડર સાંભળો",
+    playAudioButton: "સાંભળો",
+    voiceListening: "તમારો અવાજ સંભળાઈ રહ્યો છે...",
+    typeQuestionPlaceholder: "પ્રશ્ન પૂછો...",
+
     footerLitigantNote: "નાગરિક સહાયતા અને કાનૂની જાગૃતિ સાધન • કાનૂની સલાહ નથી"
+  },
+
+  pa: {
+    appTitle: "ਨਿਆਇਵਾਣੀ",
+    pwaReady: "PWA ਤਿਆਰ",
+    appSubtitle: "ਅਦਾਲਤੀ ਹੁਕਮ ਦਸਤਾਵੇਜ਼ ਬੁੱਧੀ ਅਤੇ ਆਵਾਜ਼ AI ਸਹਾਇਕ",
+    languageLabel: "ਭਾਸ਼ਾ:",
+    installApp: "ਐਪ ਇੰਸਟਾਲ ਕਰੋ",
+    uploadNew: "ਨਵਾਂ ਅੱਪਲੋਡ",
+    voiceAi: "ਵੋਇਸ AI",
+
+    uploadHeroBadge: " ਸਰਵਮ ਡੌਕ AI ਅਤੇ ਵੋਇਸ AI ਇੰਜਣ - ਨਾਗਰਿਕਾਂ ਲਈ",
+    uploadHeading: "ਅਦਾਲਤ ਦੇ ਹੁਕਮ ਨੂੰ ਆਪਣੀ ਪੰਜਾਬੀ ਭਾਸ਼ਾ ਵਿੱਚ ਤੁਰੰਤ ਸਮਝੋ",
+    uploadSubheading: "ਕਿਸੇ ਵੀ ਭਾਰਤੀ ਅਦਾਲਤ ਦੇ ਹੁਕਮ ਦੀ ਫੋਟੋ ਜਾਂ ਸਕੈਨ ਅੱਪਲੋਡ ਕਰੋ। ਸਰਵਮ ਡੌਕ AI ਜੱਜ ਸਾਹਿਬ ਦੇ ਫੈਸਲੇ ਨੂੰ ਅਲੱਗ ਕਰਕੇ ਸਰਲ ਪੰਜਾਬੀ ਵਿੱਚ ਬੋਲ ਕੇ ਸੁਣਾਉਂਦਾ ਹੈ।",
+    dragDropTitle: "ਅਦਾਲਤੀ ਹੁਕਮ ਦੀ ਤਸਵੀਰ ਇੱਥੇ ਖਿੱਚੋ, ਜਾਂ",
+    browseFiles: "ਫਾਈਲਾਂ ਚੁਣੋ",
+    takePhotoButton: "ਫੋਨ ਕੈਮਰੇ ਨਾਲ ਫੋਟੋ ਖਿੱਚੋ",
+    uploadNote: "ਫੋਟੋਕਾਪੀ, ਮੋਬਾਈਲ ਫੋਟੋ ਅਤੇ ਸਕੈਨ ਕੀਤੇ ਪੰਨਿਆਂ ਦਾ ਸਮਰਥਨ ਕਰਦਾ ਹੈ",
+    sampleCasesTitle: "ਜਾਂ ਅਸਲ ਅਦਾਲਤੀ ਨਮੂਨੇ ਦੇ ਕੇਸ ਦੇਖੋ:",
+    sampleCasesSub: "ਤੁਰੰਤ ਵਿਸ਼ਲੇਸ਼ਣ ਦੇਖਣ ਲਈ ਕੇਸ ਚੁਣੋ",
+    analyzingTitle: "ਸਰਵਮ ਡੌਕ AI ਦੁਆਰਾ ਹੁਕਮ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...",
+    analyzingSub: "ਕਾਨੂੰਨੀ ਲਿਖਤ ਅਤੇ ਮੁੱਖ ਆਦੇਸ਼ ਅਲੱਗ ਕੀਤੇ ਜਾ ਰਹੇ ਹਨ",
+
+    backToUpload: "ਵਾਪਸ ਜਾਓ",
+    operativeDirectionTitle: "ਅਦਾਲਤ ਦਾ ਮੁੱਖ ਹੁਕਮ (ਓਪਰੇਟਿਵ ਡਾਇਰੈਕਸ਼ਨ)",
+    operativeDirectionSub: "ਅਦਾਲਤ ਦੇ ਫੈਸਲੇ ਤੋਂ ਸਿੱਧਾ ਕੱਢਿਆ ਗਿਆ ਜੱਜ ਸਾਹਿਬ ਦਾ ਹੁਕਮ",
+    plainSummaryTitle: "ਸਰਲ ਭਾਸ਼ਾ ਵਿੱਚ ਸਾਰਾਂਸ਼",
+    plainSummarySub: "ਤੁਹਾਡੀ ਚੁਣੀ ਹੋਈ ਭਾਸ਼ਾ ਵਿੱਚ ਸਰਲ ਕਾਨੂੰਨੀ ਵਿਆਖਿਆ",
+    nextStepsTitle: "ਜ਼ਰੂਰੀ ਅਗਲੇ ਕਦਮ ਅਤੇ ਸਮਾਂ ਸੀਮਾ",
+    nextStepsSub: "ਨਾਗਰਿਕ ਲਈ ਮਹੱਤਵਪੂਰਨ ਕੰਮ",
+    attributionTitle: "ਪੈਰਾ-ਬਾਈ-ਪੈਰਾ ਵਰਗੀਕਰਨ",
+    attributionSub: "ਅਦਾਲਤ ਦੇ ਹੁਕਮਾਂ ਅਤੇ ਦੋਵਾਂ ਧਿਰਾਂ ਦੀਆਂ ਦਲੀਲਾਂ ਦਾ ਸਪੱਸ਼ਟ ਵਰਗੀਕਰਨ",
+    refusalWarningTitle: "ਸਾਵਧਾਨੀ ਅਤੇ ਅਸਵੀਕਾਰ ਸਥਿਤੀ",
+    refusalWarningSub: "ਦਸਤਾਵੇਜ਼ ਬਹੁਤ ਧੁੰਦਲਾ ਹੈ ਜਾਂ ਹੁਕਮ ਅਧੂਰਾ ਹੈ",
+    listenAudioButton: "ਪੰਜਾਬੀ ਵਿੱਚ ਸੁਣੋ (ਸਰਵਮ ਵੋਇਸ)",
+    askVoiceAiButton: "ਨਿਆਇਵਾਣੀ ਵੋਇਸ AI ਨੂੰ ਪੁੱਛੋ",
+    exportReportButton: "ਰਿਪੋਰਟ ਡਾਊਨਲੋਡ ਕਰੋ",
+
+    searchParagraphsPlaceholder: "ਖੋਜੋ...",
+    filterAll: "ਸਾਰੇ ਪੈਰੇ",
+    filterCourtDirection: "ਕੇਵਲ ਅਦਾਲਤ ਦੇ ਹੁਕਮ",
+    filterPetitioner: "ਯਾਚਕ ਦੇ ਦਾਅਵੇ",
+    filterRespondent: "ਵਿਰੋਧੀ ਧਿਰ ਦੇ ਦਾਅਵੇ",
+    filterRecital: "ਕਾਰਵਾਈ ਦਾ ਵੇਰਵਾ",
+    filterRejected: "ਖਾਰਜ ਕੀਤੇ ਦਾਅਵੇ",
+
+    catCourtDirection: "ਅਦਾਲਤ ਦਾ ਹੁਕਮ",
+    catPetitioner: "ਯਾਚਕ ਦਾ ਪੱਖ",
+    catRespondent: "ਵਿਰੋਧੀ ਧਿਰ ਦਾ ਪੱਖ",
+    catRecital: "ਕਾਰਵਾਈ",
+    catRejected: "ਖਾਰਜ ਕੀਤਾ ਦਾਅਵਾ",
+
+    voiceAiModalTitle: "ਨਿਆਇਵਾਣੀ ਵੋਇਸ AI ਸਹਾਇਕ (ਸਰਵਮ ਸੰਵਾਦ)",
+    voiceAiModalSub: "ਇਸ ਅਦਾਲਤੀ ਹੁਕਮ ਬਾਰੇ ਆਪਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਪ੍ਰਸ਼ਨ ਪੁੱਛੋ",
+    voiceAiListening: "ਸੁਣ ਰਿਹਾ ਹੈ... ਹੁਣ ਬੋਲੋ",
+    voiceAiClickToSpeak: "ਬੋਲਣ ਲਈ ਟੈਪ ਕਰੋ",
+    voiceAiStopListening: "ਰੋਕੋ",
+    voiceAiSendInput: "ਭੇਜੋ",
+    voiceAiInputPlaceholder: "ਆਪਣਾ ਸਵਾਲ ਲਿਖੋ ਜਾਂ ਬੋਲੋ...",
+    suggestedQuestionsTitle: "ਸੁਝਾਏ ਗਏ ਪ੍ਰਸ਼ਨ:",
+    suggestedQ1: "ਜੱਜ ਸਾਹਿਬ ਨੇ ਮੇਰੇ ਲਈ ਕੀ ਹੁਕਮ ਦਿੱਤਾ ਹੈ?",
+    suggestedQ2: "ਮੇਰੇ ਲਈ ਅਗਲੀ ਤਾਰੀਖ (ਡੇਡਲਾਈਨ) ਕੀ ਹੈ?",
+    suggestedQ3: "ਮੇਰੀ ਅਰਜ਼ੀ ਮਨਜ਼ੂਰ ਹੋਈ ਜਾਂ ਨਾਮਨਜ਼ੂਰ?",
+    suggestedQ4: "ਮੈਨੂੰ ਆਪਣੇ ਵਕੀਲ ਸਾਹਿਬ ਨਾਲ ਅੱਗੇ ਕੀ ਗੱਲ ਕਰਨੀ ਚਾਹੀਦੀ ਹੈ?",
+
+    audioPlayerTitle: "ਵੋਇਸ ਕਾਨੂੰਨੀ ਸਾਰਾਂਸ਼",
+    audioPlaying: "ਸਰਵਮ ਸੰਵਾਦ ਆਵਾਜ਼ ਚੱਲ ਰਹੀ ਹੈ...",
+    audioPaused: "ਰੁਕਿਆ ਹੋਇਆ",
+    audioSpeed: "ਗਤੀ",
+
+    docPreviewTitle: "ਦਸਤਾਵੇਜ਼ ਦੀ ਫੋਟੋ",
+    expandPhoto: "ਫੋਟੋ ਵੱਡੀ ਕਰੋ",
+    voiceAiTitle: "ਕੀ ਇਸ ਦਸਤਾਵੇਜ਼ ਬਾਰੇ ਕੋਈ ਪ੍ਰਸ਼ਨ ਹੈ?",
+    voiceAiSub: "ਨਿਆਇਵਾਣੀ ਵੋਇਸ AI ਨਾਲ ਸਿੱਧਾ ਗੱਲ ਕਰਨ ਲਈ ਹੇਠਾਂ ਕਲਿੱਕ ਕਰੋ!",
+    listenTitle: "ਆਵਾਜ਼ ਵਿੱਚ ਪੜ੍ਹ ਕੇ ਸੁਣਾਉਣ ਵਾਲਾ ਇੰਜਣ",
+    listenSub: "ਆਪਣੇ ਅਦਾਲਤੀ ਹੁਕਮ ਨੂੰ ਆਪਣੀ ਮਾਂ-ਬੋਲੀ ਵਿੱਚ ਸੁਣੋ",
+    playAudioButton: "ਸੁਣੋ",
+    voiceListening: "ਤੁਹਾਡੀ ਆਵਾਜ਼ ਸੁਣੀ ਜਾ ਰਹੀ ਹੈ...",
+    typeQuestionPlaceholder: "ਪ੍ਰਸ਼ਨ ਪੁੱਛੋ...",
+
+    footerLitigantNote: "ਨਾਗਰਿਕ ਸਹਾਇਤਾ ਅਤੇ ਕਾਨੂੰਨੀ ਸਾਖਰਤਾ ਟੂਲ • ਇਹ ਕਾਨੂੰਨੀ ਸਲਾਹ ਨਹੀਂ ਹੈ"
   }
 };
 
