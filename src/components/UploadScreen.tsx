@@ -18,6 +18,11 @@ interface UploadedFileInfo {
   isPdf: boolean;
 }
 
+const MAX_HOSTED_UPLOAD_BYTES = 3 * 1024 * 1024;
+
+const approximateDataUrlBytes = (dataUrl: string): number =>
+  Math.round((dataUrl.length * 3) / 4);
+
 const compressAndResizeImage = (dataUrl: string, maxDimension = 1800, quality = 0.85): Promise<string> => {
   return new Promise((resolve) => {
     if (!dataUrl.startsWith('data:image')) {
@@ -129,7 +134,20 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     });
 
     Promise.all(filePromises).then((newFiles) => {
-      setUploadedFiles((prev) => [...prev, ...newFiles]);
+      setUploadedFiles((prev) => {
+        const combined = [...prev, ...newFiles];
+        const combinedBytes = combined.reduce(
+          (total, file) => total + approximateDataUrlBytes(file.dataUrl),
+          0,
+        );
+        if (combinedBytes > MAX_HOSTED_UPLOAD_BYTES) {
+          setUploadError(
+            'For the free hosted MVP, keep the PDF or combined page images under 3 MB.',
+          );
+          return prev;
+        }
+        return combined;
+      });
       setIsCompressing(false);
     });
   };
