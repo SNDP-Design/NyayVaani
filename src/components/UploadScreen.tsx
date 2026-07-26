@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, Camera, FileText, Sparkles, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { Upload, Camera, FileText, Sparkles, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, Image as ImageIcon, FileType } from 'lucide-react';
 import { BENCHMARK_CASES } from '../data/benchmarkCases';
 import { BenchmarkCase, SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
@@ -10,25 +10,47 @@ interface UploadScreenProps {
   selectedLanguage?: SupportedLanguage;
 }
 
+interface UploadedFileInfo {
+  name: string;
+  size: string;
+  dataUrl: string;
+  isPdf: boolean;
+}
+
 export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLoading, selectedLanguage = 'hi' }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<UploadedFileInfo | null>(null);
   const [pastedText, setPastedText] = useState<string>('');
   const [selectedSample, setSelectedSample] = useState<BenchmarkCase | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const t = getTranslation(selectedLanguage);
 
-  // Handle image upload from file input
+  const processFile = (file: File) => {
+    const reader = new FileReader();
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+    const sizeStr = file.size >= 1024 * 1024 ? `${sizeInMB} MB` : `${Math.round(file.size / 1024)} KB`;
+
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        const dataUrl = event.target.result as string;
+        setUploadedFile({
+          name: file.name,
+          size: sizeStr,
+          dataUrl,
+          isPdf,
+        });
+        setSelectedImage(dataUrl);
+        setSelectedSample(null);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Handle file upload from file input
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setSelectedImage(event.target.result as string);
-          setSelectedSample(null);
-        }
-      };
-      reader.readAsDataURL(file);
+      processFile(e.target.files[0]);
     }
   };
 
@@ -48,15 +70,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setSelectedImage(event.target.result as string);
-          setSelectedSample(null);
-        }
-      };
-      reader.readAsDataURL(file);
+      processFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -64,6 +78,8 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
   const handleStartReading = () => {
     if (selectedSample) {
       onReadDocument({ sampleCase: selectedSample });
+    } else if (uploadedFile) {
+      onReadDocument({ imageBase64: uploadedFile.dataUrl });
     } else if (selectedImage) {
       onReadDocument({ imageBase64: selectedImage });
     } else if (pastedText.trim()) {
@@ -79,8 +95,8 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
       
       {/* Hero Banner Header */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 px-3.5 py-1.5 rounded-full text-indigo-700 font-semibold text-xs shadow-xs">
-          <Sparkles className="h-4 w-4 text-indigo-600 animate-pulse" />
+        <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-300 px-3.5 py-1.5 rounded-full text-slate-900 font-semibold text-xs shadow-xs">
+          <Sparkles className="h-4 w-4 text-slate-900 animate-pulse" />
           <span>{t.uploadHeroBadge}</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -102,33 +118,73 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-2xl p-8 sm:p-10 text-center transition-all flex flex-col items-center justify-center space-y-4 ${
             dragActive
-              ? 'border-indigo-600 bg-indigo-50/50 scale-[1.01]'
+              ? 'border-black bg-slate-100 scale-[1.01]'
               : selectedImage || selectedSample
-              ? 'border-emerald-300 bg-emerald-50/30'
-              : 'border-slate-300 hover:border-indigo-500 bg-slate-50/60'
+              ? 'border-slate-900 bg-slate-50'
+              : 'border-slate-300 hover:border-black bg-slate-50/60'
           }`}
         >
-          {selectedImage ? (
+          {uploadedFile?.isPdf ? (
+            <div className="space-y-4 w-full max-w-md mx-auto">
+              <div className="p-5 rounded-2xl bg-white border border-slate-300 shadow-md flex items-center gap-4 text-left">
+                <div className="h-14 w-14 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <FileType className="h-7 w-7 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="bg-slate-100 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-300 uppercase font-mono">
+                      PDF Document
+                    </span>
+                    <span className="text-[11px] font-semibold text-slate-500">{uploadedFile.size}</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900 truncate" title={uploadedFile.name}>
+                    {uploadedFile.name}
+                  </h4>
+                  <p className="text-[11px] text-slate-600 mt-0.5 flex items-center gap-1 font-medium">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-black shrink-0" />
+                    <span>Ready for Sarvam Doc AI Analysis</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-xs text-slate-600 bg-white px-3.5 py-2 rounded-xl border border-slate-200">
+                <span className="font-semibold text-slate-900 flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-black" /> PDF File Selected
+                </span>
+                <button
+                  onClick={() => {
+                    setUploadedFile(null);
+                    setSelectedImage(null);
+                  }}
+                  className="text-black hover:underline font-bold cursor-pointer"
+                >
+                  Change File
+                </button>
+              </div>
+            </div>
+          ) : selectedImage ? (
             <div className="space-y-4 w-full max-w-md mx-auto">
               <div className="relative rounded-xl overflow-hidden border border-slate-300 shadow-md bg-white p-2 max-h-64 flex items-center justify-center">
                 <img src={selectedImage} alt="Uploaded Document" className="max-h-60 object-contain rounded-lg" />
               </div>
               <div className="flex items-center justify-between text-xs text-slate-600 bg-white px-3 py-2 rounded-lg border border-slate-200">
-                <span className="font-semibold text-emerald-700 flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Image Selected
+                <span className="font-semibold text-slate-900 flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-black" /> Image Selected
                 </span>
                 <button
-                  onClick={() => setSelectedImage(null)}
-                  className="text-indigo-600 hover:underline font-medium cursor-pointer"
+                  onClick={() => {
+                    setSelectedImage(null);
+                    setUploadedFile(null);
+                  }}
+                  className="text-black hover:underline font-bold cursor-pointer"
                 >
                   Change Image
                 </button>
               </div>
             </div>
           ) : selectedSample ? (
-            <div className="space-y-3 w-full max-w-md mx-auto bg-white p-4 rounded-xl border border-indigo-200 shadow-xs">
+            <div className="space-y-3 w-full max-w-md mx-auto bg-white p-4 rounded-xl border border-slate-400 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-indigo-700 uppercase font-mono">Sample Document Selected</span>
+                <span className="text-xs font-bold text-slate-900 uppercase font-mono">Sample Document Selected</span>
                 <button
                   onClick={() => setSelectedSample(null)}
                   className="text-xs text-slate-500 hover:text-slate-800 font-medium cursor-pointer"
@@ -141,18 +197,18 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
             </div>
           ) : (
             <>
-              <div className="h-16 w-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-xs">
-                <Upload className="h-8 w-8" />
+              <div className="h-16 w-16 rounded-2xl bg-black text-white flex items-center justify-center shadow-xs">
+                <Upload className="h-8 w-8 text-white" />
               </div>
 
               <div className="space-y-3">
                 <p className="text-base font-bold text-slate-900">
                   {t.dragDropTitle}{' '}
-                  <label className="text-indigo-600 hover:text-indigo-800 underline cursor-pointer font-extrabold">
+                  <label className="text-black hover:text-slate-700 underline cursor-pointer font-extrabold">
                     {t.browseFiles}
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/*,application/pdf,.pdf"
                       onChange={handleFileChange}
                       className="hidden"
                     />
@@ -161,12 +217,12 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
 
                 {/* Mobile Camera Direct Snap Button */}
                 <div className="flex items-center justify-center gap-3 pt-1">
-                  <label className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs flex items-center gap-2 border border-indigo-200 cursor-pointer shadow-xs transition-colors">
-                    <Camera className="h-4 w-4 text-indigo-600" />
+                  <label className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold rounded-xl text-xs flex items-center gap-2 border border-slate-300 cursor-pointer shadow-xs transition-colors">
+                    <Camera className="h-4 w-4 text-black" />
                     <span>{t.takePhotoButton}</span>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/*,application/pdf,.pdf"
                       capture="environment"
                       onChange={handleFileChange}
                       className="hidden"
@@ -201,12 +257,12 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                 }}
                 className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-3 ${
                   selectedSample?.id === caseItem.id
-                    ? 'border-indigo-600 bg-indigo-50/80 shadow-xs ring-1 ring-indigo-500'
-                    : 'border-slate-200 bg-slate-50/50 hover:border-indigo-300 hover:bg-white'
+                    ? 'border-black bg-slate-100 shadow-xs ring-1 ring-black'
+                    : 'border-slate-200 bg-slate-50/50 hover:border-slate-400 hover:bg-white'
                 }`}
               >
                 <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${
-                  caseItem.isRefusalCase ? 'bg-rose-100 text-rose-700' : 'bg-indigo-100 text-indigo-700'
+                  caseItem.isRefusalCase ? 'bg-slate-200 text-slate-900' : 'bg-black text-white'
                 }`}>
                   <FileText className="h-4 w-4" />
                 </div>
@@ -234,7 +290,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
               }}
               rows={4}
               placeholder="Paste text from photocopied court order here..."
-              className="mt-2 w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-600"
+              className="mt-2 w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:border-black"
             />
           </details>
         </div>
@@ -244,7 +300,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
           <button
             onClick={handleStartReading}
             disabled={isLoading}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-base rounded-2xl shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-3 group border border-indigo-500"
+            className="w-full py-4 bg-black hover:bg-slate-800 text-white font-extrabold text-base rounded-2xl shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-3 group border border-slate-900"
           >
             {isLoading ? (
               <>
@@ -253,8 +309,8 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
               </>
             ) : (
               <>
-                <Sparkles className="h-5 w-5 text-indigo-200 group-hover:rotate-12 transition-transform" />
-                <span>{selectedSample ? `Analyze: ${selectedSample.title}` : selectedImage ? 'Read Uploaded Court Order' : 'Read Court Document'}</span>
+                <Sparkles className="h-5 w-5 text-slate-300 group-hover:rotate-12 transition-transform" />
+                <span>{selectedSample ? `Analyze: ${selectedSample.title}` : uploadedFile?.isPdf ? 'Read Uploaded PDF Court Order' : selectedImage ? 'Read Uploaded Court Order' : 'Read Court Document'}</span>
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </>
             )}

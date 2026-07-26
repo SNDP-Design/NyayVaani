@@ -40,7 +40,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={onBackToUpload}
-            className="p-2 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-bold border border-slate-200"
+            className="p-2 bg-slate-100 hover:bg-slate-200 hover:text-black text-slate-800 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-bold border border-slate-300"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>{t.backToUpload}</span>
@@ -52,7 +52,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
             <div className="flex items-center gap-2">
               <h2 className="text-base font-bold text-slate-900">{currentCase.title}</h2>
               {isRefusal && (
-                <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded border border-rose-200 uppercase font-mono">
+                <span className="bg-slate-200 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-400 uppercase font-mono">
                   {t.refusalWarningTitle}
                 </span>
               )}
@@ -67,12 +67,12 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
         <div className="flex items-center gap-3 shrink-0">
           
           {/* Language Selector */}
-          <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs">
+          <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-300 text-xs">
             <span className="text-slate-500 font-medium">{t.languageLabel}</span>
             <select
               value={selectedLanguage}
               onChange={(e) => onLanguageChange(e.target.value as SupportedLanguage)}
-              className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer"
+              className="bg-transparent font-bold text-slate-900 focus:outline-none cursor-pointer"
             >
               <option value="hi">हिंदी (Hindi)</option>
               <option value="en">English</option>
@@ -88,11 +88,11 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
           {/* Voice AI CTA Button */}
           <button
             onClick={() => setIsVoiceAgentOpen(true)}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer border border-indigo-500"
+            className="px-4 py-2 bg-black hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer border border-slate-900"
           >
             <div className="relative">
               <Bot className="h-4 w-4 text-white" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full animate-ping"></span>
             </div>
             <span>{t.askVoiceAiButton}</span>
           </button>
@@ -110,10 +110,10 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
           <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                <FileText className="h-4 w-4 text-indigo-600" />
+                <FileText className="h-4 w-4 text-black" />
                 {t.docPreviewTitle}
               </span>
-              <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-semibold border border-emerald-200">
+              <span className="text-[11px] font-mono text-slate-900 bg-slate-100 px-2 py-0.5 rounded font-semibold border border-slate-300">
                 Sarvam Doc AI Processed
               </span>
             </div>
@@ -155,33 +155,33 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
 
           {/* Verbatim Operative Ruling Card */}
           <div className={`p-5 rounded-2xl border shadow-xs space-y-3 ${
-            isRefusal ? 'bg-rose-50 border-rose-200' : 'bg-indigo-900 text-white border-indigo-950'
+            isRefusal ? 'bg-slate-100 border-slate-300' : 'bg-slate-900 text-white border-black'
           }`}>
             <div className="flex items-center justify-between">
               <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-                isRefusal ? 'text-rose-900' : 'text-indigo-200'
+                isRefusal ? 'text-slate-900' : 'text-slate-300'
               }`}>
                 <ShieldCheck className="h-4 w-4" />
                 {isRefusal ? t.refusalWarningTitle : t.operativeDirectionTitle}
               </span>
               <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
-                isRefusal ? 'bg-rose-200 text-rose-900' : 'bg-indigo-800 text-indigo-100'
+                isRefusal ? 'bg-slate-300 text-slate-900' : 'bg-slate-800 text-slate-100'
               }`}>
                 {isRefusal ? 'Refused' : 'Isolated Paragraph'}
               </span>
             </div>
 
             {isRefusal ? (
-              <div className="space-y-2 text-xs text-rose-950">
+              <div className="space-y-2 text-xs text-slate-900">
                 <p className="font-bold">{analysis.refusalReason || 'The uploaded document is incomplete or missing the operative ruling page.'}</p>
-                <p className="text-[11px] text-rose-800">NyayVaani refuses to guess court directions when pages are truncated.</p>
+                <p className="text-[11px] text-slate-600">NyayVaani refuses to guess court directions when pages are truncated.</p>
               </div>
             ) : (
               <div className="space-y-2">
-                <p className="text-xs sm:text-sm font-mono font-medium leading-relaxed bg-indigo-950/60 p-3 rounded-xl border border-indigo-700/50 italic text-indigo-100">
+                <p className="text-xs sm:text-sm font-mono font-medium leading-relaxed bg-black/60 p-3 rounded-xl border border-slate-700/50 italic text-slate-100">
                   "{analysis.operativeDirectionVerbatim}"
                 </p>
-                <p className="text-[11px] text-indigo-200">
+                <p className="text-[11px] text-slate-300">
                   ⚡ Guaranteed exact quote from the judge's order paragraph.
                 </p>
               </div>
@@ -210,7 +210,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                   onClick={() => setActiveTab('summary')}
                   className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                     activeTab === 'summary'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-black text-white shadow-xs'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
@@ -220,7 +220,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                   onClick={() => setActiveTab('paragraphs')}
                   className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                     activeTab === 'paragraphs'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-black text-white shadow-xs'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
@@ -231,7 +231,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
               {/* Call Voice AI Icon */}
               <button
                 onClick={() => setIsVoiceAgentOpen(true)}
-                className="text-indigo-600 hover:text-indigo-800 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                className="text-black hover:text-slate-700 text-xs font-bold flex items-center gap-1 cursor-pointer"
               >
                 <Bot className="h-4 w-4" />
                 <span>{t.askVoiceAiButton}</span>
@@ -255,28 +255,28 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                 {/* Next Steps & Actionable Requirements */}
                 <div className="space-y-3">
                   <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block flex items-center gap-1.5">
-                    <CheckCircle2 className="h-4 w-4 text-indigo-600" />
+                    <CheckCircle2 className="h-4 w-4 text-black" />
                     {t.nextStepsTitle}
                   </span>
 
                   {analysis.nextSteps && analysis.nextSteps.length > 0 ? (
                     <div className="space-y-3">
                       {analysis.nextSteps.map((step, idx) => (
-                        <div key={idx} className="p-4 bg-indigo-50/60 border border-indigo-200 rounded-xl space-y-2">
+                        <div key={idx} className="p-4 bg-slate-100 border border-slate-300 rounded-xl space-y-2">
                           <div className="flex items-start justify-between gap-2">
                             <span className="font-bold text-slate-900 text-xs sm:text-sm">
                               {idx + 1}. {step.action}
                             </span>
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-4 text-xs text-indigo-900 font-medium">
-                            <span className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-indigo-100">
-                              <Calendar className="h-3.5 w-3.5 text-indigo-600" />
-                              Deadline: <strong className="text-indigo-950 ml-1">{step.deadline}</strong>
+                          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-900 font-medium">
+                            <span className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-slate-300">
+                              <Calendar className="h-3.5 w-3.5 text-black" />
+                              Deadline: <strong className="text-black ml-1">{step.deadline}</strong>
                             </span>
-                            <span className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-indigo-100">
-                              <MapPin className="h-3.5 w-3.5 text-indigo-600" />
-                              Forum: <strong className="text-indigo-950 ml-1">{step.forum}</strong>
+                            <span className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-slate-300">
+                              <MapPin className="h-3.5 w-3.5 text-black" />
+                              Forum: <strong className="text-black ml-1">{step.forum}</strong>
                             </span>
                           </div>
                         </div>
@@ -290,22 +290,22 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                 </div>
 
                 {/* Voice AI Interactive Prompt Banner */}
-                <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="bg-black text-white rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-slate-800">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-indigo-300" />
+                      <Sparkles className="h-4 w-4 text-slate-300" />
                       <h4 className="text-sm font-bold text-white">{t.voiceAiTitle}</h4>
                     </div>
-                    <p className="text-xs text-indigo-200">
+                    <p className="text-xs text-slate-300">
                       {t.voiceAiSub}
                     </p>
                   </div>
 
                   <button
                     onClick={() => setIsVoiceAgentOpen(true)}
-                    className="px-5 py-2.5 bg-white text-indigo-950 hover:bg-indigo-50 font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer shrink-0 text-center flex items-center justify-center gap-2"
+                    className="px-5 py-2.5 bg-white text-black hover:bg-slate-100 font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer shrink-0 text-center flex items-center justify-center gap-2 border border-slate-300"
                   >
-                    <Bot className="h-4 w-4 text-indigo-600" />
+                    <Bot className="h-4 w-4 text-black" />
                     <span>{t.askVoiceAiButton}</span>
                   </button>
                 </div>
@@ -326,9 +326,9 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                       key={para.id}
                       className={`p-4 rounded-xl border text-xs space-y-2 ${
                         para.category === 'court_direction'
-                          ? 'bg-indigo-50 border-indigo-300'
+                          ? 'bg-slate-100 border-slate-400'
                           : para.category === 'rejected_claim'
-                          ? 'bg-rose-50 border-rose-300'
+                          ? 'bg-slate-200 border-slate-400'
                           : 'bg-slate-50 border-slate-200'
                       }`}
                     >
@@ -338,9 +338,9 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
                         </span>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono ${
                           para.category === 'court_direction'
-                            ? 'bg-indigo-600 text-white'
+                            ? 'bg-black text-white'
                             : para.category === 'rejected_claim'
-                            ? 'bg-rose-600 text-white'
+                            ? 'bg-slate-700 text-white'
                             : 'bg-slate-200 text-slate-700'
                         }`}>
                           {para.category.replace('_', ' ')}
@@ -370,11 +370,11 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
       <div className="fixed bottom-6 right-6 z-40">
         <button
           onClick={() => setIsVoiceAgentOpen(true)}
-          className="group relative flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3.5 rounded-full shadow-2xl hover:shadow-indigo-500/50 transition-all transform hover:-translate-y-1 cursor-pointer border-2 border-indigo-300"
+          className="group relative flex items-center gap-3 bg-black hover:bg-slate-800 text-white px-5 py-3.5 rounded-full shadow-2xl transition-all transform hover:-translate-y-1 cursor-pointer border-2 border-slate-700"
         >
           <div className="relative flex items-center justify-center">
             <Bot className="h-6 w-6 text-white" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-ping"></span>
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full animate-ping"></span>
           </div>
           <span className="font-extrabold text-sm tracking-wide">{t.askVoiceAiButton}</span>
         </button>

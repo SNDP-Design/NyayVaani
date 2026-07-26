@@ -105,20 +105,20 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
   };
 
   return (
-    <div className="bg-white border border-indigo-100 rounded-xl p-4 shadow-xs text-slate-900">
+    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs text-slate-900">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         
         {/* Left: Info */}
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
-            <Radio className={`h-5 w-5 ${isPlaying ? 'animate-pulse text-indigo-600' : ''}`} />
+          <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-300 text-slate-900 flex items-center justify-center shrink-0">
+            <Radio className={`h-5 w-5 ${isPlaying ? 'animate-pulse text-black' : ''}`} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h4 className="text-xs font-bold text-indigo-950 uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-black uppercase tracking-wider">
                 {t.listenTitle}
               </h4>
-              <span className="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-semibold">
+              <span className="text-[10px] bg-slate-200 text-slate-900 px-2 py-0.5 rounded font-semibold">
                 Sarvam / Bulbul TTS
               </span>
             </div>
@@ -138,7 +138,7 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
                 onClick={() => handleSpeedChange(speed)}
                 className={`px-2 py-0.5 rounded font-mono font-medium cursor-pointer transition-colors ${
                   playbackSpeed === speed
-                    ? 'bg-white text-indigo-900 font-bold shadow-xs'
+                    ? 'bg-black text-white font-bold shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -153,8 +153,8 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
             disabled={isGenerating}
             className={`px-4 py-2 rounded-lg font-semibold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-sm ${
               isPlaying
-                ? 'bg-amber-500 hover:bg-amber-600 text-slate-950'
-                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                ? 'bg-slate-800 hover:bg-slate-900 text-white'
+                : 'bg-black hover:bg-slate-800 text-white'
             }`}
           >
             {isGenerating ? (
@@ -180,11 +180,11 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
 
       {/* Simulated Waveform Visualizer */}
       {isPlaying && (
-        <div className="mt-3 pt-3 border-t border-indigo-100 flex items-center justify-center gap-1 h-6">
+        <div className="mt-3 pt-3 border-t border-slate-200 flex items-center justify-center gap-1 h-6">
           {[40, 70, 30, 90, 60, 100, 40, 80, 50, 90, 30, 75, 45, 85].map((height, idx) => (
             <span
               key={idx}
-              className="w-1 bg-indigo-500 rounded-full animate-pulse"
+              className="w-1 bg-black rounded-full animate-pulse"
               style={{
                 height: `${height}%`,
                 animationDelay: `${(idx * 0.1) % 0.8}s`

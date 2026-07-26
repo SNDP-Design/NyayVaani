@@ -128,16 +128,27 @@ app.post("/api/analyze-document", async (req, res) => {
     let contentsParts: any[] = [];
 
     if (imageBase64) {
-      // Stripping data URL prefix if present
-      const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+      let mimeType = "image/jpeg";
+      let cleanBase64 = imageBase64;
+
+      if (imageBase64.startsWith("data:")) {
+        const matches = imageBase64.match(/^data:([^;]+);base64,(.*)$/);
+        if (matches) {
+          mimeType = matches[1];
+          cleanBase64 = matches[2];
+        } else {
+          cleanBase64 = imageBase64.replace(/^data:[^;]+;base64,/, "");
+        }
+      }
+
       contentsParts.push({
         inlineData: {
-          mimeType: "image/jpeg",
+          mimeType: mimeType,
           data: cleanBase64,
         },
       });
       contentsParts.push({
-        text: `${SARVAM_DOC_AI_PROMPT}\n\nAnalyze this court order image carefully with Sarvam Doc AI. Extract all text, preserve paragraph numbering, tag attribution for each paragraph, isolate verbatim operative direction, extract next steps, and determine if refusal is required.`,
+        text: `${SARVAM_DOC_AI_PROMPT}\n\nAnalyze this court order document (Image or PDF) carefully with Sarvam Doc AI. Extract all text, preserve paragraph numbering, tag attribution for each paragraph, isolate verbatim operative direction, extract next steps, and determine if refusal is required.`,
       });
     } else if (textContent) {
       contentsParts.push({

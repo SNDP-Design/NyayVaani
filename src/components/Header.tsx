@@ -56,15 +56,15 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onNewUpload}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-indigo-200 group-hover:bg-indigo-700 transition-colors">
-              <Scale className="h-5 w-5" />
+            <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white font-bold shadow-md group-hover:bg-slate-800 transition-colors">
+              <Scale className="h-5 w-5 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
+                <h1 className="text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-black transition-colors">
                   {t.appTitle}
                 </h1>
-                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300 hidden sm:inline-block font-mono">
+                <span className="bg-slate-100 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-300 hidden sm:inline-block font-mono">
                   {t.pwaReady}
                 </span>
               </div>
@@ -81,19 +81,19 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={handleInstallPWA}
               title="Install NyayVaani App on Mobile"
-              className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <Download className="h-3.5 w-3.5 text-emerald-600" />
+              <Download className="h-3.5 w-3.5 text-slate-900" />
               <span>{t.installApp}</span>
             </button>
 
             {/* Language Selector */}
-            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs">
+            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-300 text-xs">
               <span className="text-slate-500 hidden sm:inline">{t.languageLabel}</span>
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value as SupportedLanguage)}
-                className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer"
+                className="bg-transparent font-bold text-slate-900 focus:outline-none cursor-pointer"
               >
                 <option value="hi">हिंदी (Hindi)</option>
                 <option value="en">English</option>
@@ -110,16 +110,16 @@ export const Header: React.FC<HeaderProps> = ({
               <>
                 <button
                   onClick={onNewUpload}
-                  className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-200"
+                  className="px-3.5 py-1.5 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-300"
                 >
-                  <Upload className="h-3.5 w-3.5 text-indigo-600" />
+                  <Upload className="h-3.5 w-3.5 text-slate-900" />
                   <span className="hidden sm:inline">{t.uploadNew}</span>
                 </button>
 
                 {onOpenVoiceAI && (
                   <button
                     onClick={onOpenVoiceAI}
-                    className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs border border-indigo-500"
+                    className="px-3.5 py-1.5 bg-black hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs border border-slate-900"
                   >
                     <Bot className="h-4 w-4" />
                     <span>{t.voiceAi}</span>
