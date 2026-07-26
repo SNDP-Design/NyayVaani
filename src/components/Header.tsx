@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Scale, Bot, Upload, Download, Sparkles } from 'lucide-react';
+import React from 'react';
+import { Scale, Bot, Upload } from 'lucide-react';
 import { SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 
@@ -18,33 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNewUpload,
   onOpenVoiceAI,
 }) => {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
   const t = getTranslation(selectedLanguage);
-
-  useEffect(() => {
-    const handleBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setIsInstallable(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-  }, []);
-
-  const handleInstallPWA = async () => {
-    if (!deferredPrompt) {
-      alert('To install NyayVaani on your phone, open your browser menu (⋮ or Share) and tap "Add to Home Screen".');
-      return;
-    }
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setIsInstallable(false);
-    }
-    setDeferredPrompt(null);
-  };
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 text-slate-900 shadow-xs">
@@ -64,9 +38,6 @@ export const Header: React.FC<HeaderProps> = ({
                 <h1 className="text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-black transition-colors">
                   {t.appTitle}
                 </h1>
-                <span className="bg-slate-100 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-300 hidden sm:inline-block font-mono">
-                  {t.pwaReady}
-                </span>
               </div>
               <p className="text-xs text-slate-500 hidden sm:block">
                 {t.appSubtitle}
@@ -77,16 +48,6 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right Header Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
             
-            {/* Install PWA Button */}
-            <button
-              onClick={handleInstallPWA}
-              title="Install NyayVaani App on Mobile"
-              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <Download className="h-3.5 w-3.5 text-slate-900" />
-              <span>{t.installApp}</span>
-            </button>
-
             {/* Language Selector */}
             <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-300 text-xs">
               <span className="text-slate-500 hidden sm:inline">{t.languageLabel}</span>
