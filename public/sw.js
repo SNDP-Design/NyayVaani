@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'nyayvaani-static-v2';
-const NAVIGATION_CACHE = 'nyayvaani-navigation-v2';
+const STATIC_CACHE = 'nyayvaani-static-v3';
+const NAVIGATION_CACHE = 'nyayvaani-navigation-v3';
 const CURRENT_CACHES = new Set([STATIC_CACHE, NAVIGATION_CACHE]);
 const STATIC_ASSETS = ['/manifest.json', '/icon.svg'];
 
@@ -26,9 +26,9 @@ self.addEventListener('activate', (event) => {
           type: 'window',
           includeUncontrolled: true,
         });
-        await Promise.all(
-          windows.map((client) => client.navigate(client.url).catch(() => undefined)),
-        );
+        windows.forEach((client) => {
+          void client.navigate(client.url).catch(() => undefined);
+        });
       }
     })(),
   );
