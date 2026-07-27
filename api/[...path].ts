@@ -882,4 +882,31 @@ app.post("/api/transcribe-speech", async (req, res) => {
   }
 });
 
+app.use(
+  (
+    error: any,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    if (error?.type === "entity.too.large") {
+      return res.status(413).json({
+        error: "The upload is too large for the hosted app. Please keep it under 3 MB.",
+        code: "UPLOAD_TOO_LARGE",
+      });
+    }
+    if (error instanceof SyntaxError) {
+      return res.status(400).json({
+        error: "NyayVaani could not read this request. Please try again.",
+        code: "INVALID_REQUEST",
+      });
+    }
+    console.error("Unhandled NyayVaani API error:", error);
+    return res.status(500).json({
+      error: "NyayVaani could not complete this request. Please try again.",
+      code: "INTERNAL_ERROR",
+    });
+  },
+);
+
 export default app;

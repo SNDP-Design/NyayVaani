@@ -84,6 +84,23 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     const fileArray = Array.from(files);
     if (fileArray.length === 0) return;
 
+    const unsupportedFile = fileArray.find((file) => {
+      const lowerName = file.name.toLowerCase();
+      return !(
+        file.type === 'application/pdf' ||
+        lowerName.endsWith('.pdf') ||
+        file.type === 'image/jpeg' ||
+        file.type === 'image/png' ||
+        lowerName.endsWith('.jpg') ||
+        lowerName.endsWith('.jpeg') ||
+        lowerName.endsWith('.png')
+      );
+    });
+    if (unsupportedFile) {
+      setUploadError('Please upload only PDF, JPG, JPEG, or PNG court documents.');
+      return;
+    }
+
     const existingPdfCount = uploadedFiles.filter((file) => file.isPdf).length;
     const incomingPdfCount = fileArray.filter(
       (file) => file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'),
@@ -105,7 +122,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     setIsCompressing(true);
 
     const filePromises = fileArray.map((file, index) => {
-      return new Promise<UploadedFileInfo>((resolve) => {
+      return new Promise<UploadedFileInfo>((resolve, reject) => {
         const reader = new FileReader();
         const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
 
@@ -129,27 +146,34 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
             isPdf,
           });
         };
+        reader.onerror = () => reject(new Error(`Could not read ${file.name}`));
         reader.readAsDataURL(file);
       });
     });
 
-    Promise.all(filePromises).then((newFiles) => {
-      setUploadedFiles((prev) => {
-        const combined = [...prev, ...newFiles];
-        const combinedBytes = combined.reduce(
-          (total, file) => total + approximateDataUrlBytes(file.dataUrl),
-          0,
-        );
-        if (combinedBytes > MAX_HOSTED_UPLOAD_BYTES) {
-          setUploadError(
-            'For the free hosted MVP, keep the PDF or combined page images under 3 MB.',
+    Promise.all(filePromises)
+      .then((newFiles) => {
+        setUploadedFiles((prev) => {
+          const combined = [...prev, ...newFiles];
+          const combinedBytes = combined.reduce(
+            (total, file) => total + approximateDataUrlBytes(file.dataUrl),
+            0,
           );
-          return prev;
-        }
-        return combined;
+          if (combinedBytes > MAX_HOSTED_UPLOAD_BYTES) {
+            setUploadError(
+              'For the free hosted MVP, keep the PDF or combined page images under 3 MB.',
+            );
+            return prev;
+          }
+          return combined;
+        });
+      })
+      .catch(() => {
+        setUploadError('One of the selected files could not be read. Please choose it again.');
+      })
+      .finally(() => {
+        setIsCompressing(false);
       });
-      setIsCompressing(false);
-    });
   };
 
   // Handle file upload from file input
@@ -232,7 +256,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*,application/pdf,.pdf"
+          accept="image/jpeg,image/png,application/pdf,.pdf,.jpg,.jpeg,.png"
           multiple
           onChange={handleFileChange}
           className="hidden"

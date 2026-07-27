@@ -48,6 +48,13 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    audioRef.current?.pause();
+    audioRef.current = null;
+    setIsPlaying(false);
+    setAudioError('');
+  }, [activeLang, text]);
+
   const generateSarvamAudio = async (): Promise<string | null> => {
     if (onGenerateAudio) {
       return onGenerateAudio();
@@ -81,6 +88,20 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
     }
 
     setAudioError('');
+    if (audioRef.current) {
+      try {
+        if (audioRef.current.ended) {
+          audioRef.current.currentTime = 0;
+        }
+        audioRef.current.playbackRate = playbackSpeed;
+        await audioRef.current.play();
+        setIsPlaying(true);
+        return;
+      } catch {
+        audioRef.current = null;
+      }
+    }
+
     setIsGenerating(true);
     try {
       const audioBase64 = await generateSarvamAudio();
@@ -93,6 +114,7 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
       sound.onended = () => setIsPlaying(false);
       sound.onerror = () => {
         setIsPlaying(false);
+        audioRef.current = null;
         setAudioError('The Sarvam audio could not be played on this device.');
       };
       await sound.play();
