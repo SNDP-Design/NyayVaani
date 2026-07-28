@@ -1,5 +1,5 @@
 import React from 'react';
-import { Scale, Bot, Upload } from 'lucide-react';
+import { Scale, Bot, Upload, ChevronDown } from 'lucide-react';
 import { SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 
@@ -49,22 +49,26 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-2 sm:gap-3">
             
             {/* Language Selector */}
-            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-300 text-xs">
-              <span className="text-slate-500 hidden sm:inline">{t.languageLabel}</span>
+            <div className="relative w-[132px] sm:w-[140px] shrink-0">
               <select
+                aria-label="Select language"
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value as SupportedLanguage)}
-                className="bg-transparent font-bold text-slate-900 focus:outline-none cursor-pointer"
+                className="h-10 w-full appearance-none rounded-full border border-slate-300 bg-slate-50 pl-4 pr-10 text-sm font-semibold text-slate-900 shadow-xs outline-none transition-colors cursor-pointer hover:border-slate-400 focus:border-black focus:ring-2 focus:ring-slate-200"
               >
-                <option value="hi">हिंदी (Hindi)</option>
                 <option value="en">English</option>
-                <option value="bn">বাংলা (Bengali)</option>
-                <option value="ta">தமிழ் (Tamil)</option>
-                <option value="te">తెలుగు (Telugu)</option>
-                <option value="mr">मराठी (Marathi)</option>
-                <option value="gu">ગુજરાતી (Gujarati)</option>
-                <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                <option value="hi">हिंदी</option>
+                <option value="bn">বাংলা</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="mr">मराठी</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="pa">ਪੰਜਾਬੀ</option>
               </select>
+              <ChevronDown
+                aria-hidden="true"
+                className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-700"
+              />
             </div>
 
             {currentStep === 'result' && (
