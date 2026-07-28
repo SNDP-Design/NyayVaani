@@ -4,7 +4,7 @@ import { SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 
 interface UploadScreenProps {
-  onReadDocument: (payload: { imageBase64?: string; imagesBase64?: string[]; textContent?: string }) => void;
+  onReadDocument: (payload: { imagesBase64?: string[]; textContent?: string }) => void;
   isLoading: boolean;
   selectedLanguage?: SupportedLanguage;
 }
@@ -19,10 +19,18 @@ interface UploadedFileInfo {
 
 const MAX_HOSTED_UPLOAD_BYTES = 3 * 1024 * 1024;
 
-const approximateDataUrlBytes = (dataUrl: string): number =>
-  Math.round((dataUrl.length * 3) / 4);
+const approximateDataUrlBytes = (dataUrl: string): number => {
+  const base64 = dataUrl.split(',', 2)[1] || '';
+  const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
+  return Math.max(0, Math.floor((base64.length * 3) / 4) - padding);
+};
 
-const compressAndResizeImage = (dataUrl: string, maxDimension = 1800, quality = 0.85): Promise<string> => {
+const compressAndResizeImage = (
+  dataUrl: string,
+  maxDimension = 1800,
+  quality = 0.85,
+  forceCompression = false,
+): Promise<string> => {
   return new Promise((resolve) => {
     if (!dataUrl.startsWith('data:image')) {
       resolve(dataUrl);
@@ -33,7 +41,12 @@ const compressAndResizeImage = (dataUrl: string, maxDimension = 1800, quality = 
       let width = img.width;
       let height = img.height;
 
-      if (width <= maxDimension && height <= maxDimension && dataUrl.length < 1000000) {
+      if (
+        !forceCompression &&
+        width <= maxDimension &&
+        height <= maxDimension &&
+        approximateDataUrlBytes(dataUrl) < 750000
+      ) {
         resolve(dataUrl);
         return;
       }
@@ -59,6 +72,8 @@ const compressAndResizeImage = (dataUrl: string, maxDimension = 1800, quality = 
         return;
       }
 
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
       ctx.drawImage(img, 0, 0, width, height);
       const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
       resolve(compressedDataUrl);
@@ -66,6 +81,54 @@ const compressAndResizeImage = (dataUrl: string, maxDimension = 1800, quality = 
     img.onerror = () => resolve(dataUrl);
     img.src = dataUrl;
   });
+};
+
+const optimizeImageBatch = async (files: UploadedFileInfo[]): Promise<UploadedFileInfo[]> => {
+  if (files.some((file) => file.isPdf)) return files;
+
+  const count = files.length;
+  const firstPass =
+    count <= 3
+      ? { maxDimension: 1800, quality: 0.85, force: false }
+      : count <= 6
+        ? { maxDimension: 1600, quality: 0.78, force: true }
+        : { maxDimension: 1400, quality: 0.72, force: true };
+  const passes = [
+    firstPass,
+    { maxDimension: 1250, quality: 0.68, force: true },
+    { maxDimension: 1050, quality: 0.62, force: true },
+  ];
+
+  let optimized = files;
+  for (const pass of passes) {
+    optimized = await Promise.all(
+      optimized.map(async (file) => {
+        const dataUrl = await compressAndResizeImage(
+          file.dataUrl,
+          pass.maxDimension,
+          pass.quality,
+          pass.force,
+        );
+        const bytes = approximateDataUrlBytes(dataUrl);
+        return {
+          ...file,
+          dataUrl,
+          size:
+            bytes >= 1024 * 1024
+              ? `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+              : `${Math.round(bytes / 1024)} KB`,
+        };
+      }),
+    );
+
+    const totalBytes = optimized.reduce(
+      (total, file) => total + approximateDataUrlBytes(file.dataUrl),
+      0,
+    );
+    if (totalBytes <= MAX_HOSTED_UPLOAD_BYTES) break;
+  }
+
+  return optimized;
 };
 
 export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLoading, selectedLanguage = 'en' }) => {
@@ -77,7 +140,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = getTranslation(selectedLanguage);
 
-  const processFiles = (files: FileList | File[]) => {
+  const processFiles = async (files: FileList | File[]) => {
     const fileArray = Array.from(files);
     if (fileArray.length === 0) return;
 
@@ -126,11 +189,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
           const rawDataUrl = (event.target?.result as string) || '';
           let finalDataUrl = rawDataUrl;
 
-          if (!isPdf && rawDataUrl.startsWith('data:image')) {
-            finalDataUrl = await compressAndResizeImage(rawDataUrl, 1800, 0.85);
-          }
-
-          const approximateBytes = Math.round((finalDataUrl.length * 3) / 4);
+          const approximateBytes = approximateDataUrlBytes(finalDataUrl);
           const sizeInMB = (approximateBytes / (1024 * 1024)).toFixed(2);
           const sizeStr = approximateBytes >= 1024 * 1024 ? `${sizeInMB} MB` : `${Math.round(approximateBytes / 1024)} KB`;
 
@@ -147,27 +206,23 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
       });
     });
 
-    Promise.all(filePromises)
-      .then((newFiles) => {
-        setUploadedFiles((prev) => {
-          const combined = [...prev, ...newFiles];
-          const combinedBytes = combined.reduce(
-            (total, file) => total + approximateDataUrlBytes(file.dataUrl),
-            0,
-          );
-          if (combinedBytes > MAX_HOSTED_UPLOAD_BYTES) {
-            setUploadError(t.uploadSizeError);
-            return prev;
-          }
-          return combined;
-        });
-      })
-      .catch(() => {
-        setUploadError(t.uploadReadError);
-      })
-      .finally(() => {
-        setIsCompressing(false);
-      });
+    try {
+      const newFiles = await Promise.all(filePromises);
+      const combined = await optimizeImageBatch([...uploadedFiles, ...newFiles]);
+      const combinedBytes = combined.reduce(
+        (total, file) => total + approximateDataUrlBytes(file.dataUrl),
+        0,
+      );
+      if (combinedBytes > MAX_HOSTED_UPLOAD_BYTES) {
+        setUploadError(t.uploadSizeError);
+        return;
+      }
+      setUploadedFiles(combined);
+    } catch {
+      setUploadError(t.uploadReadError);
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   // Handle file upload from file input
@@ -213,7 +268,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     if (uploadedFiles.length > 0) {
       const dataUrls = uploadedFiles.map((f) => f.dataUrl);
       onReadDocument({
-        imageBase64: dataUrls[0],
         imagesBase64: dataUrls,
       });
     } else if (pastedText.trim()) {

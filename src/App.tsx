@@ -19,7 +19,7 @@ export default function App() {
   }, [selectedLanguage, t.appTitle, t.appSubtitle]);
 
   // Handle "Read the Document" click
-  const handleReadDocument = async (payload: { imageBase64?: string; imagesBase64?: string[]; textContent?: string }) => {
+  const handleReadDocument = async (payload: { imagesBase64?: string[]; textContent?: string }) => {
     // If custom images/PDFs or text was uploaded/pasted
     setIsLoading(true);
     try {
@@ -27,16 +27,15 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          imageBase64: payload.imageBase64,
           imagesBase64: payload.imagesBase64,
           textContent: payload.textContent,
           language: selectedLanguage,
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
-      if (data.success && data.analysis) {
+      if (response.ok && data?.success && data.analysis) {
         const customCase: CourtDocumentCase = {
           id: `custom-${Date.now()}`,
           title: data.analysis.title || t.readUploadedDocument,
@@ -50,7 +49,7 @@ export default function App() {
         setCurrentStep('result');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        alert(t.analysisFailedError);
+        alert(response.status === 413 ? t.uploadSizeError : t.analysisFailedError);
       }
     } catch (err: any) {
       console.error('Analysis call error:', err);
