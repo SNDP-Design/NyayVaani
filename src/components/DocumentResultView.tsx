@@ -41,6 +41,90 @@ const RESULT_LABELS = {
     forum: 'अदालत/स्थान:',
     noSteps: 'इस आदेश में आगे पालन करने के लिए कोई कदम नहीं मिला।',
   },
+  bn: {
+    caseMetadata: 'মামলার তথ্য',
+    curatedDemo: 'নমুনা তথ্য',
+    visionProcessed: 'সর্বম ভিশন দ্বারা প্রক্রিয়াকৃত',
+    caseNumber: 'মামলা নম্বর',
+    courtForum: 'আদালত',
+    refused: 'বিশ্লেষণ বন্ধ',
+    isolatedParagraph: 'আলাদা করা মূল অনুচ্ছেদ',
+    demoQuoteNote: 'এটি প্রস্তুত করা নমুনা লেখা; কোনো আপলোড করা নথি থেকে নেওয়া নয়।',
+    visionQuoteNote: 'সর্বম ভিশন দ্বারা নেওয়া হয়েছে। মূল আদেশের সঙ্গে উদ্ধৃতিটি মিলিয়ে দেখুন।',
+    deadline: 'সময়সীমা:',
+    forum: 'আদালত/স্থান:',
+    noSteps: 'এই আদেশে ভবিষ্যতে পালন করার কোনো পদক্ষেপ পাওয়া যায়নি।',
+  },
+  ta: {
+    caseMetadata: 'வழக்கு விவரங்கள்',
+    curatedDemo: 'மாதிரித் தரவு',
+    visionProcessed: 'சர்வம் விஷன் செயலாக்கியது',
+    caseNumber: 'வழக்கு எண்',
+    courtForum: 'நீதிமன்றம்',
+    refused: 'பகுப்பாய்வு நிறுத்தப்பட்டது',
+    isolatedParagraph: 'தனியாகப் பிரித்த முக்கியப் பத்தி',
+    demoQuoteNote: 'இது தயாரிக்கப்பட்ட மாதிரி உரை; பதிவேற்றிய ஆவணத்திலிருந்து எடுக்கப்படவில்லை.',
+    visionQuoteNote: 'சர்வம் விஷன் மூலம் எடுக்கப்பட்டது. மூல உத்தரவுடன் இந்த மேற்கோளைச் சரிபார்க்கவும்.',
+    deadline: 'காலக்கெடு:',
+    forum: 'நீதிமன்றம்/இடம்:',
+    noSteps: 'இந்த உத்தரவுக்கு எதிர்கால இணக்க நடவடிக்கைகள் எதுவும் கண்டறியப்படவில்லை.',
+  },
+  te: {
+    caseMetadata: 'కేసు వివరాలు',
+    curatedDemo: 'నమూనా డేటా',
+    visionProcessed: 'సర్వం విజన్ ద్వారా ప్రాసెస్ చేయబడింది',
+    caseNumber: 'కేసు సంఖ్య',
+    courtForum: 'న్యాయస్థానం',
+    refused: 'విశ్లేషణ నిలిపివేయబడింది',
+    isolatedParagraph: 'వేరు చేసిన ముఖ్య పేరా',
+    demoQuoteNote: 'ఇది సిద్ధం చేసిన నమూనా పాఠ్యం; అప్‌లోడ్ చేసిన పత్రం నుండి తీసుకోలేదు.',
+    visionQuoteNote: 'సర్వం విజన్ ద్వారా తీసుకోబడింది. ఈ ఉటంకింపును అసలు ఆదేశంతో సరిచూడండి.',
+    deadline: 'గడువు:',
+    forum: 'న్యాయస్థానం/స్థలం:',
+    noSteps: 'ఈ ఆదేశానికి భవిష్యత్తులో పాటించాల్సిన చర్యలు ఏవీ గుర్తించబడలేదు.',
+  },
+  mr: {
+    caseMetadata: 'प्रकरणाची माहिती',
+    curatedDemo: 'नमुना माहिती',
+    visionProcessed: 'सर्वम व्हिजनद्वारे प्रक्रिया केलेले',
+    caseNumber: 'प्रकरण क्रमांक',
+    courtForum: 'न्यायालय',
+    refused: 'विश्लेषण थांबवले',
+    isolatedParagraph: 'वेगळा केलेला मुख्य परिच्छेद',
+    demoQuoteNote: 'हा तयार केलेला नमुना मजकूर आहे; अपलोड केलेल्या दस्तऐवजातून घेतलेला नाही.',
+    visionQuoteNote: 'सर्वम व्हिजनद्वारे काढलेले. कृपया मूळ आदेशाशी हा उतारा पडताळा.',
+    deadline: 'अंतिम मुदत:',
+    forum: 'न्यायालय/ठिकाण:',
+    noSteps: 'या आदेशासाठी पुढील पालनाची कोणतीही पायरी आढळली नाही.',
+  },
+  gu: {
+    caseMetadata: 'કેસની માહિતી',
+    curatedDemo: 'નમૂના માહિતી',
+    visionProcessed: 'સર્વમ વિઝન દ્વારા પ્રક્રિયા કરેલ',
+    caseNumber: 'કેસ નંબર',
+    courtForum: 'કોર્ટ',
+    refused: 'વિશ્લેષણ રોકાયું',
+    isolatedParagraph: 'અલગ કરેલો મુખ્ય ફકરો',
+    demoQuoteNote: 'આ તૈયાર કરેલું નમૂના લખાણ છે; અપલોડ કરેલા દસ્તાવેજમાંથી લેવામાં આવ્યું નથી.',
+    visionQuoteNote: 'સર્વમ વિઝન દ્વારા કાઢવામાં આવ્યું. કૃપા કરીને મૂળ આદેશ સાથે આ અવતરણ ચકાસો.',
+    deadline: 'સમયમર્યાદા:',
+    forum: 'કોર્ટ/સ્થળ:',
+    noSteps: 'આ આદેશ માટે ભવિષ્યમાં પાલન કરવાના કોઈ પગલાં મળ્યા નથી.',
+  },
+  pa: {
+    caseMetadata: 'ਕੇਸ ਦੀ ਜਾਣਕਾਰੀ',
+    curatedDemo: 'ਨਮੂਨਾ ਜਾਣਕਾਰੀ',
+    visionProcessed: 'ਸਰਵਮ ਵਿਜ਼ਨ ਦੁਆਰਾ ਪ੍ਰਕਿਰਿਆ ਕੀਤੀ',
+    caseNumber: 'ਕੇਸ ਨੰਬਰ',
+    courtForum: 'ਅਦਾਲਤ',
+    refused: 'ਵਿਸ਼ਲੇਸ਼ਣ ਰੋਕਿਆ ਗਿਆ',
+    isolatedParagraph: 'ਅਲੱਗ ਕੀਤਾ ਮੁੱਖ ਪੈਰਾ',
+    demoQuoteNote: 'ਇਹ ਤਿਆਰ ਕੀਤਾ ਨਮੂਨਾ ਲਿਖਤ ਹੈ; ਅੱਪਲੋਡ ਕੀਤੇ ਦਸਤਾਵੇਜ਼ ਤੋਂ ਨਹੀਂ ਲਿਆ ਗਿਆ।',
+    visionQuoteNote: 'ਸਰਵਮ ਵਿਜ਼ਨ ਦੁਆਰਾ ਕੱਢਿਆ ਗਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਮੂਲ ਹੁਕਮ ਨਾਲ ਇਸ ਹਵਾਲੇ ਦੀ ਜਾਂਚ ਕਰੋ।',
+    deadline: 'ਆਖਰੀ ਮਿਤੀ:',
+    forum: 'ਅਦਾਲਤ/ਸਥਾਨ:',
+    noSteps: 'ਇਸ ਹੁਕਮ ਲਈ ਭਵਿੱਖ ਵਿੱਚ ਪਾਲਣਾ ਕਰਨ ਵਾਲਾ ਕੋਈ ਕਦਮ ਨਹੀਂ ਮਿਲਿਆ।',
+  },
 };
 
 const HINDI_DEMO_STEPS: Record<string, { action: string; deadline: string; forum: string }> = {
@@ -113,10 +197,10 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
   const analysis = currentCase.analysis;
   const isRefusal = currentCase.isRefusalCase || analysis.isRefusalState;
   const isCuratedDemo = !currentCase.id.startsWith('custom-');
-  const labels = selectedLanguage === 'hi' ? RESULT_LABELS.hi : RESULT_LABELS.en;
+  const labels = RESULT_LABELS[selectedLanguage];
 
   // Selected explanation & audio script
-  const plainExplanation = analysis.plainLanguageExplanations?.[selectedLanguage] || analysis.plainLanguageExplanations?.[selectedLanguage === 'hi' ? 'en' : 'hi'] || 'Analysis completed.';
+  const plainExplanation = analysis.plainLanguageExplanations?.[selectedLanguage] || analysis.plainLanguageExplanations?.[selectedLanguage === 'hi' ? 'en' : 'hi'] || t.analysisCompleted;
   const audioScript = analysis.audioScripts?.[selectedLanguage] || analysis.audioScripts?.[selectedLanguage === 'hi' ? 'en' : 'hi'] || plainExplanation;
 
   return (
@@ -203,8 +287,8 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
 
             {isRefusal ? (
               <div className="space-y-2 text-xs text-slate-900">
-                <p className="font-bold">{analysis.refusalReason || 'The uploaded document is incomplete or missing the operative ruling page.'}</p>
-                <p className="text-[11px] text-slate-600">NyayVaani refuses to guess court directions when pages are truncated.</p>
+                <p className="font-bold">{analysis.refusalReason || t.refusalWarningSub}</p>
+                <p className="text-[11px] text-slate-600">{t.refusalWarningSub}</p>
               </div>
             ) : (
               <div className="space-y-2">

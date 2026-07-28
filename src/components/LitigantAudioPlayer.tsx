@@ -197,7 +197,7 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
             ) : isPlaying ? (
               <>
                 <Pause className="h-4 w-4" />
-                <span>Pause</span>
+                <span>{t.pauseAudio}</span>
               </>
             ) : (
               <>

@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Language Selector */}
             <div className="relative w-[132px] sm:w-[140px] shrink-0">
               <select
-                aria-label="Select language"
+                aria-label={t.selectLanguageAria}
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value as SupportedLanguage)}
                 className="h-10 w-full appearance-none rounded-full border border-slate-300 bg-slate-50 pl-4 pr-10 text-sm font-semibold text-slate-900 shadow-xs outline-none transition-colors cursor-pointer hover:border-slate-400 focus:border-black focus:ring-2 focus:ring-slate-200"

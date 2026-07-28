@@ -94,7 +94,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
       );
     });
     if (unsupportedFile) {
-      setUploadError('Please upload only PDF, JPG, JPEG, or PNG court documents.');
+      setUploadError(t.uploadUnsupportedError);
       return;
     }
 
@@ -106,11 +106,11 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     const totalPdfCount = existingPdfCount + incomingPdfCount;
 
     if (totalCount > 10) {
-      setUploadError('Sarvam Vision accepts one PDF up to 10 pages, or up to 10 page images.');
+      setUploadError(t.uploadPageLimitError);
       return;
     }
     if (totalPdfCount > 1 || (totalPdfCount === 1 && totalCount > 1)) {
-      setUploadError('Please upload one PDF by itself, or upload multiple JPG/PNG page images together.');
+      setUploadError(t.uploadPdfMixError);
       return;
     }
 
@@ -156,16 +156,14 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
             0,
           );
           if (combinedBytes > MAX_HOSTED_UPLOAD_BYTES) {
-            setUploadError(
-              'For the free hosted MVP, keep the PDF or combined page images under 3 MB.',
-            );
+            setUploadError(t.uploadSizeError);
             return prev;
           }
           return combined;
         });
       })
       .catch(() => {
-        setUploadError('One of the selected files could not be read. Please choose it again.');
+        setUploadError(t.uploadReadError);
       })
       .finally(() => {
         setIsCompressing(false);
@@ -221,7 +219,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     } else if (pastedText.trim()) {
       onReadDocument({ textContent: pastedText });
     } else {
-      setUploadError('Please upload a court-order PDF or image, or paste the court-order text.');
+      setUploadError(t.uploadRequiredError);
     }
   };
 
@@ -289,10 +287,10 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                 <div className="flex items-center gap-2">
                   <Layers className="h-5 w-5 text-black" />
                   <span className="font-extrabold text-slate-900 text-sm sm:text-base">
-                    {uploadedFiles.length} {uploadedFiles.length === 1 ? 'Page / File Selected' : 'Pages / Files Selected'}
+                    {uploadedFiles.length} {uploadedFiles.length === 1 ? t.fileSelected : t.filesSelected}
                   </span>
                   <span className="bg-black text-white text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
-                    Multi-Page Ready
+                    {t.multiPageReady}
                   </span>
                 </div>
 
@@ -306,7 +304,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                     className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold rounded-xl text-xs flex items-center gap-1.5 cursor-pointer border border-slate-300 transition-colors"
                   >
                     <Plus className="h-3.5 w-3.5 text-black" />
-                    <span>Add More Images</span>
+                    <span>{t.addMoreFiles}</span>
                   </button>
 
                   {/* Clear All */}
@@ -317,7 +315,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                     }}
                     className="px-2.5 py-1.5 text-xs text-slate-500 hover:text-red-600 font-bold cursor-pointer transition-colors"
                   >
-                    Clear All
+                    {t.clearAll}
                   </button>
                 </div>
               </div>
@@ -335,7 +333,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                         e.stopPropagation();
                         handleRemoveFile(file.id);
                       }}
-                      title="Remove this page"
+                      title={t.removePage}
                       className="absolute -top-2 -right-2 bg-black text-white hover:bg-red-600 p-1 rounded-full shadow-md z-10 cursor-pointer transition-colors"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -343,7 +341,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
 
                     {/* Page badge */}
                     <div className="w-full flex items-center justify-between text-[10px] font-mono font-bold text-slate-700 px-1">
-                      <span>PAGE {idx + 1}</span>
+                      <span>{t.pageLabel.toUpperCase()} {idx + 1}</span>
                       <span>{file.size}</span>
                     </div>
 
@@ -355,7 +353,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                           <span className="text-[10px] font-bold truncate max-w-[100px]">{file.name}</span>
                         </div>
                       ) : (
-                        <img src={file.dataUrl} alt={`Page ${idx + 1}`} className="h-full w-full object-cover" />
+                        <img src={file.dataUrl} alt={`${t.pageLabel} ${idx + 1}`} className="h-full w-full object-cover" />
                       )}
                     </div>
 
@@ -368,7 +366,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
               </div>
 
               <p className="text-xs text-slate-500 text-center font-medium">
-                Tip: You can select or photograph up to 10 court-order pages together. Sarvam Vision keeps them in page order.
+                {t.uploadTip}
               </p>
             </div>
           ) : (
@@ -379,14 +377,14 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
 
               <div className="space-y-3">
                 <p className="text-base font-bold text-slate-900">
-                  Drag & drop court order photos or <span className="text-black font-extrabold underline">PDF document</span> here, or{' '}
+                  {t.dragDropTitle}{' '}
                   <span className="text-black hover:text-slate-700 underline cursor-pointer font-extrabold">
                     {t.browseFiles}
                   </span>
                 </p>
 
                 <p className="text-xs text-slate-500 font-medium">
-                  Upload one PDF (up to 10 pages) or up to 10 JPG/PNG court-order images
+                  {t.uploadNote}
                 </p>
               </div>
             </>
@@ -397,9 +395,9 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
         <div className="pt-2">
           <details className="group text-xs">
             <summary className="font-bold text-slate-600 hover:text-slate-900 cursor-pointer flex items-center justify-between">
-              <span>Need to paste plain text instead?</span>
-              <span className="text-[10px] text-slate-400 font-mono group-open:hidden">+ Expand</span>
-              <span className="text-[10px] text-slate-400 font-mono hidden group-open:inline">- Collapse</span>
+              <span>{t.pastePrompt}</span>
+              <span className="text-[10px] text-slate-400 font-mono group-open:hidden">+ {t.expand}</span>
+              <span className="text-[10px] text-slate-400 font-mono hidden group-open:inline">- {t.collapse}</span>
             </summary>
             <textarea
               value={pastedText}
@@ -410,7 +408,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                 }
               }}
               rows={4}
-              placeholder="Paste text from photocopied court order here..."
+              placeholder={t.pastePlaceholder}
               className="mt-2 w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono text-slate-800 focus:bg-white focus:outline-none focus:border-black"
             />
           </details>
@@ -426,7 +424,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
             {isCompressing ? (
               <>
                 <Sparkles className="h-5 w-5 animate-spin text-slate-300" />
-                <span>Optimizing Court Pages for Fast AI Analysis...</span>
+                <span>{t.optimizingPages}</span>
               </>
             ) : isLoading ? (
               <>
@@ -438,10 +436,10 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                 <Sparkles className="h-5 w-5 text-slate-300 group-hover:rotate-12 transition-transform" />
                 <span>
                   {uploadedFiles.length > 1
-                    ? `Read ${uploadedFiles.length} Uploaded Court Pages`
+                    ? t.readUploadedPages.replace('{count}', String(uploadedFiles.length))
                     : uploadedFiles.length === 1
-                    ? `Read Uploaded Court Document`
-                    : 'Read Court Document'}
+                    ? t.readUploadedDocument
+                    : t.readCourtDocument}
                 </span>
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </>

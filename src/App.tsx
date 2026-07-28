@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Header } from './components/Header';
 import { UploadScreen } from './components/UploadScreen';
 import { DocumentResultView } from './components/DocumentResultView';
@@ -13,6 +13,11 @@ export default function App() {
   const [currentCase, setCurrentCase] = useState<BenchmarkCase>(BENCHMARK_CASES[0]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const t = getTranslation(selectedLanguage);
+
+  useEffect(() => {
+    document.documentElement.lang = selectedLanguage;
+    document.title = `${t.appTitle} - ${t.appSubtitle}`;
+  }, [selectedLanguage, t.appTitle, t.appSubtitle]);
 
   // Handle "Read the Document" click
   const handleReadDocument = async (payload: { imageBase64?: string; imagesBase64?: string[]; textContent?: string }) => {
@@ -35,7 +40,7 @@ export default function App() {
       if (data.success && data.analysis) {
         const customCase: BenchmarkCase = {
           id: `custom-${Date.now()}`,
-          title: data.analysis.title || 'Uploaded Court Document',
+          title: data.analysis.title || t.readUploadedDocument,
           caseNumber: data.analysis.caseNumber || 'O.S. / Misc Application',
           type: 'order',
           courtName: data.analysis.courtName || 'District Court / High Court',
@@ -57,14 +62,11 @@ export default function App() {
         setCurrentStep('result');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        alert(
-          data.error ||
-          'Sarvam could not analyze this court document. Please try again.',
-        );
+        alert(t.analysisFailedError);
       }
     } catch (err: any) {
       console.error('Analysis call error:', err);
-      alert('NyayVaani could not reach Sarvam AI. Please check your connection and try again.');
+      alert(t.connectionError);
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +111,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2 font-semibold text-slate-700">
             <Scale className="h-4 w-4 text-indigo-600" />
-            <span>NyayVaani Voice & Document Intelligence • Sarvam AI</span>
+            <span>{t.appTitle} • Sarvam AI</span>
           </div>
 
           <p className="text-[11px] text-slate-500">

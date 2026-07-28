@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Volume2, VolumeX, Send, Sparkles, Bot, X, RefreshCw } from 'lucide-react';
-import { AnalysisResult } from '../types';
+import { AnalysisResult, SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 
 interface VoiceAIAgentProps {
   analysis: AnalysisResult;
-  selectedLanguage: string;
+  selectedLanguage: SupportedLanguage;
   onLanguageChange?: (lang: string) => void;
   isOpen: boolean;
   onClose: () => void;
@@ -18,6 +18,134 @@ interface Message {
   timestamp: string;
   keyFact?: string;
 }
+
+const VOICE_CORE_LABELS: Record<SupportedLanguage, {
+  document: string;
+  autoSpeakOn: string;
+  autoSpeakOff: string;
+  you: string;
+  greeting: string;
+  operativeRuling: string;
+  transcribingDetail: string;
+  voiceUnavailable: string;
+  transcriptionFailed: string;
+  recordingUnsupported: string;
+  microphoneRequired: string;
+  answerFailed: string;
+}> = {
+  en: {
+    document: 'Document:',
+    autoSpeakOn: 'Automatic spoken responses are on',
+    autoSpeakOff: 'Automatic spoken responses are off',
+    you: 'You',
+    greeting: 'Hello! I am NyayVaani Voice AI. I have read your court order. Ask me anything about it in your language.',
+    operativeRuling: 'Operative ruling',
+    transcribingDetail: 'Sarvam Saaras is turning your voice into text...',
+    voiceUnavailable: 'Sarvam voice is temporarily unavailable.',
+    transcriptionFailed: 'Sarvam could not understand the recording. Please try again or type your question.',
+    recordingUnsupported: 'Audio recording is not supported in this browser. You can type your question instead.',
+    microphoneRequired: 'Microphone access is needed to ask by voice. You can type your question instead.',
+    answerFailed: 'Sarvam could not answer that question right now. Please try again.',
+  },
+  hi: {
+    document: 'दस्तावेज़:',
+    autoSpeakOn: 'जवाब अपने-आप बोलकर सुनाना चालू है',
+    autoSpeakOff: 'जवाब अपने-आप बोलकर सुनाना बंद है',
+    you: 'आप',
+    greeting: 'नमस्ते! मैं न्यायवाणी वॉइस AI हूं। मैंने आपका अदालत आदेश पढ़ लिया है। इसके बारे में अपनी भाषा में कुछ भी पूछें।',
+    operativeRuling: 'मुख्य अदालती आदेश',
+    transcribingDetail: 'सर्वम सारस आपकी आवाज़ को लिखित पाठ में बदल रहा है...',
+    voiceUnavailable: 'सर्वम वॉइस अभी उपलब्ध नहीं है।',
+    transcriptionFailed: 'सर्वम रिकॉर्डिंग समझ नहीं सका। फिर कोशिश करें या अपना सवाल लिखें।',
+    recordingUnsupported: 'इस ब्राउज़र में ऑडियो रिकॉर्डिंग उपलब्ध नहीं है। आप सवाल लिख सकते हैं।',
+    microphoneRequired: 'आवाज़ से पूछने के लिए माइक्रोफ़ोन की अनुमति चाहिए। आप सवाल लिख सकते हैं।',
+    answerFailed: 'सर्वम अभी इस सवाल का जवाब नहीं दे सका। कृपया फिर कोशिश करें।',
+  },
+  bn: {
+    document: 'নথি:',
+    autoSpeakOn: 'উত্তর স্বয়ংক্রিয়ভাবে পড়া চালু আছে',
+    autoSpeakOff: 'উত্তর স্বয়ংক্রিয়ভাবে পড়া বন্ধ আছে',
+    you: 'আপনি',
+    greeting: 'নমস্কার! আমি ন্যায়বাণী ভয়েস AI। আপনার আদালতের আদেশটি পড়েছি। নিজের ভাষায় এ সম্পর্কে যেকোনো প্রশ্ন করুন।',
+    operativeRuling: 'আদালতের মূল নির্দেশ',
+    transcribingDetail: 'সর্বম সারস আপনার কণ্ঠকে লেখায় রূপান্তর করছে...',
+    voiceUnavailable: 'সর্বম ভয়েস এখন সাময়িকভাবে পাওয়া যাচ্ছে না।',
+    transcriptionFailed: 'সর্বম রেকর্ডিংটি বুঝতে পারেনি। আবার চেষ্টা করুন অথবা প্রশ্নটি লিখুন।',
+    recordingUnsupported: 'এই ব্রাউজারে অডিও রেকর্ডিং সমর্থিত নয়। প্রশ্নটি লিখতে পারেন।',
+    microphoneRequired: 'কণ্ঠে প্রশ্ন করতে মাইক্রোফোনের অনুমতি প্রয়োজন। প্রশ্নটি লিখতেও পারেন।',
+    answerFailed: 'সর্বম এখন প্রশ্নটির উত্তর দিতে পারেনি। আবার চেষ্টা করুন।',
+  },
+  ta: {
+    document: 'ஆவணம்:',
+    autoSpeakOn: 'பதில்களைத் தானாகப் பேசுவது இயக்கப்பட்டுள்ளது',
+    autoSpeakOff: 'பதில்களைத் தானாகப் பேசுவது நிறுத்தப்பட்டுள்ளது',
+    you: 'நீங்கள்',
+    greeting: 'வணக்கம்! நான் நியாயவாணி குரல் AI. உங்கள் நீதிமன்ற உத்தரவைப் படித்துள்ளேன். இதைப் பற்றி உங்கள் மொழியில் எந்தக் கேள்வியையும் கேளுங்கள்.',
+    operativeRuling: 'நீதிமன்றத்தின் முக்கிய உத்தரவு',
+    transcribingDetail: 'சர்வம் சாரஸ் உங்கள் குரலை உரையாக மாற்றுகிறது...',
+    voiceUnavailable: 'சர்வம் குரல் தற்போது கிடைக்கவில்லை.',
+    transcriptionFailed: 'சர்வம் பதிவைப் புரிந்துகொள்ளவில்லை. மீண்டும் முயலுங்கள் அல்லது கேள்வியைத் தட்டச்சு செய்யுங்கள்.',
+    recordingUnsupported: 'இந்த உலாவியில் ஒலிப்பதிவு வசதி இல்லை. கேள்வியைத் தட்டச்சு செய்யலாம்.',
+    microphoneRequired: 'குரலில் கேட்க மைக்ரோஃபோன் அனுமதி தேவை. கேள்வியைத் தட்டச்சு செய்யலாம்.',
+    answerFailed: 'சர்வம் இப்போது அந்தக் கேள்விக்குப் பதிலளிக்க முடியவில்லை. மீண்டும் முயலுங்கள்.',
+  },
+  te: {
+    document: 'పత్రం:',
+    autoSpeakOn: 'సమాధానాలను స్వయంగా వినిపించడం ఆన్‌లో ఉంది',
+    autoSpeakOff: 'సమాధానాలను స్వయంగా వినిపించడం ఆఫ్‌లో ఉంది',
+    you: 'మీరు',
+    greeting: 'నమస్కారం! నేను న్యాయవాణి వాయిస్ AI. మీ కోర్టు ఆదేశాన్ని చదివాను. దీని గురించి మీ భాషలో ఏ ప్రశ్నైనా అడగండి.',
+    operativeRuling: 'కోర్టు ముఖ్య ఆదేశం',
+    transcribingDetail: 'సర్వం సారస్ మీ వాయిస్‌ను పాఠ్యంగా మారుస్తోంది...',
+    voiceUnavailable: 'సర్వం వాయిస్ ప్రస్తుతం అందుబాటులో లేదు.',
+    transcriptionFailed: 'సర్వం రికార్డింగ్‌ను అర్థం చేసుకోలేకపోయింది. మళ్లీ ప్రయత్నించండి లేదా ప్రశ్నను టైప్ చేయండి.',
+    recordingUnsupported: 'ఈ బ్రౌజర్‌లో ఆడియో రికార్డింగ్‌కు మద్దతు లేదు. ప్రశ్నను టైప్ చేయవచ్చు.',
+    microphoneRequired: 'వాయిస్‌తో అడగడానికి మైక్రోఫోన్ అనుమతి అవసరం. ప్రశ్నను టైప్ చేయవచ్చు.',
+    answerFailed: 'సర్వం ప్రస్తుతం ఆ ప్రశ్నకు సమాధానం ఇవ్వలేకపోయింది. మళ్లీ ప్రయత్నించండి.',
+  },
+  mr: {
+    document: 'दस्तऐवज:',
+    autoSpeakOn: 'उत्तरे आपोआप वाचून दाखवणे सुरू आहे',
+    autoSpeakOff: 'उत्तरे आपोआप वाचून दाखवणे बंद आहे',
+    you: 'तुम्ही',
+    greeting: 'नमस्कार! मी न्यायवाणी व्हॉइस AI आहे. मी तुमचा न्यायालयीन आदेश वाचला आहे. त्याबद्दल तुमच्या भाषेत कोणताही प्रश्न विचारा.',
+    operativeRuling: 'न्यायालयाचा मुख्य आदेश',
+    transcribingDetail: 'सर्वम सारस तुमचा आवाज मजकुरात बदलत आहे...',
+    voiceUnavailable: 'सर्वम व्हॉइस सध्या उपलब्ध नाही.',
+    transcriptionFailed: 'सर्वमला रेकॉर्डिंग समजले नाही. पुन्हा प्रयत्न करा किंवा प्रश्न टाइप करा.',
+    recordingUnsupported: 'या ब्राउझरमध्ये ऑडिओ रेकॉर्डिंग उपलब्ध नाही. तुम्ही प्रश्न टाइप करू शकता.',
+    microphoneRequired: 'आवाजाने विचारण्यासाठी मायक्रोफोनची परवानगी आवश्यक आहे. तुम्ही प्रश्न टाइप करू शकता.',
+    answerFailed: 'सर्वम सध्या त्या प्रश्नाचे उत्तर देऊ शकले नाही. पुन्हा प्रयत्न करा.',
+  },
+  gu: {
+    document: 'દસ્તાવેજ:',
+    autoSpeakOn: 'જવાબ આપમેળે બોલીને સંભળાવવાનું ચાલુ છે',
+    autoSpeakOff: 'જવાબ આપમેળે બોલીને સંભળાવવાનું બંધ છે',
+    you: 'તમે',
+    greeting: 'નમસ્તે! હું ન્યાયવાણી વોઇસ AI છું. મેં તમારો કોર્ટ આદેશ વાંચ્યો છે. તેના વિશે તમારી ભાષામાં કોઈપણ પ્રશ્ન પૂછો.',
+    operativeRuling: 'કોર્ટનો મુખ્ય આદેશ',
+    transcribingDetail: 'સર્વમ સારસ તમારા અવાજને લખાણમાં બદલી રહ્યું છે...',
+    voiceUnavailable: 'સર્વમ વોઇસ હાલમાં ઉપલબ્ધ નથી.',
+    transcriptionFailed: 'સર્વમ રેકોર્ડિંગ સમજી શક્યું નથી. ફરી પ્રયાસ કરો અથવા પ્રશ્ન લખો.',
+    recordingUnsupported: 'આ બ્રાઉઝરમાં ઑડિયો રેકોર્ડિંગ ઉપલબ્ધ નથી. તમે પ્રશ્ન લખી શકો છો.',
+    microphoneRequired: 'અવાજથી પૂછવા માટે માઇક્રોફોનની મંજૂરી જરૂરી છે. તમે પ્રશ્ન લખી શકો છો.',
+    answerFailed: 'સર્વમ હાલમાં તે પ્રશ્નનો જવાબ આપી શક્યું નથી. ફરી પ્રયાસ કરો.',
+  },
+  pa: {
+    document: 'ਦਸਤਾਵੇਜ਼:',
+    autoSpeakOn: 'ਜਵਾਬ ਆਪਣੇ ਆਪ ਬੋਲ ਕੇ ਸੁਣਾਉਣਾ ਚਾਲੂ ਹੈ',
+    autoSpeakOff: 'ਜਵਾਬ ਆਪਣੇ ਆਪ ਬੋਲ ਕੇ ਸੁਣਾਉਣਾ ਬੰਦ ਹੈ',
+    you: 'ਤੁਸੀਂ',
+    greeting: 'ਸਤਿ ਸ਼੍ਰੀ ਅਕਾਲ! ਮੈਂ ਨਿਆਇਵਾਣੀ ਵੋਇਸ AI ਹਾਂ। ਮੈਂ ਤੁਹਾਡਾ ਅਦਾਲਤੀ ਹੁਕਮ ਪੜ੍ਹ ਲਿਆ ਹੈ। ਇਸ ਬਾਰੇ ਆਪਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਕੋਈ ਵੀ ਸਵਾਲ ਪੁੱਛੋ।',
+    operativeRuling: 'ਅਦਾਲਤ ਦਾ ਮੁੱਖ ਹੁਕਮ',
+    transcribingDetail: 'ਸਰਵਮ ਸਾਰਸ ਤੁਹਾਡੀ ਆਵਾਜ਼ ਨੂੰ ਲਿਖਤ ਵਿੱਚ ਬਦਲ ਰਿਹਾ ਹੈ...',
+    voiceUnavailable: 'ਸਰਵਮ ਵੋਇਸ ਇਸ ਵੇਲੇ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।',
+    transcriptionFailed: 'ਸਰਵਮ ਰਿਕਾਰਡਿੰਗ ਨੂੰ ਸਮਝ ਨਹੀਂ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ ਜਾਂ ਸਵਾਲ ਲਿਖੋ।',
+    recordingUnsupported: 'ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਆਡੀਓ ਰਿਕਾਰਡਿੰਗ ਉਪਲਬਧ ਨਹੀਂ ਹੈ। ਤੁਸੀਂ ਸਵਾਲ ਲਿਖ ਸਕਦੇ ਹੋ।',
+    microphoneRequired: 'ਆਵਾਜ਼ ਨਾਲ ਪੁੱਛਣ ਲਈ ਮਾਈਕ੍ਰੋਫੋਨ ਦੀ ਇਜਾਜ਼ਤ ਚਾਹੀਦੀ ਹੈ। ਤੁਸੀਂ ਸਵਾਲ ਲਿਖ ਸਕਦੇ ਹੋ।',
+    answerFailed: 'ਸਰਵਮ ਇਸ ਵੇਲੇ ਉਸ ਸਵਾਲ ਦਾ ਜਵਾਬ ਨਹੀਂ ਦੇ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+  },
+};
 
 export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
   analysis,
@@ -40,41 +168,24 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
   const spokenAudioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const t = getTranslation(selectedLanguage);
-  const voiceLabels = selectedLanguage === 'hi'
-    ? {
-        assistant: 'संवाद सहायक',
-        document: 'दस्तावेज़:',
-        askAnything: 'अपने अपलोड किए गए दस्तावेज़ के बारे में पूछें',
-        autoSpeakOn: 'जवाब अपने-आप बोलकर सुनाना चालू',
-        autoSpeakOff: 'जवाब अपने-आप बोलकर सुनाना बंद',
-        speaking: 'सर्वम बुलबुल जवाब बोलकर सुना रहा है...',
-        stopAudio: 'आवाज़ रोकें',
-        you: 'आप',
-        listenAgain: 'फिर से सुनें',
-        reading: 'न्यायवाणी जवाब के लिए आपका दस्तावेज़ पढ़ रही है...',
-        ask: 'पूछें:',
-        recording: 'रिकॉर्डिंग जारी है—रोकने के लिए क्लिक करें',
-        recordQuestion: 'सर्वम सारस के लिए प्रश्न रिकॉर्ड करें',
-        transcribing: 'सर्वम सारस आपकी आवाज़ को लिखित प्रश्न में बदल रहा है...',
-        recordingHelp: 'सर्वम सारस के लिए रिकॉर्डिंग—पूरा होने पर माइक्रोफ़ोन दबाएं',
-      }
-    : {
-        assistant: 'Interactive Assistant',
-        document: 'Document:',
-        askAnything: 'Ask anything about your uploaded document',
-        autoSpeakOn: 'Auto-speak responses ON',
-        autoSpeakOff: 'Auto-speak responses OFF',
-        speaking: 'Sarvam Bulbul is speaking aloud...',
-        stopAudio: 'Stop Audio',
-        you: 'You',
-        listenAgain: 'Listen again',
-        reading: 'NyayVaani is reading your document to answer...',
-        ask: 'Ask:',
-        recording: 'Recording... click to stop',
-        recordQuestion: 'Record a question for Sarvam Saaras',
-        transcribing: 'Sarvam Saaras is transcribing...',
-        recordingHelp: 'Recording for Sarvam Saaras — click the microphone when finished',
-      };
+  const coreLabels = VOICE_CORE_LABELS[selectedLanguage];
+  const voiceLabels = {
+    assistant: t.voiceAi,
+    document: coreLabels.document,
+    askAnything: t.voiceAiModalSub,
+    autoSpeakOn: coreLabels.autoSpeakOn,
+    autoSpeakOff: coreLabels.autoSpeakOff,
+    speaking: t.audioPlaying,
+    stopAudio: t.voiceAiStopListening,
+    you: coreLabels.you,
+    listenAgain: t.playAudioButton,
+    reading: t.analyzingTitle,
+    ask: t.suggestedQuestionsTitle,
+    recording: t.voiceAiListening,
+    recordQuestion: t.voiceAiClickToSpeak,
+    transcribing: t.voiceListening,
+    recordingHelp: t.voiceAiListening,
+  };
 
   // Suggested questions from translations
   const sampleQuestions = [
@@ -87,11 +198,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
   // Initialize or update introductory greeting when language or case changes
   useEffect(() => {
     if (analysis) {
-      const initialGreeting = selectedLanguage === 'hi'
-        ? `नमस्ते! मैं न्यायवाणी वॉयस एआई हूं। मैंने आपका अदालती आदेश पढ़ लिया है। आप मुझसे इस आदेश के बारे में कुछ भी पूछ सकते हैं, जैसे "जज साहब ने क्या फैसला सुनाया?", "मेरी अगली तारीख कब है?", या "क्या कोर्ट ने मेरी मांग खारिज की?"।`
-        : selectedLanguage === 'pa'
-        ? `ਸਤਿ ਸ਼੍ਰੀ ਅਕਾਲ! ਮੈਂ ਨਿਆਇਵਾਣੀ ਵੋਇਸ AI ਹਾਂ। ਮੈਂ ਤੁਹਾਡਾ ਅਦਾਲਤੀ ਹੁਕਮ ਪੜ੍ਹ ਲਿਆ ਹੈ। ਤੁਸੀਂ ਮੈਨੂੰ ਇਸ ਹੁਕਮ ਬਾਰੇ ਕੁਝ ਵੀ ਪੁੱਛ ਸਕਦੇ ਹੋ, ਜਿਵੇਂ "ਜੱਜ ਸਾਹਿਬ ਨੇ ਕੀ ਫੈਸਲਾ ਸੁਣਾਇਆ?", "ਮੇਰੀ ਅਗਲੀ ਤਾਰੀਖ ਕਦੋਂ ਹੈ?", ਜਾਂ "ਕੀ ਕੋਰਟ ਨੇ ਮੇਰੀ ਮੰਗ ਖਾਰਜ ਕੀਤੀ?"।`
-        : `Hello! I am NyayVaani Voice AI. I have analyzed your court document for "${analysis.title || 'Court Order'}". Feel free to ask me any question in your language!`;
+      const initialGreeting = coreLabels.greeting;
 
       setMessages([
         {
@@ -99,11 +206,11 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
           sender: 'agent',
           text: initialGreeting,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          keyFact: analysis.operativeDirectionVerbatim ? `Operative Ruling: "${analysis.operativeDirectionVerbatim.substring(0, 100)}..."` : undefined,
+          keyFact: analysis.operativeDirectionVerbatim ? `${coreLabels.operativeRuling}: "${analysis.operativeDirectionVerbatim.substring(0, 100)}..."` : undefined,
         },
       ]);
     }
-  }, [analysis, selectedLanguage]);
+  }, [analysis, selectedLanguage, coreLabels.greeting, coreLabels.operativeRuling]);
 
   // Scroll to bottom of chat
   useEffect(() => {
@@ -149,7 +256,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
       });
       const data = await response.json();
       if (!response.ok || !data.success || !data.audioBase64) {
-        throw new Error(data.error || 'Sarvam voice is temporarily unavailable.');
+        throw new Error(data.error || coreLabels.voiceUnavailable);
       }
 
       const audio = new Audio(`data:audio/wav;base64,${data.audioBase64}`);
@@ -187,13 +294,13 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
       });
       const data = await response.json();
       if (!response.ok || !data.success || !data.transcript) {
-        throw new Error(data.error || 'Sarvam could not understand the recording.');
+        throw new Error(data.error || coreLabels.transcriptionFailed);
       }
       setInputText(data.transcript);
       await handleSendQuestion(data.transcript);
     } catch (error: any) {
       console.error('Sarvam Saaras transcription error:', error);
-      alert(error?.message || 'Sarvam could not understand the recording. Please try again or type your question.');
+      alert(error?.message || coreLabels.transcriptionFailed);
     } finally {
       setIsTranscribing(false);
     }
@@ -216,7 +323,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
     }
 
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
-      alert('Audio recording is not supported in this browser. You can type your question instead.');
+      alert(coreLabels.recordingUnsupported);
       return;
     }
 
@@ -260,7 +367,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
     } catch (error) {
       console.error('Microphone recording error:', error);
       setIsListening(false);
-      alert('Microphone access is needed to ask Sarvam by voice. You can type your question instead.');
+      alert(coreLabels.microphoneRequired);
     }
   };
 
@@ -309,14 +416,14 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
           speakText(data.answer);
         }
       } else {
-        throw new Error(data.error || 'Sarvam could not answer this question.');
+        throw new Error(data.error || coreLabels.answerFailed);
       }
     } catch (error: any) {
       console.error('Ask Question error:', error);
       const errorMsg: Message = {
         id: `err-${Date.now()}`,
         sender: 'agent',
-        text: error?.message || 'Sarvam could not answer that question right now. Please try again.',
+        text: error?.message || coreLabels.answerFailed,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -362,7 +469,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-bold text-base tracking-tight text-white">NyayVaani Voice AI</h2>
+                <h2 className="font-bold text-base tracking-tight text-white">{t.voiceAiModalTitle}</h2>
                 <span className="bg-slate-800 text-slate-100 text-[10px] px-2 py-0.5 rounded-full font-mono border border-slate-700">
                   {voiceLabels.assistant}
                 </span>
@@ -547,7 +654,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
           )}
           {isTranscribing && (
             <p className="text-[11px] text-slate-700 font-bold mt-1.5 text-center">
-              Sarvam Saaras v3 is turning your voice into text...
+              {coreLabels.transcribingDetail}
             </p>
           )}
         </div>
