@@ -4,12 +4,8 @@ import { SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 
 interface LitigantAudioPlayerProps {
-  textToRead?: string;
-  audioScript?: string;
-  language?: SupportedLanguage;
-  selectedLanguage?: SupportedLanguage;
-  title?: string;
-  onGenerateAudio?: () => Promise<string | null>;
+  audioScript: string;
+  selectedLanguage: SupportedLanguage;
 }
 
 const AUDIO_GENERATING_LABELS: Record<SupportedLanguage, string> = {
@@ -24,15 +20,11 @@ const AUDIO_GENERATING_LABELS: Record<SupportedLanguage, string> = {
 };
 
 export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
-  textToRead,
   audioScript,
-  language,
   selectedLanguage,
-  title,
-  onGenerateAudio
 }) => {
-  const activeLang = selectedLanguage || language || 'hi';
-  const text = audioScript || textToRead || '';
+  const activeLang = selectedLanguage;
+  const text = audioScript;
   const t = getTranslation(activeLang);
 
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -56,10 +48,6 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
   }, [activeLang, text]);
 
   const generateSarvamAudio = async (): Promise<string | null> => {
-    if (onGenerateAudio) {
-      return onGenerateAudio();
-    }
-
     const response = await fetch('/api/generate-tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

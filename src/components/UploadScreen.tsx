@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, Sparkles, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, FileType, Plus, Trash2, Layers, X } from 'lucide-react';
+import { Upload, Sparkles, ArrowRight, AlertCircle, FileType, Plus, Layers, X } from 'lucide-react';
 import { SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 

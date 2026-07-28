@@ -6,7 +6,6 @@ import { getTranslation } from '../utils/translations';
 interface VoiceAIAgentProps {
   analysis: AnalysisResult;
   selectedLanguage: SupportedLanguage;
-  onLanguageChange?: (lang: string) => void;
   isOpen: boolean;
   onClose: () => void;
 }

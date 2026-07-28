@@ -68,41 +68,13 @@ export interface AnalysisResult {
   processedAt: string;
 }
 
-export interface BenchmarkCase {
+export interface CourtDocumentCase {
   id: string;
   title: string;
   caseNumber: string;
-  type: 'order' | 'judgment';
   courtName: string;
-  photocopyStyle: 'distorted_photocopy_stamp' | 'skewed_typewritten' | 'blurred_interlocutory' | 'clean_scanned_seal' | 'handwritten_margin_notes' | 'truncated_page';
   isRefusalCase: boolean;
-  demoHighlight: string;
-  imageUrl?: string;
-  documentText: string;
   analysis: AnalysisResult;
-  humanGroundTruth: {
-    totalParagraphs: number;
-    correctlyAttributed: number;
-    operativeFound: boolean;
-    honestlyRefused: boolean;
-    notes: string;
-  };
 }
 
 export type SupportedLanguage = 'hi' | 'en' | 'bn' | 'ta' | 'te' | 'mr' | 'gu' | 'pa';
-
-export interface LanguageOption {
-  code: SupportedLanguage;
-  name: string;
-  nativeName: string;
-  flag: string;
-  dialectNote?: string;
-}
-
-export interface ImageProcessingFilters {
-  deskew: boolean;
-  contrastBoost: boolean;
-  binarization: boolean;
-  noiseReduction: boolean;
-  rotationDegrees: number;
-}

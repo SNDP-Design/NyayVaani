@@ -2,15 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Header } from './components/Header';
 import { UploadScreen } from './components/UploadScreen';
 import { DocumentResultView } from './components/DocumentResultView';
-import { BENCHMARK_CASES } from './data/benchmarkCases';
-import { BenchmarkCase, SupportedLanguage } from './types';
+import { CourtDocumentCase, SupportedLanguage } from './types';
 import { Scale } from 'lucide-react';
 import { getTranslation } from './utils/translations';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<'upload' | 'result'>('upload');
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>('en');
-  const [currentCase, setCurrentCase] = useState<BenchmarkCase>(BENCHMARK_CASES[0]);
+  const [currentCase, setCurrentCase] = useState<CourtDocumentCase | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const t = getTranslation(selectedLanguage);
 
@@ -38,24 +37,13 @@ export default function App() {
       const data = await response.json();
 
       if (data.success && data.analysis) {
-        const customCase: BenchmarkCase = {
+        const customCase: CourtDocumentCase = {
           id: `custom-${Date.now()}`,
           title: data.analysis.title || t.readUploadedDocument,
           caseNumber: data.analysis.caseNumber || 'O.S. / Misc Application',
-          type: 'order',
           courtName: data.analysis.courtName || 'District Court / High Court',
-          photocopyStyle: 'distorted_photocopy_stamp',
           isRefusalCase: !!data.analysis.isRefusalState,
-          demoHighlight: 'Digitized by Sarvam Vision and analyzed by Sarvam-105B',
-          documentText: payload.textContent || 'Scanned Court Order Document',
           analysis: data.analysis,
-          humanGroundTruth: {
-            totalParagraphs: data.analysis.paragraphs?.length || 0,
-            correctlyAttributed: data.analysis.paragraphs?.length || 0,
-            operativeFound: !data.analysis.isRefusalState,
-            honestlyRefused: !!data.analysis.isRefusalState,
-            notes: 'AI generated analysis for uploaded court document.',
-          },
         };
 
         setCurrentCase(customCase);
@@ -73,6 +61,7 @@ export default function App() {
   };
 
   const handleBackToUpload = () => {
+    setCurrentCase(null);
     setCurrentStep('upload');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -90,7 +79,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 w-full mx-auto px-2 sm:px-4 lg:px-8 py-4">
-        {currentStep === 'upload' ? (
+        {currentStep === 'upload' || !currentCase ? (
           <UploadScreen
             onReadDocument={handleReadDocument}
             isLoading={isLoading}
@@ -100,7 +89,6 @@ export default function App() {
           <DocumentResultView
             currentCase={currentCase}
             selectedLanguage={selectedLanguage}
-            onLanguageChange={setSelectedLanguage}
             onBackToUpload={handleBackToUpload}
           />
         )}

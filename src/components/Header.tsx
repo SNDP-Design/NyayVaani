@@ -1,5 +1,5 @@
 import React from 'react';
-import { Scale, Bot, Upload, ChevronDown } from 'lucide-react';
+import { Scale, Upload, ChevronDown } from 'lucide-react';
 import { SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 
@@ -8,7 +8,6 @@ interface HeaderProps {
   selectedLanguage: SupportedLanguage;
   setSelectedLanguage: (lang: SupportedLanguage) => void;
   onNewUpload: () => void;
-  onOpenVoiceAI?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,7 +15,6 @@ export const Header: React.FC<HeaderProps> = ({
   selectedLanguage,
   setSelectedLanguage,
   onNewUpload,
-  onOpenVoiceAI,
 }) => {
   const t = getTranslation(selectedLanguage);
 
@@ -81,15 +79,6 @@ export const Header: React.FC<HeaderProps> = ({
                   <span className="hidden sm:inline">{t.uploadNew}</span>
                 </button>
 
-                {onOpenVoiceAI && (
-                  <button
-                    onClick={onOpenVoiceAI}
-                    className="px-3.5 py-1.5 bg-black hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs border border-slate-900"
-                  >
-                    <Bot className="h-4 w-4" />
-                    <span>{t.voiceAi}</span>
-                  </button>
-                )}
               </>
             )}
 

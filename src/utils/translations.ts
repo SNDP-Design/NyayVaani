@@ -17,8 +17,6 @@ export interface TranslationDictionary {
   dragDropTitle: string;
   browseFiles: string;
   uploadNote: string;
-  sampleCasesTitle: string;
-  sampleCasesSub: string;
   analyzingTitle: string;
   analyzingSub: string;
   selectLanguageAria: string;
@@ -64,22 +62,6 @@ export interface TranslationDictionary {
   listenAudioButton: string;
   askVoiceAiButton: string;
   exportReportButton: string;
-
-  // Filter & Search
-  searchParagraphsPlaceholder: string;
-  filterAll: string;
-  filterCourtDirection: string;
-  filterPetitioner: string;
-  filterRespondent: string;
-  filterRecital: string;
-  filterRejected: string;
-
-  // Attribution Badges
-  catCourtDirection: string;
-  catPetitioner: string;
-  catRespondent: string;
-  catRecital: string;
-  catRejected: string;
 
   // Voice AI Agent Modal
   voiceAiModalTitle: string;
@@ -132,8 +114,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     dragDropTitle: "Drag & drop court order photos or PDF document here, or",
     browseFiles: "browse files",
     uploadNote: "Upload one PDF (up to 10 pages) or up to 10 JPG/PNG court-order images",
-    sampleCasesTitle: "Or Try Curated Demo Court Orders (Kanpur, High Courts & District Courts):",
-    sampleCasesSub: "Select a sample case to see instant attribution & judge direction isolation",
     analyzingTitle: "Processing with Sarvam Vision & Sarvam-105B...",
     analyzingSub: "Extracting legal text, tagging paragraph provenance, and isolating operative directions",
     selectLanguageAria: "Select language",
@@ -178,20 +158,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     listenAudioButton: "Listen in Local Language (Sarvam Voice)",
     askVoiceAiButton: "Ask NyayVaani Voice AI",
     exportReportButton: "Download Litigant 1-Pager Report",
-
-    searchParagraphsPlaceholder: "Search document text or speaker...",
-    filterAll: "All Paragraphs",
-    filterCourtDirection: "Court Directions Only",
-    filterPetitioner: "Petitioner Claims",
-    filterRespondent: "Respondent Claims",
-    filterRecital: "Proceedings / Recital",
-    filterRejected: "Rejected Claims",
-
-    catCourtDirection: "Court Direction",
-    catPetitioner: "Petitioner Submission",
-    catRespondent: "Respondent Submission",
-    catRecital: "Recital / Proceedings",
-    catRejected: "Rejected Claim",
 
     voiceAiModalTitle: "NyayVaani Voice AI Assistant (Sarvam Samvaad)",
     voiceAiModalSub: "Ask any question about this court order in your spoken language",
@@ -239,8 +205,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     dragDropTitle: "अदालत के आदेश की फोटो यहां खींचकर लाएं, या",
     browseFiles: "फाइलें चुनें",
     uploadNote: "एक PDF (अधिकतम 10 पेज) या अदालत के आदेश की अधिकतम 10 JPG/PNG तस्वीरें अपलोड करें",
-    sampleCasesTitle: "या तैयार किए गए डेमो अदालत आदेश आज़माएं:",
-    sampleCasesSub: "तुरंत विश्लेषण देखने के लिए कोई उदाहरण चुनें",
     analyzingTitle: "सर्वम डॉक AI द्वारा आदेश का विश्लेषण हो रहा है...",
     analyzingSub: "कानूनी पाठ निष्कर्षण, पैराग्राफ वर्गीकरण और मुख्य आदेश को अलग किया जा रहा है",
     selectLanguageAria: "भाषा चुनें",
@@ -285,20 +249,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     listenAudioButton: "अपनी भाषा में सुनें (सर्वम वॉइस)",
     askVoiceAiButton: "न्यायवाणी वॉइस AI से पूछें",
     exportReportButton: "1-पेज रिपोर्ट डाउनलोड करें",
-
-    searchParagraphsPlaceholder: "दस्तावेज़ या वक्ता खोजें...",
-    filterAll: "सभी पैराग्राफ",
-    filterCourtDirection: "केवल कोर्ट के आदेश",
-    filterPetitioner: "याचिकाकर्ता के दावे",
-    filterRespondent: "प्रतिवादी के दावे",
-    filterRecital: "कार्यवाही विवरण",
-    filterRejected: "खारिज किए गए दावे",
-
-    catCourtDirection: "कोर्ट का आदेश",
-    catPetitioner: "याचिकाकर्ता का कथन",
-    catRespondent: "प्रतिवादी का कथन",
-    catRecital: "कार्यवाही / संदर्भ",
-    catRejected: "खारिज दावा",
 
     voiceAiModalTitle: "न्यायवाणी वॉइस AI सहायक (सर्वम संवाद)",
     voiceAiModalSub: "इस अदालती आदेश के बारे में अपनी भाषा में कोई भी सवाल पूछें",
@@ -346,8 +296,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     dragDropTitle: "আদালতের আদেশের ছবি এখানে ড্রপ করুন, অথবা",
     browseFiles: "ফাইল বাছুন",
     uploadNote: "একটি PDF (সর্বোচ্চ ১০ পৃষ্ঠা) অথবা আদালতের আদেশের সর্বোচ্চ ১০টি JPG/PNG ছবি আপলোড করুন",
-    sampleCasesTitle: "অথবা তৈরি করা ডেমো আদালতের আদেশ দেখুন:",
-    sampleCasesSub: "তাৎক্ষণিক বিশ্লেষণ দেখতে একটি নমুনা নির্বাচন করুন",
     analyzingTitle: "সর্বম ডক AI দিয়ে আদেশের বিশ্লেষণ চলছে...",
     analyzingSub: "আইনি পাঠ্য বের করা এবং মূল নির্দেশ চিহ্নিত করা হচ্ছে",
     selectLanguageAria: "ভাষা নির্বাচন করুন",
@@ -392,20 +340,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     listenAudioButton: "বাংলায় শুনুন (সর্বম ভয়েস)",
     askVoiceAiButton: "ন্যায়বাণী ভয়েস AI-কে জিজ্ঞাসা করুন",
     exportReportButton: "১-পৃষ্ঠার রিপোর্ট ডাউনলোড করুন",
-
-    searchParagraphsPlaceholder: "অনুচ্ছেদ বা বক্তব্য খুঁজুন...",
-    filterAll: "সব অনুচ্ছেদ",
-    filterCourtDirection: "শুধু আদালতের নির্দেশ",
-    filterPetitioner: "আবেদনকারীর দাবি",
-    filterRespondent: "বিবাদীর দাবি",
-    filterRecital: "কার্য বিবরণী",
-    filterRejected: "বাতিল দাবি",
-
-    catCourtDirection: "আদালতের নির্দেশ",
-    catPetitioner: "আবেদনকারীর বক্তব্য",
-    catRespondent: "বিবাদীর বক্তব্য",
-    catRecital: "কার্য বিবরণী",
-    catRejected: "বাতিল দাবি",
 
     voiceAiModalTitle: "ন্যায়বাণী ভয়েস AI সহকারী (সর্বম সংবাদ)",
     voiceAiModalSub: "এই আদালতের আদেশ নিয়ে নিজের ভাষায় যেকোনো প্রশ্ন করুন",
@@ -453,8 +387,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     dragDropTitle: "நீதிமன்ற உத்தரவுப் படத்தை இங்கே இழுத்து விடவும், அல்லது",
     browseFiles: "கோப்புகளைத் தேர்ந்தெடுக்கவும்",
     uploadNote: "ஒரு PDF (அதிகபட்சம் 10 பக்கங்கள்) அல்லது நீதிமன்ற உத்தரவின் அதிகபட்சம் 10 JPG/PNG படங்களைப் பதிவேற்றவும்",
-    sampleCasesTitle: "அல்லது தயாரிக்கப்பட்ட டெமோ நீதிமன்ற உத்தரவுகளைப் பார்க்கவும்:",
-    sampleCasesSub: "உடனடி பகுப்பாய்வைக் காண ஒரு மாதிரியைத் தேர்ந்தெடுக்கவும்",
     analyzingTitle: "சர்வம் டாக் AI மூலம் பகுப்பாய்வு செய்யப்படுகிறது...",
     analyzingSub: "சட்ட உரையைப் பிரித்தெடுத்து முக்கிய உத்தரவுகளை வகைப்படுத்துகிறது",
     selectLanguageAria: "மொழியைத் தேர்ந்தெடுக்கவும்",
@@ -499,20 +431,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     listenAudioButton: "தமிழில் கேட்கவும் (சர்வhorizontal வாய்ஸ்)",
     askVoiceAiButton: "நியாயவாணி குரல் AI-யிடம் கேட்கவும்",
     exportReportButton: "அறிக்கையைப் பதிவிறக்கவும்",
-
-    searchParagraphsPlaceholder: "தேடவும்...",
-    filterAll: "அனைத்து பத்திகளும்",
-    filterCourtDirection: "நீதிமன்ற உத்தரவுகள் மட்டும்",
-    filterPetitioner: "மனுதாரர் வாதங்கள்",
-    filterRespondent: "எதிர்மனுதாரர் வாதங்கள்",
-    filterRecital: "நடைமுறை விவரங்கள்",
-    filterRejected: "நிராகரிக்கப்பட்ட கோரிக்கைகள்",
-
-    catCourtDirection: "நீதிமன்ற உத்தரவு",
-    catPetitioner: "மனுதாரர் கூற்று",
-    catRespondent: "எதிர்மனுதாரர் கூற்று",
-    catRecital: "நடைமுறை",
-    catRejected: "நிராகரிக்கப்பட்டது",
 
     voiceAiModalTitle: "நியாயவாணி குரல் AI உதவியாளர்",
     voiceAiModalSub: "இந்த நீதிமன்ற உத்தரவைப் பற்றி உங்கள் மொழியில் கேளுங்கள்",
@@ -560,8 +478,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     dragDropTitle: "కోర్టు ఆర్డర్ ఫోటోను ఇక్కడ వేయండి, లేదా",
     browseFiles: "ఫైళ్లను ఎంచుకోండి",
     uploadNote: "ఒక PDF (గరిష్ఠంగా 10 పేజీలు) లేదా కోర్టు ఆదేశానికి సంబంధించిన గరిష్ఠంగా 10 JPG/PNG చిత్రాలను అప్‌లోడ్ చేయండి",
-    sampleCasesTitle: "లేదా రూపొందించిన డెమో కోర్టు ఆదేశాలను చూడండి:",
-    sampleCasesSub: "తక్షణ విశ్లేషణను చూడటానికి ఒక ఉదాహరణను ఎంచుకోండి",
     analyzingTitle: "సర్వం డాక్ AI ద్వారా విశ్లేషించబడుతోంది...",
     analyzingSub: "చట్టపరమైన పాఠాన్ని సేకరించి ముఖ్య ఆదేశాలను వేరు చేస్తోంది",
     selectLanguageAria: "భాషను ఎంచుకోండి",
@@ -606,20 +522,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     listenAudioButton: "తెలుగులో వినండి (సర్వం వాయిస్)",
     askVoiceAiButton: "న్యాయవాణి వాయిస్ AI ని అడగండి",
     exportReportButton: "రిపోర్ట్ డౌన్‌లోడ్ చేయండి",
-
-    searchParagraphsPlaceholder: "వెతకండి...",
-    filterAll: "అన్ని పేరాలు",
-    filterCourtDirection: "కోర్టు ఆదేశాలు మాత్రమే",
-    filterPetitioner: "పిటిషనర్ వాదనలు",
-    filterRespondent: "రెప్పాండెంట్ వాదనలు",
-    filterRecital: "చర్యల వివరాలు",
-    filterRejected: "తిరస్కరించబడిన వాదనలు",
-
-    catCourtDirection: "కోర్టు ఆదేశం",
-    catPetitioner: "పిటిషనర్ వాదన",
-    catRespondent: "రేస్పాండెంట్ వాదన",
-    catRecital: "వివరాలు",
-    catRejected: "తిరస్కరించబడింది",
 
     voiceAiModalTitle: "న్యాయవాణి వాయిస్ AI సహాయకుడు",
     voiceAiModalSub: "ఈ కోర్టు ఆర్డర్ గురించి మీ భాషలో ఏ ప్రశ్నైనా అడగండి",
@@ -667,8 +569,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     dragDropTitle: "कोर्टाच्या आदेशाचा फोटो येथे टाका, किंवा",
     browseFiles: "फायली निवडा",
     uploadNote: "एक PDF (जास्तीत जास्त 10 पाने) किंवा न्यायालयीन आदेशाच्या जास्तीत जास्त 10 JPG/PNG प्रतिमा अपलोड करा",
-    sampleCasesTitle: "किंवा तयार केलेले डेमो न्यायालयीन आदेश पहा:",
-    sampleCasesSub: "त्वरित विश्लेषण पाहण्यासाठी एक नमुना निवडा",
     analyzingTitle: "सर्वम डॉक AI द्वारे विश्लेषण सुरू आहे...",
     analyzingSub: "कायदेशीर मजकूर काढून मुख्य आदेश वेगळे केले जात आहेत",
     selectLanguageAria: "भाषा निवडा",
@@ -713,20 +613,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     listenAudioButton: "मराठीत ऐका (सर्वम व्हॉइस)",
     askVoiceAiButton: "न्यायवाणी व्हॉइस AI ला विचारा",
     exportReportButton: "अहवाल डाउनलोड करा",
-
-    searchParagraphsPlaceholder: "शोधा...",
-    filterAll: "सर्व परिच्छेद",
-    filterCourtDirection: "फक्त कोर्टाचे आदेश",
-    filterPetitioner: "याचिकाकर्त्याचे दावे",
-    filterRespondent: "प्रतिवादीचे दावे",
-    filterRecital: "कामकाज तपशील",
-    filterRejected: "फेटाळलेले दावे",
-
-    catCourtDirection: "कोर्टाचा आदेश",
-    catPetitioner: "याचिकाकर्त्याचे म्हणणे",
-    catRespondent: "प्रतिवादीचे म्हणणे",
-    catRecital: "कामकाज",
-    catRejected: "फेटाळलेला दावा",
 
     voiceAiModalTitle: "न्यायवाणी व्हॉइस AI सहाय्यक (सर्वम संवाद)",
     voiceAiModalSub: "या आदेशाबद्दल तुमच्या भाषेत कोणताही प्रश्न विचारा",
@@ -774,8 +660,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     dragDropTitle: "કોર્ટ ઓર્ડરનો ફોટો અહીં લાવો, અથવા",
     browseFiles: "ફાઇલો પસંદ કરો",
     uploadNote: "એક PDF (વધુમાં વધુ 10 પાનાં) અથવા કોર્ટના આદેશની વધુમાં વધુ 10 JPG/PNG છબીઓ અપલોડ કરો",
-    sampleCasesTitle: "અથવા તૈયાર કરેલા ડેમો કોર્ટ ઓર્ડર જુઓ:",
-    sampleCasesSub: "તરત જ વિશ્લેષણ જોવા માટે કેસ પસંદ કરો",
     analyzingTitle: "સર્વમ ડોક AI દ્વારા ઓર્ડરનું વિશ્લેષણ થઈ રહ્યું છે...",
     analyzingSub: "કાનૂની લખાણ અને મુખ્ય આદેશ અલગ કરવામાં આવી રહ્યા છે",
     selectLanguageAria: "ભાષા પસંદ કરો",
@@ -820,20 +704,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     listenAudioButton: "ગુજરાતીમાં સાંભળો (સર્વમ વોઇસ)",
     askVoiceAiButton: "ન્યાયવાણી વોઇસ AI ને પૂછો",
     exportReportButton: "રિપોર્ટ ડાઉનલોડ કરો",
-
-    searchParagraphsPlaceholder: "શોધો...",
-    filterAll: "બધા ફકરા",
-    filterCourtDirection: "માત્ર કોર્ટના આદેશો",
-    filterPetitioner: "અરજદારના દાવા",
-    filterRespondent: "સામાવાળાના દાવા",
-    filterRecital: "કાર્યવાહી વિગત",
-    filterRejected: "ફગાવી દીધેલા દાવા",
-
-    catCourtDirection: "કોર્ટનો આદેશ",
-    catPetitioner: "અરજદારનું કહેવું",
-    catRespondent: "સામાવાળાનું કહેવું",
-    catRecital: "કાર્યવાહી",
-    catRejected: "ફગાવી દીધેલો દાવો",
 
     voiceAiModalTitle: "ન્યાયવાણી વોઇસ AI સહાયક (સર્વમ સંવાદ)",
     voiceAiModalSub: "આ કોર્ટ ઓર્ડર વિશે તમારી ભાષામાં પ્રશ્ન પૂછો",
@@ -881,8 +751,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     dragDropTitle: "ਅਦਾਲਤੀ ਹੁਕਮ ਦੀ ਤਸਵੀਰ ਇੱਥੇ ਖਿੱਚੋ, ਜਾਂ",
     browseFiles: "ਫਾਈਲਾਂ ਚੁਣੋ",
     uploadNote: "ਇੱਕ PDF (ਵੱਧ ਤੋਂ ਵੱਧ 10 ਪੰਨੇ) ਜਾਂ ਅਦਾਲਤੀ ਹੁਕਮ ਦੀਆਂ ਵੱਧ ਤੋਂ ਵੱਧ 10 JPG/PNG ਤਸਵੀਰਾਂ ਅੱਪਲੋਡ ਕਰੋ",
-    sampleCasesTitle: "ਜਾਂ ਤਿਆਰ ਕੀਤੇ ਡੈਮੋ ਅਦਾਲਤੀ ਹੁਕਮ ਵੇਖੋ:",
-    sampleCasesSub: "ਤੁਰੰਤ ਵਿਸ਼ਲੇਸ਼ਣ ਦੇਖਣ ਲਈ ਕੇਸ ਚੁਣੋ",
     analyzingTitle: "ਸਰਵਮ ਡੌਕ AI ਦੁਆਰਾ ਹੁਕਮ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...",
     analyzingSub: "ਕਾਨੂੰਨੀ ਲਿਖਤ ਅਤੇ ਮੁੱਖ ਆਦੇਸ਼ ਅਲੱਗ ਕੀਤੇ ਜਾ ਰਹੇ ਹਨ",
     selectLanguageAria: "ਭਾਸ਼ਾ ਚੁਣੋ",
@@ -927,20 +795,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     listenAudioButton: "ਪੰਜਾਬੀ ਵਿੱਚ ਸੁਣੋ (ਸਰਵਮ ਵੋਇਸ)",
     askVoiceAiButton: "ਨਿਆਇਵਾਣੀ ਵੋਇਸ AI ਨੂੰ ਪੁੱਛੋ",
     exportReportButton: "ਰਿਪੋਰਟ ਡਾਊਨਲੋਡ ਕਰੋ",
-
-    searchParagraphsPlaceholder: "ਖੋਜੋ...",
-    filterAll: "ਸਾਰੇ ਪੈਰੇ",
-    filterCourtDirection: "ਕੇਵਲ ਅਦਾਲਤ ਦੇ ਹੁਕਮ",
-    filterPetitioner: "ਯਾਚਕ ਦੇ ਦਾਅਵੇ",
-    filterRespondent: "ਵਿਰੋਧੀ ਧਿਰ ਦੇ ਦਾਅਵੇ",
-    filterRecital: "ਕਾਰਵਾਈ ਦਾ ਵੇਰਵਾ",
-    filterRejected: "ਖਾਰਜ ਕੀਤੇ ਦਾਅਵੇ",
-
-    catCourtDirection: "ਅਦਾਲਤ ਦਾ ਹੁਕਮ",
-    catPetitioner: "ਯਾਚਕ ਦਾ ਪੱਖ",
-    catRespondent: "ਵਿਰੋਧੀ ਧਿਰ ਦਾ ਪੱਖ",
-    catRecital: "ਕਾਰਵਾਈ",
-    catRejected: "ਖਾਰਜ ਕੀਤਾ ਦਾਅਵਾ",
 
     voiceAiModalTitle: "ਨਿਆਇਵਾਣੀ ਵੋਇਸ AI ਸਹਾਇਕ (ਸਰਵਮ ਸੰਵਾਦ)",
     voiceAiModalSub: "ਇਸ ਅਦਾਲਤੀ ਹੁਕਮ ਬਾਰੇ ਆਪਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਪ੍ਰਸ਼ਨ ਪੁੱਛੋ",
