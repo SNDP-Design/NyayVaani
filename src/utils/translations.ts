@@ -16,7 +16,6 @@ export interface TranslationDictionary {
   uploadSubheading: string;
   dragDropTitle: string;
   browseFiles: string;
-  takePhotoButton: string;
   uploadNote: string;
   sampleCasesTitle: string;
   sampleCasesSub: string;
@@ -105,7 +104,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSubheading: "Upload an Indian court order photo or scan. Sarvam Vision digitizes it, Sarvam-105B separates the court's directions from party claims, and Bulbul v3 speaks the result in plain language.",
     dragDropTitle: "Drag & Drop court order picture here, or",
     browseFiles: "browse files",
-    takePhotoButton: "Take Photo with Phone Camera",
     uploadNote: "Supports photocopies, phone camera photos, scanned pages (JPG, PNG, WEBP)",
     sampleCasesTitle: "Or Try Curated Demo Court Orders (Kanpur, High Courts & District Courts):",
     sampleCasesSub: "Select a sample case to see instant attribution & judge direction isolation",
@@ -186,7 +184,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSubheading: "किसी भी भारतीय अदालत के आदेश का फोटो या स्कैन अपलोड करें। सर्वम डॉक AI जज के आदेश को अलग करता है, याचिकाकर्ता और प्रतिवादी की बातों को छांटता है और आपकी सरल भाषा में बोलकर सुनाता है।",
     dragDropTitle: "अदालत के आदेश की फोटो यहां खींचकर लाएं, या",
     browseFiles: "फाइलें चुनें",
-    takePhotoButton: "फोन कैमरे से फोटो खींचें",
     uploadNote: "फोटोकॉपी, मोबाइल फोटो और स्कैन पन्नों (JPG, PNG, WEBP) को सपोर्ट करता है",
     sampleCasesTitle: "या तैयार किए गए डेमो अदालत आदेश आज़माएं:",
     sampleCasesSub: "तुरंत विश्लेषण देखने के लिए कोई उदाहरण चुनें",
@@ -267,7 +264,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSubheading: "যেকোনো ভারতীয় আদালতের আদেশের ছবি বা স্ক্যান আপলোড করুন। সর্বম ডক AI বিচারকের নির্দেশ আলাদা করে এবং সহজ বাংলায় আপনাকে শোনায়।",
     dragDropTitle: "আদালতের আদেশের ছবি এখানে ড্রপ করুন, অথবা",
     browseFiles: "ফাইল বাছুন",
-    takePhotoButton: "ফোন ক্যামেরা দিয়ে ছবি তুলুন",
     uploadNote: "ফোটোকপি, মোবাইল ফটো এবং স্ক্যান করা পাতা (JPG, PNG, WEBP) সমর্থন করে",
     sampleCasesTitle: "অথবা তৈরি করা ডেমো আদালতের আদেশ দেখুন:",
     sampleCasesSub: "তাৎক্ষণিক বিশ্লেষণ দেখতে একটি নমুনা নির্বাচন করুন",
@@ -348,7 +344,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSubheading: "எந்தவொரு இந்திய நீதிமன்ற உத்தரவின் புகைப்படத்தையும் பதிவேற்றவும். சர்வhorizontal Doc AI நீதிபதியின் உத்தரவை தனிமைப்படுத்தி எளிய தமிழில் பேசுகிறது.",
     dragDropTitle: "நீதிமன்ற உத்தரவுப் படத்தை இங்கே இழுத்து விடவும், அல்லது",
     browseFiles: "கோப்புகளைத் தேர்ந்தெடுக்கவும்",
-    takePhotoButton: "கேமராவைப் பயன்படுத்தி படம் எடுக்கவும்",
     uploadNote: "போட்டோகாபி, மொபைல் போட்டோ மற்றும் ஸ்கேன் செய்யப்பட்ட பக்கங்களை ஆதரிக்கிறது",
     sampleCasesTitle: "அல்லது தயாரிக்கப்பட்ட டெமோ நீதிமன்ற உத்தரவுகளைப் பார்க்கவும்:",
     sampleCasesSub: "உடனடி பகுப்பாய்வைக் காண ஒரு மாதிரியைத் தேர்ந்தெடுக்கவும்",
@@ -429,7 +424,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSubheading: "ఏదైనా భారతీయ కోర్టు ఆర్డర్ ఫోటోను అప్‌లోడ్ చేయండి. సర్వం డాక్ AI జడ్జి గారి ఆదేశాలను వేరు చేసి, మీ మాతృభాషలో స్పష్టంగా వినిపిస్తుంది.",
     dragDropTitle: "కోర్టు ఆర్డర్ ఫోటోను ఇక్కడ వేయండి, లేదా",
     browseFiles: "ఫైళ్లను ఎంచుకోండి",
-    takePhotoButton: "ఫోన్ కెమెరాతో ఫోటో తీయండి",
     uploadNote: "ఫోటోకాపీలు, మొబైల్ ఫోటోలు మరియు స్కాన్ చేసిన పేజీలకు మద్దతు ఇస్తుంది",
     sampleCasesTitle: "లేదా రూపొందించిన డెమో కోర్టు ఆదేశాలను చూడండి:",
     sampleCasesSub: "తక్షణ విశ్లేషణను చూడటానికి ఒక ఉదాహరణను ఎంచుకోండి",
@@ -510,7 +504,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSubheading: "कोणत्याही भारतीय कोर्टाच्या आदेशाचा फोटो किंवा स्कॅन अपलोड करा. सर्वम डॉक AI न्यायाधीशांचे आदेश वेगळे करते आणि सोप्या मराठीत सांगते.",
     dragDropTitle: "कोर्टाच्या आदेशाचा फोटो येथे टाका, किंवा",
     browseFiles: "फायली निवडा",
-    takePhotoButton: "फोन कॅमेऱ्याने फोटो काढा",
     uploadNote: "फोटोकॉपी, मोबाईल फोटो आणि स्कॅन केलेल्या पानांना सपोर्ट करते",
     sampleCasesTitle: "किंवा तयार केलेले डेमो न्यायालयीन आदेश पहा:",
     sampleCasesSub: "त्वरित विश्लेषण पाहण्यासाठी एक नमुना निवडा",
@@ -591,7 +584,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSubheading: "કોઈપણ ભારતીય કોર્ટના ઓર્ડરનો ફોટો သို့မဟုတ် સ્કેન અપલોડ કરો. સર્વમ ડોક AI જજ સાહેબના આદેશને અલગ કરે છે અને સરળ ગુજરાતીમાં બોલીને સંભળાવે છે.",
     dragDropTitle: "કોર્ટ ઓર્ડરનો ફોટો અહીં લાવો, અથવા",
     browseFiles: "ફાઇલો પસંદ કરો",
-    takePhotoButton: "ફોન કેમેરાથી ફોટો પાડો",
     uploadNote: "ફોટોકોપી, મોબાઈલ ફોટો અને સ્કેન કરેલા પેજને સપોર્ટ કરે છે",
     sampleCasesTitle: "અથવા તૈયાર કરેલા ડેમો કોર્ટ ઓર્ડર જુઓ:",
     sampleCasesSub: "તરત જ વિશ્લેષણ જોવા માટે કેસ પસંદ કરો",
@@ -672,7 +664,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSubheading: "ਕਿਸੇ ਵੀ ਭਾਰਤੀ ਅਦਾਲਤ ਦੇ ਹੁਕਮ ਦੀ ਫੋਟੋ ਜਾਂ ਸਕੈਨ ਅੱਪਲੋਡ ਕਰੋ। ਸਰਵਮ ਡੌਕ AI ਜੱਜ ਸਾਹਿਬ ਦੇ ਫੈਸਲੇ ਨੂੰ ਅਲੱਗ ਕਰਕੇ ਸਰਲ ਪੰਜਾਬੀ ਵਿੱਚ ਬੋਲ ਕੇ ਸੁਣਾਉਂਦਾ ਹੈ।",
     dragDropTitle: "ਅਦਾਲਤੀ ਹੁਕਮ ਦੀ ਤਸਵੀਰ ਇੱਥੇ ਖਿੱਚੋ, ਜਾਂ",
     browseFiles: "ਫਾਈਲਾਂ ਚੁਣੋ",
-    takePhotoButton: "ਫੋਨ ਕੈਮਰੇ ਨਾਲ ਫੋਟੋ ਖਿੱਚੋ",
     uploadNote: "ਫੋਟੋਕਾਪੀ, ਮੋਬਾਈਲ ਫੋਟੋ ਅਤੇ ਸਕੈਨ ਕੀਤੇ ਪੰਨਿਆਂ ਦਾ ਸਮਰਥਨ ਕਰਦਾ ਹੈ",
     sampleCasesTitle: "ਜਾਂ ਤਿਆਰ ਕੀਤੇ ਡੈਮੋ ਅਦਾਲਤੀ ਹੁਕਮ ਵੇਖੋ:",
     sampleCasesSub: "ਤੁਰੰਤ ਵਿਸ਼ਲੇਸ਼ਣ ਦੇਖਣ ਲਈ ਕੇਸ ਚੁਣੋ",

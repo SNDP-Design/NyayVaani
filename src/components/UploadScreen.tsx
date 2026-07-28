@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, Camera, Sparkles, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, Image as ImageIcon, FileType, Plus, Trash2, Layers, X } from 'lucide-react';
+import { Upload, Sparkles, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, FileType, Plus, Trash2, Layers, X } from 'lucide-react';
 import { SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 
@@ -75,7 +75,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
   const [dragActive, setDragActive] = useState(false);
   const [uploadError, setUploadError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
   const t = getTranslation(selectedLanguage);
 
   const processFiles = (files: FileList | File[]) => {
@@ -255,15 +254,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
           onChange={handleFileChange}
           className="hidden"
         />
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-
         {uploadError && (
           <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-800">
             <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
@@ -317,18 +307,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                   >
                     <Plus className="h-3.5 w-3.5 text-black" />
                     <span>Add More Images</span>
-                  </button>
-
-                  {/* Add Photo / Snap Camera */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      cameraInputRef.current?.click();
-                    }}
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold rounded-xl text-xs flex items-center gap-1.5 cursor-pointer border border-slate-300 transition-colors"
-                  >
-                    <Camera className="h-3.5 w-3.5 text-black" />
-                    <span>Snap Photo</span>
                   </button>
 
                   {/* Clear All */}
@@ -406,31 +384,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                     {t.browseFiles}
                   </span>
                 </p>
-
-                {/* Explicit PDF and Image Format Badges */}
-                <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-                  <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-900 text-[11px] font-bold px-3 py-1 rounded-lg border border-slate-300 shadow-2xs">
-                    <FileType className="h-4 w-4 text-black" /> PDF Document Supported
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-900 text-[11px] font-bold px-3 py-1 rounded-lg border border-slate-300 shadow-2xs">
-                    <ImageIcon className="h-4 w-4 text-black" /> Multiple Court Images (JPG, PNG)
-                  </span>
-                </div>
-
-                {/* Mobile Camera Direct Snap Button */}
-                <div className="flex items-center justify-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      cameraInputRef.current?.click();
-                    }}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold rounded-xl text-xs flex items-center gap-2 border border-slate-300 cursor-pointer shadow-xs transition-colors"
-                  >
-                    <Camera className="h-4 w-4 text-black" />
-                    <span>{t.takePhotoButton}</span>
-                  </button>
-                </div>
 
                 <p className="text-xs text-slate-500 font-medium">
                   Upload one PDF (up to 10 pages) or up to 10 JPG/PNG court-order images
