@@ -15,15 +15,7 @@ export default function App() {
   const t = getTranslation(selectedLanguage);
 
   // Handle "Read the Document" click
-  const handleReadDocument = async (payload: { imageBase64?: string; imagesBase64?: string[]; textContent?: string; sampleCase?: BenchmarkCase }) => {
-    // If a pre-tagged sample case was picked
-    if (payload.sampleCase) {
-      setCurrentCase(payload.sampleCase);
-      setCurrentStep('result');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
+  const handleReadDocument = async (payload: { imageBase64?: string; imagesBase64?: string[]; textContent?: string }) => {
     // If custom images/PDFs or text was uploaded/pasted
     setIsLoading(true);
     try {

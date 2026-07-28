@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { Upload, Camera, FileText, Sparkles, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, Image as ImageIcon, FileType, Plus, Trash2, Layers, X } from 'lucide-react';
-import { BENCHMARK_CASES } from '../data/benchmarkCases';
-import { BenchmarkCase, SupportedLanguage } from '../types';
+import { Upload, Camera, Sparkles, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, Image as ImageIcon, FileType, Plus, Trash2, Layers, X } from 'lucide-react';
+import { SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 
 interface UploadScreenProps {
-  onReadDocument: (payload: { imageBase64?: string; imagesBase64?: string[]; textContent?: string; sampleCase?: BenchmarkCase }) => void;
+  onReadDocument: (payload: { imageBase64?: string; imagesBase64?: string[]; textContent?: string }) => void;
   isLoading: boolean;
   selectedLanguage?: SupportedLanguage;
 }
@@ -73,7 +72,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileInfo[]>([]);
   const [isCompressing, setIsCompressing] = useState<boolean>(false);
   const [pastedText, setPastedText] = useState<string>('');
-  const [selectedSample, setSelectedSample] = useState<BenchmarkCase | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [uploadError, setUploadError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -118,7 +116,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     }
 
     setUploadError('');
-    setSelectedSample(null);
     setIsCompressing(true);
 
     const filePromises = fileArray.map((file, index) => {
@@ -216,9 +213,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
 
   // Handle Click on "Read the Document"
   const handleStartReading = () => {
-    if (selectedSample) {
-      onReadDocument({ sampleCase: selectedSample });
-    } else if (uploadedFiles.length > 0) {
+    if (uploadedFiles.length > 0) {
       const dataUrls = uploadedFiles.map((f) => f.dataUrl);
       onReadDocument({
         imageBase64: dataUrls[0],
@@ -227,8 +222,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     } else if (pastedText.trim()) {
       onReadDocument({ textContent: pastedText });
     } else {
-      // Default to first sample if nothing selected
-      onReadDocument({ sampleCase: BENCHMARK_CASES[0] });
+      setUploadError('Please upload a court-order PDF or image, or paste the court-order text.');
     }
   };
 
@@ -284,16 +278,16 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
           onDragLeave={handleDrag}
           onDrop={handleDrop}
           onClick={() => {
-            if (uploadedFiles.length === 0 && !selectedSample) {
+            if (uploadedFiles.length === 0) {
               fileInputRef.current?.click();
             }
           }}
           className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center transition-all flex flex-col items-center justify-center space-y-4 ${
-            uploadedFiles.length === 0 && !selectedSample ? 'cursor-pointer hover:border-black hover:bg-slate-100/80' : ''
+            uploadedFiles.length === 0 ? 'cursor-pointer hover:border-black hover:bg-slate-100/80' : ''
           } ${
             dragActive
               ? 'border-black bg-slate-100 scale-[1.01]'
-              : uploadedFiles.length > 0 || selectedSample
+              : uploadedFiles.length > 0
               ? 'border-slate-900 bg-slate-50'
               : 'border-slate-300 bg-slate-50/60'
           }`}
@@ -399,23 +393,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                 Tip: You can select or photograph up to 10 court-order pages together. Sarvam Vision keeps them in page order.
               </p>
             </div>
-          ) : selectedSample ? (
-            <div className="space-y-3 w-full max-w-md mx-auto bg-white p-4 rounded-xl border border-slate-400 shadow-xs" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 uppercase font-mono">Sample Document Selected</span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedSample(null);
-                  }}
-                  className="text-xs text-slate-500 hover:text-slate-800 font-medium cursor-pointer"
-                >
-                  Clear
-                </button>
-              </div>
-              <p className="text-sm font-bold text-slate-900">{selectedSample.title}</p>
-              <p className="text-xs text-slate-500">{selectedSample.caseNumber} • {selectedSample.courtName}</p>
-            </div>
           ) : (
             <>
               <div className="h-16 w-16 rounded-2xl bg-black text-white flex items-center justify-center shadow-xs">
@@ -463,55 +440,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
           )}
         </div>
 
-        {/* Alternative: Sample Court Documents for quick testing */}
-        <div className="space-y-3 pt-2 border-t border-slate-100">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-              {t.sampleCasesTitle}
-            </span>
-            <span className="text-[11px] text-slate-400">{t.sampleCasesSub}</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {BENCHMARK_CASES.map((caseItem) => (
-              <button
-                key={caseItem.id}
-                onClick={() => {
-                  setUploadError('');
-                  setSelectedSample(caseItem);
-                  setUploadedFiles([]);
-                }}
-                className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-3 ${
-                  selectedSample?.id === caseItem.id
-                    ? 'border-black bg-slate-100 shadow-xs ring-1 ring-black'
-                    : 'border-slate-200 bg-slate-50/50 hover:border-slate-400 hover:bg-white'
-                }`}
-              >
-                <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${
-                  caseItem.isRefusalCase ? 'bg-slate-200 text-slate-900' : 'bg-black text-white'
-                }`}>
-                  <FileText className="h-4 w-4" />
-                </div>
-                <div className="space-y-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-bold text-slate-900 truncate">
-                      {caseItem.title}
-                    </span>
-                    {caseItem.isRefusalCase && (
-                      <span className="shrink-0 bg-slate-200 text-slate-900 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase font-mono">
-                        Refusal
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-slate-500 truncate">
-                    {caseItem.caseNumber} • {caseItem.courtName}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Manual Text Paste Accordion */}
         <div className="pt-2">
           <details className="group text-xs">
@@ -525,7 +453,6 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
               onChange={(e) => {
                 setPastedText(e.target.value);
                 if (e.target.value.trim()) {
-                  setSelectedSample(null);
                   setUploadedFiles([]);
                 }
               }}
@@ -557,9 +484,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
               <>
                 <Sparkles className="h-5 w-5 text-slate-300 group-hover:rotate-12 transition-transform" />
                 <span>
-                  {selectedSample
-                    ? `Analyze: ${selectedSample.title}`
-                    : uploadedFiles.length > 1
+                  {uploadedFiles.length > 1
                     ? `Read ${uploadedFiles.length} Uploaded Court Pages`
                     : uploadedFiles.length === 1
                     ? `Read Uploaded Court Document`
