@@ -9,14 +9,14 @@ interface LitigantAudioPlayerProps {
 }
 
 const AUDIO_GENERATING_LABELS: Record<SupportedLanguage, string> = {
-  en: 'Generating speech with Sarvam Bulbul v3...',
-  hi: 'सर्वम बुलबुल से आवाज़ बनाई जा रही है...',
-  bn: 'সর্বম বুলবুল দিয়ে কণ্ঠ তৈরি হচ্ছে...',
-  ta: 'சர்வம் புல்புல் மூலம் குரல் உருவாக்கப்படுகிறது...',
-  te: 'సర్వం బుల్బుల్‌తో వాయిస్ తయారవుతోంది...',
-  mr: 'सर्वम बुलबुलद्वारे आवाज तयार होत आहे...',
-  gu: 'સર્વમ બુલબુલથી અવાજ તૈયાર થઈ રહ્યો છે...',
-  pa: 'ਸਰਵਮ ਬੁਲਬੁਲ ਨਾਲ ਆਵਾਜ਼ ਤਿਆਰ ਹੋ ਰਹੀ ਹੈ...',
+  en: 'Generating voice summary...',
+  hi: 'आवाज़ में सारांश तैयार हो रहा है...',
+  bn: 'কণ্ঠে সারসংক্ষেপ তৈরি হচ্ছে...',
+  ta: 'குரல் சுருக்கம் உருவாக்கப்படுகிறது...',
+  te: 'వాయిస్ సారాంశం తయారవుతోంది...',
+  mr: 'आवाजातील सारांश तयार होत आहे...',
+  gu: 'અવાજમાં સારાંશ તૈયાર થઈ રહ્યો છે...',
+  pa: 'ਆਵਾਜ਼ ਵਿੱਚ ਸਾਰ ਤਿਆਰ ਹੋ ਰਿਹਾ ਹੈ...',
 };
 
 export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
@@ -47,7 +47,7 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
     setAudioError('');
   }, [activeLang, text]);
 
-  const generateSarvamAudio = async (): Promise<string | null> => {
+  const generateAudio = async (): Promise<string | null> => {
     const response = await fetch('/api/generate-tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,7 +60,7 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
     });
     const data = await response.json();
     if (!response.ok || !data.success || !data.audioBase64) {
-      throw new Error(data.error || 'Sarvam voice is temporarily unavailable.');
+      throw new Error('Voice playback is temporarily unavailable.');
     }
     return data.audioBase64;
   };
@@ -92,9 +92,9 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
 
     setIsGenerating(true);
     try {
-      const audioBase64 = await generateSarvamAudio();
+      const audioBase64 = await generateAudio();
       if (!audioBase64) {
-        throw new Error('Sarvam Bulbul returned no audio.');
+        throw new Error('The voice service returned no audio.');
       }
 
       const sound = new Audio(`data:audio/wav;base64,${audioBase64}`);
@@ -103,14 +103,14 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
       sound.onerror = () => {
         setIsPlaying(false);
         audioRef.current = null;
-        setAudioError('The Sarvam audio could not be played on this device.');
+        setAudioError('The audio could not be played on this device.');
       };
       await sound.play();
       audioRef.current = sound;
       setIsPlaying(true);
     } catch (err: any) {
-      console.warn('Sarvam TTS generation error:', err);
-      setAudioError(err?.message || 'Sarvam voice is temporarily unavailable.');
+      console.warn('Voice generation error:', err);
+      setAudioError(err?.message || 'Voice playback is temporarily unavailable.');
       setIsPlaying(false);
     } finally {
       setIsGenerating(false);
@@ -139,7 +139,7 @@ export const LitigantAudioPlayer: React.FC<LitigantAudioPlayerProps> = ({
                 {t.listenTitle}
               </h4>
               <span className="text-[10px] bg-slate-200 text-slate-900 px-2 py-0.5 rounded font-semibold">
-                Sarvam Bulbul v3
+                Voice AI
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">

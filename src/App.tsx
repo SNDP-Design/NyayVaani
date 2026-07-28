@@ -97,8 +97,8 @@ export default function App() {
       <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2 font-semibold text-slate-700">
-            <Scale className="h-4 w-4 text-indigo-600" />
-            <span>{t.appTitle} • Sarvam AI</span>
+            <Scale className="h-4 w-4 text-black" />
+            <span>{t.appTitle}</span>
           </div>
 
           <p className="text-[11px] text-slate-500">
