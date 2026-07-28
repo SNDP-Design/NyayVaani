@@ -47,12 +47,12 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-2 sm:gap-3">
             
             {/* Language Selector */}
-            <div className="relative w-[132px] sm:w-[140px] shrink-0">
+            <div className="relative w-[112px] shrink-0">
               <select
                 aria-label={t.selectLanguageAria}
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value as SupportedLanguage)}
-                className="h-10 w-full appearance-none rounded-full border border-slate-300 bg-slate-50 pl-4 pr-10 text-sm font-semibold text-slate-900 shadow-xs outline-none transition-colors cursor-pointer hover:border-slate-400 focus:border-black focus:ring-2 focus:ring-slate-200"
+                className="h-9 w-full appearance-none rounded-full border border-slate-300 bg-slate-50 pl-3 pr-8 text-sm font-semibold text-slate-900 shadow-xs outline-none transition-colors cursor-pointer hover:border-slate-400 focus:border-black focus:ring-2 focus:ring-slate-200"
               >
                 <option value="en">English</option>
                 <option value="hi">हिंदी</option>
@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
               </select>
               <ChevronDown
                 aria-hidden="true"
-                className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-700"
+                className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-700"
               />
             </div>
 
