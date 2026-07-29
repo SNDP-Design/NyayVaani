@@ -22,6 +22,7 @@ interface VoiceAIAgentProps {
   selectedLanguage: SupportedLanguage;
   isOpen: boolean;
   onClose: () => void;
+  compact?: boolean;
 }
 
 interface Message {
@@ -165,6 +166,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
   selectedLanguage,
   isOpen,
   onClose,
+  compact = false,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
@@ -624,6 +626,63 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
         : isSpeaking
           ? voiceLabels.speaking
           : voiceLabels.recordQuestion;
+
+  if (compact) {
+    return (
+      <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full border border-slate-300 bg-white p-2 shadow-2xl">
+        <div className="hidden sm:block pl-3 min-w-[150px] max-w-[240px]">
+          <p className="truncate text-xs font-extrabold text-slate-900">
+            {voiceStateLabel}
+          </p>
+          <p className="truncate text-[10px] text-slate-500">
+            {isSpeaking
+              ? voiceLabels.recordQuestion
+              : isListening
+                ? voiceLabels.recordingHelp
+                : voiceLabels.askAnything}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleVoiceControl}
+          disabled={isTranscribing || isLoading}
+          aria-label={voiceStateLabel}
+          title={voiceStateLabel}
+          className={`relative h-14 w-14 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer border-2 ${
+            isListening
+              ? 'bg-black text-white border-slate-400 animate-pulse'
+              : isSpeaking
+                ? 'bg-white text-black border-black'
+                : isTranscribing || isLoading
+                  ? 'bg-slate-200 text-slate-500 border-slate-300 cursor-wait'
+                  : 'bg-black text-white border-slate-700 hover:scale-105'
+          }`}
+        >
+          {isTranscribing || isLoading ? (
+            <RefreshCw className="h-5 w-5 animate-spin" />
+          ) : isListening ? (
+            <MicOff className="h-5 w-5" />
+          ) : isSpeaking ? (
+            <AudioLines className="h-6 w-6 animate-pulse" />
+          ) : (
+            <Mic className="h-5 w-5" />
+          )}
+          {(isListening || isSpeaking) && (
+            <span className="absolute inset-[-5px] rounded-full border border-slate-400/70 animate-ping" />
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t.voiceAiStopListening}
+          title={t.voiceAiStopListening}
+          className="h-8 w-8 rounded-full text-slate-400 hover:bg-slate-100 hover:text-black flex items-center justify-center cursor-pointer"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-0 sm:p-4 overflow-hidden">
