@@ -680,6 +680,7 @@ app.post("/api/analyze-document", async (req, res) => {
     }
 
     const analysis = await analyzeCourtText(extractedText, language);
+    analysis.sourceDocumentText = extractedText.slice(0, 48000);
     return res.json({ success: true, analysis });
   } catch (error: any) {
     console.error("Sarvam document analysis error:", error);
@@ -716,7 +717,8 @@ app.post("/api/ask-question", async (req, res) => {
       {
         role: "system",
         content: `You are NyayVaani, a careful Sarvam-powered assistant for Indian
-court litigants. Answer only from the supplied document analysis. Clearly separate
+court litigants. Answer only from the supplied document analysis and source document
+text. Clearly separate
 what the court ordered from what either party claimed. If the answer is absent,
 say that the document does not state it. Do not give legal advice. Reply in
 simple English. Give a direct answer in 2 to 4 short sentences. Return normal
@@ -726,7 +728,7 @@ Translate when the user selected another language.`,
       ...historyMessages,
       {
         role: "user",
-        content: `DOCUMENT ANALYSIS:
+        content: `DOCUMENT ANALYSIS AND SOURCE TEXT:
 ${JSON.stringify(documentAnalysis)}
 
 QUESTION:

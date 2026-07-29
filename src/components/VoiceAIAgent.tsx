@@ -1,5 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2, VolumeX, Send, Sparkles, Bot, X, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import {
+  AudioLines,
+  CheckCircle2,
+  FileText,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  Send,
+  Sparkles,
+  Bot,
+  X,
+  RefreshCw,
+  ShieldCheck,
+} from 'lucide-react';
 import { AnalysisResult, SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
 
@@ -165,6 +179,13 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimeoutRef = useRef<number | null>(null);
   const spokenAudioRef = useRef<HTMLAudioElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const silenceFrameRef = useRef<number | null>(null);
+  const conversationActiveRef = useRef(false);
+  const autoSpeakRef = useRef(true);
+  const isListeningRef = useRef(false);
+  const speechRequestRef = useRef(0);
+  const startListeningRef = useRef<(() => Promise<void>) | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const t = getTranslation(selectedLanguage);
   const coreLabels = VOICE_CORE_LABELS[selectedLanguage];
@@ -194,41 +215,28 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
     t.suggestedQ4,
   ];
 
-  // Initialize or update introductory greeting when language or case changes
-  useEffect(() => {
-    if (analysis) {
-      const initialGreeting = coreLabels.greeting;
-
-      setMessages([
-        {
-          id: 'msg-init',
-          sender: 'agent',
-          text: initialGreeting,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          keyFact: analysis.operativeDirectionVerbatim ? `${coreLabels.operativeRuling}: "${analysis.operativeDirectionVerbatim.substring(0, 100)}..."` : undefined,
-        },
-      ]);
+  const plainExplanation =
+    analysis.plainLanguageExplanations?.[selectedLanguage] ||
+    analysis.plainLanguageExplanations?.en ||
+    '';
+  const documentIntroduction = useMemo(() => {
+    const parts = [plainExplanation];
+    if (analysis.nextSteps?.length) {
+      parts.push(
+        analysis.nextSteps
+          .slice(0, 4)
+          .map((step, index) => `${index + 1}. ${step.action}`)
+          .join(' '),
+      );
     }
-  }, [analysis, selectedLanguage, coreLabels.greeting, coreLabels.operativeRuling]);
+    parts.push(coreLabels.greeting);
+    return parts.filter(Boolean).join(' ').slice(0, 2200);
+  }, [analysis.nextSteps, coreLabels.greeting, plainExplanation]);
 
   // Scroll to bottom of chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
-
-  useEffect(() => {
-    return () => {
-      if (recordingTimeoutRef.current) {
-        window.clearTimeout(recordingTimeoutRef.current);
-      }
-      if (mediaRecorderRef.current?.state === 'recording') {
-        mediaRecorderRef.current.onstop = null;
-        mediaRecorderRef.current.stop();
-      }
-      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
-      spokenAudioRef.current?.pause();
-    };
-  }, []);
 
   const blobToDataUrl = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -239,43 +247,80 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
     });
   };
 
-  const speakText = async (text: string) => {
-    stopSpeaking();
-    setIsSpeaking(true);
-    try {
-      const response = await fetch('/api/generate-tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text,
-          language: selectedLanguage,
-          speaker: 'shubh',
-          pace: 0.95,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok || !data.success || !data.audioBase64) {
-        throw new Error(coreLabels.voiceUnavailable);
-      }
-
-      const audio = new Audio(`data:audio/wav;base64,${data.audioBase64}`);
-      spokenAudioRef.current = audio;
-      audio.onended = () => setIsSpeaking(false);
-      audio.onerror = () => setIsSpeaking(false);
-      await audio.play();
-    } catch (error) {
-      console.error('Voice playback error:', error);
-      setIsSpeaking(false);
+  const stopSilenceMonitor = () => {
+    if (silenceFrameRef.current !== null) {
+      window.cancelAnimationFrame(silenceFrameRef.current);
+      silenceFrameRef.current = null;
+    }
+    if (audioContextRef.current) {
+      void audioContextRef.current.close();
+      audioContextRef.current = null;
     }
   };
 
   const stopSpeaking = () => {
+    speechRequestRef.current += 1;
     if (spokenAudioRef.current) {
       spokenAudioRef.current.pause();
       spokenAudioRef.current.currentTime = 0;
       spokenAudioRef.current = null;
     }
     setIsSpeaking(false);
+  };
+
+  const stopRecording = () => {
+    if (recordingTimeoutRef.current) {
+      window.clearTimeout(recordingTimeoutRef.current);
+      recordingTimeoutRef.current = null;
+    }
+    stopSilenceMonitor();
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+  };
+
+  const startSilenceMonitor = (stream: MediaStream) => {
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    const context = new AudioContextClass();
+    const source = context.createMediaStreamSource(stream);
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+    audioContextRef.current = context;
+
+    const samples = new Uint8Array(analyser.fftSize);
+    const startedAt = Date.now();
+    let heardSpeech = false;
+    let lastSpeechAt = startedAt;
+
+    const monitor = () => {
+      if (!isListeningRef.current) return;
+      analyser.getByteTimeDomainData(samples);
+      let energy = 0;
+      for (const sample of samples) {
+        const normalized = (sample - 128) / 128;
+        energy += normalized * normalized;
+      }
+      const volume = Math.sqrt(energy / samples.length);
+      const now = Date.now();
+      if (volume > 0.035) {
+        heardSpeech = true;
+        lastSpeechAt = now;
+      }
+      if (
+        (heardSpeech && now - lastSpeechAt > 1300 && now - startedAt > 900) ||
+        (!heardSpeech && now - startedAt > 10000)
+      ) {
+        stopRecording();
+        return;
+      }
+      silenceFrameRef.current = window.requestAnimationFrame(monitor);
+    };
+    silenceFrameRef.current = window.requestAnimationFrame(monitor);
   };
 
   const transcribeRecording = async (audioBlob: Blob) => {
@@ -305,29 +350,19 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
     }
   };
 
-  const stopRecording = () => {
-    if (recordingTimeoutRef.current) {
-      window.clearTimeout(recordingTimeoutRef.current);
-      recordingTimeoutRef.current = null;
-    }
-    if (mediaRecorderRef.current?.state === 'recording') {
-      mediaRecorderRef.current.stop();
-    }
-  };
-
-  const toggleListening = async () => {
-    if (isListening) {
-      stopRecording();
-      return;
-    }
-
+  const startListening = async () => {
+    if (isListeningRef.current || isTranscribing || isLoading) return;
+    stopSpeaking();
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
       alert(coreLabels.recordingUnsupported);
       return;
     }
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!conversationActiveRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       mediaStreamRef.current = stream;
       audioChunksRef.current = [];
 
@@ -345,7 +380,9 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
         }
       };
       recorder.onstop = () => {
+        isListeningRef.current = false;
         setIsListening(false);
+        stopSilenceMonitor();
         mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
         mediaStreamRef.current = null;
         const audioBlob = new Blob(audioChunksRef.current, {
@@ -356,18 +393,83 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
         }
       };
       recorder.onerror = () => {
+        isListeningRef.current = false;
         setIsListening(false);
+        stopSilenceMonitor();
         mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
       };
 
       recorder.start();
+      isListeningRef.current = true;
       setIsListening(true);
+      startSilenceMonitor(stream);
       recordingTimeoutRef.current = window.setTimeout(stopRecording, 28000);
     } catch (error) {
       console.error('Microphone recording error:', error);
+      isListeningRef.current = false;
       setIsListening(false);
       alert(coreLabels.microphoneRequired);
     }
+  };
+  startListeningRef.current = startListening;
+
+  const speakText = async (text: string, continueConversation = false) => {
+    stopSpeaking();
+    const requestId = ++speechRequestRef.current;
+    setIsSpeaking(true);
+    try {
+      const response = await fetch('/api/generate-tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          language: selectedLanguage,
+          speaker: 'shubh',
+          pace: 0.95,
+        }),
+      });
+      const data = await response.json();
+      if (
+        requestId !== speechRequestRef.current ||
+        !conversationActiveRef.current
+      ) {
+        setIsSpeaking(false);
+        return;
+      }
+      if (!response.ok || !data.success || !data.audioBase64) {
+        throw new Error(coreLabels.voiceUnavailable);
+      }
+
+      const audio = new Audio(`data:audio/wav;base64,${data.audioBase64}`);
+      spokenAudioRef.current = audio;
+      audio.onended = () => {
+        spokenAudioRef.current = null;
+        setIsSpeaking(false);
+        if (
+          continueConversation &&
+          autoSpeakRef.current &&
+          conversationActiveRef.current
+        ) {
+          window.setTimeout(() => void startListeningRef.current?.(), 250);
+        }
+      };
+      audio.onerror = () => {
+        spokenAudioRef.current = null;
+        setIsSpeaking(false);
+      };
+      await audio.play();
+    } catch (error) {
+      console.error('Voice playback error:', error);
+      setIsSpeaking(false);
+    }
+  };
+
+  const toggleListening = async () => {
+    if (isListeningRef.current) {
+      stopRecording();
+      return;
+    }
+    await startListening();
   };
 
   // Handle Question Submit
@@ -411,8 +513,8 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
 
         setMessages((prev) => [...prev, agentMsg]);
 
-        if (autoSpeak) {
-          speakText(data.answer);
+        if (autoSpeakRef.current) {
+          void speakText(data.answer, true);
         }
       } else {
         throw new Error(coreLabels.answerFailed);
@@ -432,6 +534,29 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
   };
 
   useEffect(() => {
+    conversationActiveRef.current = isOpen;
+    if (isOpen) {
+      const initialMessage: Message = {
+        id: 'msg-init',
+        sender: 'agent',
+        text: documentIntroduction,
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        keyFact: analysis.operativeDirectionVerbatim
+          ? `${coreLabels.operativeRuling}: "${analysis.operativeDirectionVerbatim.substring(0, 160)}..."`
+          : undefined,
+      };
+      setMessages([initialMessage]);
+      const startTimer = window.setTimeout(() => {
+        if (autoSpeakRef.current && conversationActiveRef.current) {
+          void speakText(documentIntroduction, true);
+        }
+      }, 180);
+      return () => window.clearTimeout(startTimer);
+    }
+
     if (!isOpen) {
       if (recordingTimeoutRef.current) {
         window.clearTimeout(recordingTimeoutRef.current);
@@ -443,19 +568,59 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
       }
       mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
-      spokenAudioRef.current?.pause();
-      spokenAudioRef.current = null;
+      stopSilenceMonitor();
+      stopSpeaking();
+      isListeningRef.current = false;
       setIsListening(false);
-      setIsSpeaking(false);
       setIsTranscribing(false);
     }
-  }, [isOpen]);
+  }, [isOpen, documentIntroduction]);
+
+  useEffect(() => {
+    autoSpeakRef.current = autoSpeak;
+    if (!autoSpeak) stopSpeaking();
+  }, [autoSpeak]);
+
+  useEffect(() => {
+    return () => {
+      conversationActiveRef.current = false;
+      if (recordingTimeoutRef.current) {
+        window.clearTimeout(recordingTimeoutRef.current);
+      }
+      if (mediaRecorderRef.current?.state === 'recording') {
+        mediaRecorderRef.current.onstop = null;
+        mediaRecorderRef.current.stop();
+      }
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      stopSilenceMonitor();
+      stopSpeaking();
+    };
+  }, []);
 
   if (!isOpen) return null;
 
+  const handleVoiceControl = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+      void startListening();
+      return;
+    }
+    void toggleListening();
+  };
+
+  const voiceStateLabel = isListening
+    ? voiceLabels.recording
+    : isTranscribing
+      ? voiceLabels.transcribing
+      : isLoading
+        ? voiceLabels.reading
+        : isSpeaking
+          ? voiceLabels.speaking
+          : voiceLabels.recordQuestion;
+
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-hidden">
-      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl h-[85vh] max-h-[700px] shadow-2xl flex flex-col overflow-hidden text-slate-900">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-0 sm:p-4 overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-none sm:rounded-3xl w-full max-w-6xl h-[100dvh] sm:h-[92vh] sm:max-h-[900px] shadow-2xl flex flex-col overflow-hidden text-slate-900">
         
         {/* Header */}
         <div className="px-5 py-3.5 bg-black text-white flex items-center justify-between shrink-0 border-b border-slate-800">
@@ -519,8 +684,125 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
           </div>
         )}
 
+        <div className="grid flex-1 min-h-0 grid-rows-[minmax(190px,38vh)_minmax(0,1fr)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:grid-rows-1">
+          {/* Document context stays visible throughout the conversation */}
+          <aside className="min-h-0 overflow-y-auto border-b lg:border-b-0 lg:border-r border-slate-200 bg-white p-4 sm:p-5 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="h-10 w-10 rounded-xl bg-black text-white flex items-center justify-center shrink-0">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                  {voiceLabels.document}
+                </p>
+                <h3 className="font-extrabold text-slate-900 leading-tight">
+                  {analysis.title}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  {analysis.caseNumber} • {analysis.courtName}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900 mb-2">
+                <Sparkles className="h-4 w-4" />
+                {t.plainSummaryTitle}
+              </div>
+              <p className="text-xs sm:text-sm leading-relaxed text-slate-700">
+                {plainExplanation}
+              </p>
+            </div>
+
+            {analysis.operativeDirectionVerbatim && (
+              <div className="rounded-2xl bg-black text-white p-4">
+                <div className="flex items-center gap-2 text-xs font-extrabold mb-2">
+                  <ShieldCheck className="h-4 w-4" />
+                  {t.operativeDirectionTitle}
+                </div>
+                <p className="text-xs sm:text-sm leading-relaxed text-slate-100">
+                  “{analysis.operativeDirectionVerbatim}”
+                </p>
+              </div>
+            )}
+
+            {analysis.nextSteps?.length > 0 && (
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900 mb-3">
+                  <CheckCircle2 className="h-4 w-4" />
+                  {t.nextStepsTitle}
+                </div>
+                <div className="space-y-2">
+                  {analysis.nextSteps.slice(0, 4).map((step, index) => (
+                    <div key={step.id || index} className="flex items-start gap-2 text-xs text-slate-700">
+                      <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                        {index + 1}
+                      </span>
+                      <span className="leading-relaxed">{step.action}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {analysis.paragraphs?.length > 0 && (
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="text-xs font-extrabold text-slate-900 mb-3">
+                  {t.attributionTitle}
+                </div>
+                <div className="space-y-3">
+                  {analysis.paragraphs.slice(0, 6).map((paragraph) => (
+                    <p key={paragraph.id} className="text-xs leading-relaxed text-slate-600 border-l-2 border-slate-300 pl-3">
+                      {paragraph.text}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </aside>
+
+          <section className="min-h-0 flex flex-col bg-slate-50">
+            {/* One central control handles speaking, interruption, and listening */}
+            <div className="px-4 py-3 bg-white border-b border-slate-200 flex items-center gap-4 shrink-0">
+              <button
+                type="button"
+                onClick={handleVoiceControl}
+                disabled={isTranscribing || isLoading}
+                aria-label={voiceStateLabel}
+                className={`relative h-16 w-16 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer border-4 ${
+                  isListening
+                    ? 'bg-black text-white border-slate-300 shadow-[0_0_0_8px_rgba(15,23,42,0.08)] animate-pulse'
+                    : isSpeaking
+                      ? 'bg-white text-black border-black shadow-[0_0_0_8px_rgba(15,23,42,0.08)]'
+                      : isTranscribing || isLoading
+                        ? 'bg-slate-200 text-slate-500 border-slate-100 cursor-wait'
+                        : 'bg-black text-white border-slate-300 hover:scale-105'
+                }`}
+              >
+                {isTranscribing || isLoading ? (
+                  <RefreshCw className="h-6 w-6 animate-spin" />
+                ) : isListening ? (
+                  <MicOff className="h-6 w-6" />
+                ) : isSpeaking ? (
+                  <AudioLines className="h-7 w-7 animate-pulse" />
+                ) : (
+                  <Mic className="h-6 w-6" />
+                )}
+              </button>
+              <div className="min-w-0">
+                <p className="font-extrabold text-sm text-slate-900">{voiceStateLabel}</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {isSpeaking
+                    ? voiceLabels.recordQuestion
+                    : isListening
+                      ? voiceLabels.recordingHelp
+                      : voiceLabels.askAnything}
+                </p>
+              </div>
+            </div>
+
         {/* Chat Messages Container */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-slate-50">
+        <div className="flex-1 min-h-0 p-4 overflow-y-auto space-y-3.5 bg-slate-50">
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -656,6 +938,8 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
               {coreLabels.transcribingDetail}
             </p>
           )}
+        </div>
+          </section>
         </div>
 
       </div>

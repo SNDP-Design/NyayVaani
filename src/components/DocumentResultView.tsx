@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Bot, Calendar, MapPin, FileText, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowLeft, AudioLines, Bot, Calendar, MapPin, FileText, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
 import { CourtDocumentCase, SupportedLanguage } from '../types';
 import { VoiceAIAgent } from './VoiceAIAgent';
 import { LitigantAudioPlayer } from './LitigantAudioPlayer';
@@ -338,13 +338,12 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
       <div className="fixed bottom-6 right-6 z-40">
         <button
           onClick={() => setIsVoiceAgentOpen(true)}
-          className="group relative flex items-center gap-3 bg-black hover:bg-slate-800 text-white px-5 py-3.5 rounded-full shadow-2xl transition-all transform hover:-translate-y-1 cursor-pointer border-2 border-slate-700"
+          aria-label={t.askVoiceAiButton}
+          title={t.askVoiceAiButton}
+          className="group relative h-16 w-16 flex items-center justify-center bg-black hover:bg-slate-800 text-white rounded-full shadow-2xl transition-all transform hover:-translate-y-1 hover:scale-105 cursor-pointer border-2 border-slate-700"
         >
-          <div className="relative flex items-center justify-center">
-            <Bot className="h-6 w-6 text-white" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full animate-ping"></span>
-          </div>
-          <span className="font-extrabold text-sm tracking-wide">{t.askVoiceAiButton}</span>
+          <AudioLines className="h-7 w-7 text-white" />
+          <span className="absolute inset-1 rounded-full border border-white/30 animate-pulse"></span>
         </button>
       </div>
 

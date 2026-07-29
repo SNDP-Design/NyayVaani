@@ -31,6 +31,7 @@ export interface NextStep {
 
 export interface AnalysisResult {
   documentId: string;
+  sourceDocumentText?: string;
   title: string;
   caseNumber: string;
   courtName: string;
