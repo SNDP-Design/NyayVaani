@@ -1,12 +1,21 @@
 import React, { useState, useRef } from 'react';
-import { Upload, Sparkles, ArrowRight, AlertCircle, FileType, Plus, Layers, X } from 'lucide-react';
+import { Upload, Sparkles, ArrowRight, AlertCircle, FileType, Plus, Layers, X, History, FileText } from 'lucide-react';
 import { SupportedLanguage } from '../types';
 import { getTranslation } from '../utils/translations';
+import { RecentCourtDocument } from '../utils/recentDocuments';
 
 interface UploadScreenProps {
-  onReadDocument: (payload: { imagesBase64?: string[]; textContent?: string }) => void;
+  onReadDocument: (payload: {
+    imagesBase64?: string[];
+    textContent?: string;
+    sourceName?: string;
+    pageCount?: number;
+  }) => void;
   isLoading: boolean;
   selectedLanguage?: SupportedLanguage;
+  recentDocuments: RecentCourtDocument[];
+  onOpenRecentDocument: (document: RecentCourtDocument) => void;
+  onDeleteRecentDocument: (id: string) => void;
 }
 
 interface UploadedFileInfo {
@@ -134,7 +143,14 @@ const optimizeImageBatch = async (files: UploadedFileInfo[]): Promise<UploadedFi
   return optimized;
 };
 
-export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLoading, selectedLanguage = 'en' }) => {
+export const UploadScreen: React.FC<UploadScreenProps> = ({
+  onReadDocument,
+  isLoading,
+  selectedLanguage = 'en',
+  recentDocuments,
+  onOpenRecentDocument,
+  onDeleteRecentDocument,
+}) => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileInfo[]>([]);
   const [isCompressing, setIsCompressing] = useState<boolean>(false);
   const [pastedText, setPastedText] = useState<string>('');
@@ -293,9 +309,20 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
       const dataUrls = uploadedFiles.map((f) => f.dataUrl);
       onReadDocument({
         imagesBase64: dataUrls,
+        sourceName:
+          selectedPdf?.name ||
+          uploadedFiles[0]?.name ||
+          t.readUploadedDocument,
+        pageCount: uploadedFiles.reduce(
+          (total, file) => total + file.pageCount,
+          0,
+        ),
       });
     } else if (pastedText.trim()) {
-      onReadDocument({ textContent: pastedText });
+      onReadDocument({
+        textContent: pastedText,
+        sourceName: t.readUploadedDocument,
+      });
     } else {
       setUploadError(t.uploadRequiredError);
     }
@@ -530,6 +557,66 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
             )}
           </button>
         </div>
+
+        {recentDocuments.length > 0 && (
+          <section className="pt-5 border-t border-slate-200 space-y-3">
+            <div className="flex items-start gap-2">
+              <History className="h-4 w-4 text-slate-700 mt-0.5" />
+              <div>
+                <h2 className="text-sm font-extrabold text-slate-900">
+                  {t.recentDocumentsTitle}
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  {t.recentDocumentsSub}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {recentDocuments.map((document) => (
+                <div
+                  key={document.id}
+                  className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-2.5 hover:border-slate-400 hover:bg-white transition-colors"
+                >
+                  <button
+                    type="button"
+                    onClick={() => onOpenRecentDocument(document)}
+                    title={t.openRecentDocument}
+                    className="min-w-0 flex-1 flex items-center gap-3 text-left cursor-pointer"
+                  >
+                    <span className="h-9 w-9 shrink-0 rounded-lg bg-black text-white flex items-center justify-center">
+                      <FileText className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-xs font-extrabold text-slate-900">
+                        {document.courtCase.title}
+                      </span>
+                      <span className="block truncate text-[10px] text-slate-500">
+                        {document.sourceName}
+                        {document.pageCount
+                          ? ` • ${document.pageCount} ${t.pageLabel}`
+                          : ''}
+                      </span>
+                      <span className="block truncate text-[10px] text-slate-500">
+                        {document.courtCase.caseNumber} • {document.courtCase.courtName}
+                      </span>
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onDeleteRecentDocument(document.id)}
+                    title={t.deleteRecentDocument}
+                    aria-label={t.deleteRecentDocument}
+                    className="h-8 w-8 shrink-0 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 flex items-center justify-center cursor-pointer transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
       </div>
     </div>

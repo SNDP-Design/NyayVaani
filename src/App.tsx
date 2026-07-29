@@ -5,12 +5,19 @@ import { DocumentResultView } from './components/DocumentResultView';
 import { CourtDocumentCase, SupportedLanguage } from './types';
 import { Scale } from 'lucide-react';
 import { getTranslation } from './utils/translations';
+import {
+  deleteRecentDocument,
+  getRecentDocuments,
+  RecentCourtDocument,
+  saveRecentDocument,
+} from './utils/recentDocuments';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<'upload' | 'result'>('upload');
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>('en');
   const [currentCase, setCurrentCase] = useState<CourtDocumentCase | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [recentDocuments, setRecentDocuments] = useState<RecentCourtDocument[]>([]);
   const t = getTranslation(selectedLanguage);
 
   useEffect(() => {
@@ -18,8 +25,19 @@ export default function App() {
     document.title = `${t.appTitle} - ${t.appSubtitle}`;
   }, [selectedLanguage, t.appTitle, t.appSubtitle]);
 
+  useEffect(() => {
+    void getRecentDocuments()
+      .then(setRecentDocuments)
+      .catch((error) => console.warn('Could not load recent documents:', error));
+  }, []);
+
   // Handle "Read the Document" click
-  const handleReadDocument = async (payload: { imagesBase64?: string[]; textContent?: string }) => {
+  const handleReadDocument = async (payload: {
+    imagesBase64?: string[];
+    textContent?: string;
+    sourceName?: string;
+    pageCount?: number;
+  }) => {
     // If custom images/PDFs or text was uploaded/pasted
     setIsLoading(true);
     try {
@@ -46,6 +64,17 @@ export default function App() {
         };
 
         setCurrentCase(customCase);
+        const savedDocument: RecentCourtDocument = {
+          id: customCase.id,
+          savedAt: new Date().toISOString(),
+          sourceName: payload.sourceName || customCase.title,
+          pageCount: payload.pageCount,
+          courtCase: customCase,
+        };
+        void saveRecentDocument(savedDocument)
+          .then(() => getRecentDocuments())
+          .then(setRecentDocuments)
+          .catch((error) => console.warn('Could not save recent document:', error));
         setCurrentStep('result');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
@@ -71,6 +100,23 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleOpenRecentDocument = (document: RecentCourtDocument) => {
+    setCurrentCase(document.courtCase);
+    setCurrentStep('result');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDeleteRecentDocument = async (id: string) => {
+    try {
+      await deleteRecentDocument(id);
+      setRecentDocuments((documents) =>
+        documents.filter((document) => document.id !== id),
+      );
+    } catch (error) {
+      console.warn('Could not delete recent document:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
       
@@ -89,6 +135,9 @@ export default function App() {
             onReadDocument={handleReadDocument}
             isLoading={isLoading}
             selectedLanguage={selectedLanguage}
+            recentDocuments={recentDocuments}
+            onOpenRecentDocument={handleOpenRecentDocument}
+            onDeleteRecentDocument={handleDeleteRecentDocument}
           />
         ) : (
           <DocumentResultView

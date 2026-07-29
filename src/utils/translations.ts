@@ -43,6 +43,10 @@ export interface TranslationDictionary {
   uploadSizeError: string;
   uploadReadError: string;
   uploadRequiredError: string;
+  recentDocumentsTitle: string;
+  recentDocumentsSub: string;
+  openRecentDocument: string;
+  deleteRecentDocument: string;
   pauseAudio: string;
   analysisCompleted: string;
   analysisFailedError: string;
@@ -140,6 +144,10 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSizeError: "Keep the PDF or combined page images under 3 MB.",
     uploadReadError: "One of the selected files could not be read. Please choose it again.",
     uploadRequiredError: "Please upload a court-order PDF or image, or paste the court-order text.",
+    recentDocumentsTitle: "Recent court documents",
+    recentDocumentsSub: "Open a processed document without uploading it again",
+    openRecentDocument: "Open saved document",
+    deleteRecentDocument: "Delete saved document",
     pauseAudio: "Pause",
     analysisCompleted: "Analysis completed.",
     analysisFailedError: "NyayVaani could not analyze this court document. Please try again.",
@@ -231,6 +239,10 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSizeError: "PDF या सभी पेज की तस्वीरों का कुल आकार 3 MB से कम रखें।",
     uploadReadError: "चुनी गई फाइलों में से एक पढ़ी नहीं जा सकी। कृपया उसे फिर चुनें।",
     uploadRequiredError: "अदालत आदेश की PDF या तस्वीर अपलोड करें, या उसका पाठ पेस्ट करें।",
+    recentDocumentsTitle: "हाल के अदालत दस्तावेज़",
+    recentDocumentsSub: "प्रोसेस किया गया दस्तावेज़ दोबारा अपलोड किए बिना खोलें",
+    openRecentDocument: "सहेजा दस्तावेज़ खोलें",
+    deleteRecentDocument: "सहेजा दस्तावेज़ हटाएँ",
     pauseAudio: "रोकें",
     analysisCompleted: "विश्लेषण पूरा हुआ।",
     analysisFailedError: "न्यायवाणी इस अदालत दस्तावेज़ का विश्लेषण नहीं कर सकी। कृपया फिर कोशिश करें।",
@@ -322,6 +334,10 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSizeError: "PDF বা সব পৃষ্ঠার ছবির মোট আকার ৩ MB-এর মধ্যে রাখুন।",
     uploadReadError: "নির্বাচিত ফাইলগুলোর একটি পড়া যায়নি। আবার নির্বাচন করুন।",
     uploadRequiredError: "আদালতের আদেশের PDF বা ছবি আপলোড করুন, অথবা লেখাটি পেস্ট করুন।",
+    recentDocumentsTitle: "সাম্প্রতিক আদালতের নথি",
+    recentDocumentsSub: "আবার আপলোড না করে প্রক্রিয়াকৃত নথি খুলুন",
+    openRecentDocument: "সংরক্ষিত নথি খুলুন",
+    deleteRecentDocument: "সংরক্ষিত নথি মুছুন",
     pauseAudio: "বিরতি",
     analysisCompleted: "বিশ্লেষণ সম্পন্ন হয়েছে।",
     analysisFailedError: "ন্যায়বাণী এই আদালতের নথি বিশ্লেষণ করতে পারেনি। আবার চেষ্টা করুন।",
@@ -413,6 +429,10 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSizeError: "PDF அல்லது அனைத்துப் பக்கப் படங்களின் மொத்த அளவை 3 MB-க்கு கீழ் வைத்திருக்கவும்.",
     uploadReadError: "தேர்ந்தெடுத்த கோப்புகளில் ஒன்றைப் படிக்க முடியவில்லை. மீண்டும் தேர்ந்தெடுக்கவும்.",
     uploadRequiredError: "நீதிமன்ற உத்தரவின் PDF அல்லது படத்தைப் பதிவேற்றவும், அல்லது அதன் உரையை ஒட்டவும்.",
+    recentDocumentsTitle: "சமீபத்திய நீதிமன்ற ஆவணங்கள்",
+    recentDocumentsSub: "மீண்டும் பதிவேற்றாமல் செயலாக்கப்பட்ட ஆவணத்தைத் திறக்கவும்",
+    openRecentDocument: "சேமித்த ஆவணத்தைத் திறக்கவும்",
+    deleteRecentDocument: "சேமித்த ஆவணத்தை நீக்கவும்",
     pauseAudio: "இடைநிறுத்து",
     analysisCompleted: "பகுப்பாய்வு முடிந்தது.",
     analysisFailedError: "நியாயவாணியால் இந்த நீதிமன்ற ஆவணத்தைப் பகுப்பாய்வு செய்ய முடியவில்லை. மீண்டும் முயலுங்கள்.",
@@ -504,6 +524,10 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSizeError: "PDF లేదా అన్ని పేజీ చిత్రాల మొత్తం పరిమాణాన్ని 3 MB లోపు ఉంచండి.",
     uploadReadError: "ఎంచుకున్న ఫైళ్లలో ఒకదాన్ని చదవలేకపోయాం. దయచేసి మళ్లీ ఎంచుకోండి.",
     uploadRequiredError: "కోర్టు ఆదేశం PDF లేదా చిత్రాన్ని అప్‌లోడ్ చేయండి, లేదా దాని పాఠ్యాన్ని అతికించండి.",
+    recentDocumentsTitle: "ఇటీవలి కోర్టు పత్రాలు",
+    recentDocumentsSub: "మళ్లీ అప్‌లోడ్ చేయకుండా ప్రాసెస్ చేసిన పత్రాన్ని తెరవండి",
+    openRecentDocument: "సేవ్ చేసిన పత్రాన్ని తెరవండి",
+    deleteRecentDocument: "సేవ్ చేసిన పత్రాన్ని తొలగించండి",
     pauseAudio: "పాజ్",
     analysisCompleted: "విశ్లేషణ పూర్తయింది.",
     analysisFailedError: "న్యాయవాణి ఈ కోర్టు పత్రాన్ని విశ్లేషించలేకపోయింది. మళ్లీ ప్రయత్నించండి.",
@@ -595,6 +619,10 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSizeError: "PDF किंवा सर्व पानांच्या प्रतिमांचा एकूण आकार 3 MB पेक्षा कमी ठेवा.",
     uploadReadError: "निवडलेल्या फाइल्सपैकी एक वाचता आली नाही. कृपया ती पुन्हा निवडा.",
     uploadRequiredError: "न्यायालयीन आदेशाची PDF किंवा प्रतिमा अपलोड करा, किंवा त्याचा मजकूर पेस्ट करा.",
+    recentDocumentsTitle: "अलीकडील न्यायालयीन दस्तऐवज",
+    recentDocumentsSub: "पुन्हा अपलोड न करता प्रक्रिया केलेला दस्तऐवज उघडा",
+    openRecentDocument: "जतन केलेला दस्तऐवज उघडा",
+    deleteRecentDocument: "जतन केलेला दस्तऐवज हटवा",
     pauseAudio: "थांबवा",
     analysisCompleted: "विश्लेषण पूर्ण झाले.",
     analysisFailedError: "न्यायवाणीला या न्यायालयीन दस्तऐवजाचे विश्लेषण करता आले नाही. पुन्हा प्रयत्न करा.",
@@ -686,6 +714,10 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSizeError: "PDF અથવા તમામ પાનાંની છબીઓનું કુલ કદ 3 MBથી ઓછું રાખો.",
     uploadReadError: "પસંદ કરેલી ફાઇલોમાંથી એક વાંચી શકાઈ નથી. કૃપા કરીને ફરી પસંદ કરો.",
     uploadRequiredError: "કોર્ટના આદેશની PDF અથવા છબી અપલોડ કરો, અથવા તેનું લખાણ પેસ્ટ કરો.",
+    recentDocumentsTitle: "તાજેતરના કોર્ટ દસ્તાવેજો",
+    recentDocumentsSub: "ફરી અપલોડ કર્યા વિના પ્રોસેસ કરેલો દસ્તાવેજ ખોલો",
+    openRecentDocument: "સાચવેલો દસ્તાવેજ ખોલો",
+    deleteRecentDocument: "સાચવેલો દસ્તાવેજ કાઢી નાખો",
     pauseAudio: "થોભાવો",
     analysisCompleted: "વિશ્લેષણ પૂર્ણ થયું.",
     analysisFailedError: "ન્યાયવાણી આ કોર્ટ દસ્તાવેજનું વિશ્લેષણ કરી શક્યું નથી. ફરી પ્રયાસ કરો.",
@@ -777,6 +809,10 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadSizeError: "PDF ਜਾਂ ਸਾਰੇ ਪੰਨਿਆਂ ਦੀਆਂ ਤਸਵੀਰਾਂ ਦਾ ਕੁੱਲ ਆਕਾਰ 3 MB ਤੋਂ ਘੱਟ ਰੱਖੋ।",
     uploadReadError: "ਚੁਣੀਆਂ ਫਾਈਲਾਂ ਵਿੱਚੋਂ ਇੱਕ ਪੜ੍ਹੀ ਨਹੀਂ ਜਾ ਸਕੀ। ਕਿਰਪਾ ਕਰਕੇ ਮੁੜ ਚੁਣੋ।",
     uploadRequiredError: "ਅਦਾਲਤੀ ਹੁਕਮ ਦੀ PDF ਜਾਂ ਤਸਵੀਰ ਅੱਪਲੋਡ ਕਰੋ, ਜਾਂ ਉਸ ਦੀ ਲਿਖਤ ਪੇਸਟ ਕਰੋ।",
+    recentDocumentsTitle: "ਹਾਲੀਆ ਅਦਾਲਤੀ ਦਸਤਾਵੇਜ਼",
+    recentDocumentsSub: "ਮੁੜ ਅੱਪਲੋਡ ਕੀਤੇ ਬਿਨਾਂ ਪ੍ਰੋਸੈਸ ਕੀਤਾ ਦਸਤਾਵੇਜ਼ ਖੋਲ੍ਹੋ",
+    openRecentDocument: "ਸੰਭਾਲਿਆ ਦਸਤਾਵੇਜ਼ ਖੋਲ੍ਹੋ",
+    deleteRecentDocument: "ਸੰਭਾਲਿਆ ਦਸਤਾਵੇਜ਼ ਮਿਟਾਓ",
     pauseAudio: "ਰੋਕੋ",
     analysisCompleted: "ਵਿਸ਼ਲੇਸ਼ਣ ਪੂਰਾ ਹੋਇਆ।",
     analysisFailedError: "ਨਿਆਇਵਾਣੀ ਇਸ ਅਦਾਲਤੀ ਦਸਤਾਵੇਜ਼ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਨਹੀਂ ਕਰ ਸਕੀ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
