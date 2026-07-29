@@ -5,7 +5,7 @@ import { randomUUID } from "crypto";
 import { mkdtemp, readFile, rm, writeFile } from "fs/promises";
 import { strFromU8, unzipSync, zipSync } from "fflate";
 import { PDFDocument } from "pdf-lib";
-import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import pdfParse from "pdf-parse/lib/pdf-parse.js";
 import { SarvamAIClient } from "sarvamai";
 import dotenv from "dotenv";
 
@@ -442,34 +442,16 @@ async function extractEmbeddedPdfText(
   bytes: Uint8Array,
 ): Promise<string | null> {
   try {
-    const pdf = await getDocument({
-      data: bytes,
-      useSystemFonts: true,
-    }).promise;
-    const pages: string[] = [];
-    let readablePages = 0;
-
-    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-      const page = await pdf.getPage(pageNumber);
-      const content = await page.getTextContent();
-      const text = content.items
-        .map((item: any) => (typeof item?.str === "string" ? item.str : ""))
-        .join(" ")
-        .replace(/[ \t]+/g, " ")
-        .replace(/\s+\n/g, "\n")
-        .trim();
-      if (text.replace(/\s/g, "").length >= 80) {
-        readablePages += 1;
-      }
-      pages.push(`--- Page ${pageNumber} ---\n${text}`);
-    }
-
-    const combined = pages.join("\n\n").trim();
-    const minimumReadablePages = Math.max(1, Math.ceil(pdf.numPages * 0.6));
-    if (
-      combined.replace(/\s/g, "").length < 1000 ||
-      readablePages < minimumReadablePages
-    ) {
+    const parsed = await pdfParse(Buffer.from(bytes));
+    const combined = String(parsed?.text || "")
+      .replace(/[ \t]+/g, " ")
+      .replace(/\n{4,}/g, "\n\n\n")
+      .trim();
+    const minimumCharacters = Math.max(
+      1000,
+      Number(parsed?.numpages || 1) * 80,
+    );
+    if (combined.replace(/\s/g, "").length < minimumCharacters) {
       return null;
     }
     return combined;
