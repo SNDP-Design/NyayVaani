@@ -587,7 +587,7 @@ async function analyzeCourtText(
     throw new Error("Sarvam AI is not configured.");
   }
 
-  const splitForAnalysis = (text: string, maxCharacters = 26000): string[] => {
+  const splitForAnalysis = (text: string, maxCharacters = 9000): string[] => {
     const chunks: string[] = [];
     let cursor = 0;
     while (cursor < text.length) {
@@ -610,7 +610,7 @@ async function analyzeCourtText(
       chunks.map(async (chunk, index) => {
         const completion = await sarvam.chat.completions(
           {
-            model: "sarvam-105b",
+            model: "sarvam-30b",
             messages: [
               {
                 role: "system",
@@ -630,7 +630,7 @@ ${chunk}`,
             ],
             temperature: 0,
             reasoning_effort: "low",
-            max_tokens: 2200,
+            max_tokens: 1600,
             n: 1,
           } as any,
           { timeoutInSeconds: 90, maxRetries: 1 },
@@ -642,7 +642,7 @@ ${chunk}`,
   };
 
   const analysisText =
-    extractedText.length > 24000
+    extractedText.length > 16000
       ? await createLongDocumentDigest(extractedText)
       : extractedText;
   const messages = [
@@ -692,7 +692,7 @@ ${analysisText}
 
     const fallbackCompletion = await sarvam.chat.completions(
       {
-        model: "sarvam-105b",
+        model: "sarvam-30b",
         messages: [
           ...messages,
           {
