@@ -635,7 +635,12 @@ ${chunk}`,
           } as any,
           { timeoutInSeconds: 90, maxRetries: 1 },
         );
-        return `SECTION ${index + 1} NOTES:\n${completionText(completion)}`;
+        try {
+          return `SECTION ${index + 1} NOTES:\n${completionText(completion)}`;
+        } catch (error: any) {
+          error.code = "LONG_DOCUMENT_DIGEST_FAILED";
+          throw error;
+        }
       }),
     );
     return digests.join("\n\n");
@@ -690,28 +695,33 @@ ${analysisText}
       throw error;
     }
 
-    const fallbackCompletion = await sarvam.chat.completions(
-      {
-        model: "sarvam-30b",
-        messages: [
-          ...messages,
-          {
-            role: "system",
-            content: `Return one compact, valid JSON object only. Do not use a
+    try {
+      const fallbackCompletion = await sarvam.chat.completions(
+        {
+          model: "sarvam-30b",
+          messages: [
+            ...messages,
+            {
+              role: "system",
+              content: `Return one compact, valid JSON object only. Do not use a
 markdown fence or commentary. Match this JSON schema exactly:
 ${JSON.stringify(COURT_ANALYSIS_SCHEMA)}`,
-          },
-        ],
-        temperature: 0,
-        reasoning_effort: "low",
-        max_tokens: 4096,
-        n: 1,
-      } as any,
-      { timeoutInSeconds: 120, maxRetries: 1 },
-    );
-    rawAnalysis = parseJsonContent(
-      (fallbackCompletion as any).choices?.[0]?.message?.content,
-    );
+            },
+          ],
+          temperature: 0,
+          reasoning_effort: "low",
+          max_tokens: 4096,
+          n: 1,
+        } as any,
+        { timeoutInSeconds: 120, maxRetries: 1 },
+      );
+      rawAnalysis = parseJsonContent(
+        (fallbackCompletion as any).choices?.[0]?.message?.content,
+      );
+    } catch (fallbackError: any) {
+      fallbackError.code = "STRUCTURED_ANALYSIS_FAILED";
+      throw fallbackError;
+    }
   }
 
   const analysis = normalizeCourtAnalysis(rawAnalysis);
