@@ -158,7 +158,11 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* LEFT COLUMN: Summary */}
-        <div className="lg:col-span-6 space-y-6">
+        <section className="lg:col-span-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+          <header className="bg-black px-5 py-4 text-white">
+            <h2 className="text-sm font-extrabold">{t.summaryColumnTitle}</h2>
+          </header>
+          <div className="space-y-6 p-4 sm:p-5">
           
           {/* Document Details Metadata */}
           <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2">
@@ -266,7 +270,8 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
             selectedLanguage={selectedLanguage}
           />
 
-        </div>
+          </div>
+        </section>
 
         {/* RIGHT COLUMN: Chatbot */}
         <div className="lg:col-span-6">

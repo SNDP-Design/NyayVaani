@@ -10,6 +10,7 @@ export interface TranslationDictionary {
   uploadNew: string;
   voiceAi: string;
   chatbotTitle: string;
+  summaryColumnTitle: string;
 
   // Upload Screen
   uploadHeroBadge: string;
@@ -113,6 +114,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadNew: "Upload New",
     voiceAi: "Voice AI",
     chatbotTitle: "Chatbot",
+    summaryColumnTitle: "Summary",
 
     uploadHeroBadge: "Document & Voice AI for Litigants",
     uploadHeading: "Understand Court Orders Instantly in Your Language",
@@ -209,6 +211,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadNew: "नया अपलोड करें",
     voiceAi: "वॉइस AI",
     chatbotTitle: "चैटबॉट",
+    summaryColumnTitle: "सारांश",
 
     uploadHeroBadge: "आम नागरिकों के लिए दस्तावेज़ एवं वॉइस AI",
     uploadHeading: "अदालत के आदेश को अपनी भाषा में तुरंत समझें",
@@ -305,6 +308,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadNew: "নতুন আপলোড",
     voiceAi: "ভয়েস AI",
     chatbotTitle: "চ্যাটবট",
+    summaryColumnTitle: "সারাংশ",
 
     uploadHeroBadge: "বিচারপ্রার্থীদের জন্য নথি ও ভয়েস AI",
     uploadHeading: "আদালতের আদেশ তাৎক্ষণিকভাবে নিজের ভাষায় বুঝুন",
@@ -401,6 +405,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadNew: "புதிய பதிவேற்றம்",
     voiceAi: "வாய்ஸ் AI",
     chatbotTitle: "உரையாடல் உதவியாளர்",
+    summaryColumnTitle: "சுருக்கம்",
 
     uploadHeroBadge: "மக்களுக்கான ஆவண மற்றும் குரல் AI",
     uploadHeading: "நீதிமன்ற உத்தரவுகளை உங்கள் மொழியில் உடனடியாகப் புரிந்து கொள்ளுங்கள்",
@@ -497,6 +502,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadNew: "కొత్తది అప్‌లోడ్",
     voiceAi: "వాయిస్ AI",
     chatbotTitle: "చాట్‌బాట్",
+    summaryColumnTitle: "సారాంశం",
 
     uploadHeroBadge: "ప్రజల కోసం పత్రం మరియు వాయిస్ AI",
     uploadHeading: "కోర్టు ఆర్డర్లను మీ భాషలో తక్షణమే అర్థం చేసుకోండి",
@@ -593,6 +599,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadNew: "नवीन अपलोड",
     voiceAi: "व्हॉइस AI",
     chatbotTitle: "चॅटबॉट",
+    summaryColumnTitle: "सारांश",
 
     uploadHeroBadge: "नागरिकांसाठी दस्तऐवज आणि व्हॉइस AI",
     uploadHeading: "कोर्टाचे आदेश तुमच्या भाषेत त्वरित समजून घ्या",
@@ -689,6 +696,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadNew: "નવું અપલોડ",
     voiceAi: "વોઇસ AI",
     chatbotTitle: "ચેટબોટ",
+    summaryColumnTitle: "સારાંશ",
 
     uploadHeroBadge: "નાગરિકો માટે દસ્તાવેજ અને વોઇસ AI",
     uploadHeading: "કોર્ટના ઓર્ડરને તમારી ભાષામાં તરત જ સમજો",
@@ -785,6 +793,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     uploadNew: "ਨਵਾਂ ਅੱਪਲੋਡ",
     voiceAi: "ਵੋਇਸ AI",
     chatbotTitle: "ਚੈਟਬੋਟ",
+    summaryColumnTitle: "ਸੰਖੇਪ",
 
     uploadHeroBadge: "ਨਾਗਰਿਕਾਂ ਲਈ ਦਸਤਾਵੇਜ਼ ਅਤੇ ਵੋਇਸ AI",
     uploadHeading: "ਅਦਾਲਤ ਦੇ ਹੁਕਮ ਨੂੰ ਆਪਣੀ ਪੰਜਾਬੀ ਭਾਸ਼ਾ ਵਿੱਚ ਤੁਰੰਤ ਸਮਝੋ",
