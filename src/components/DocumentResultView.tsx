@@ -18,7 +18,7 @@ const RESULT_LABELS = {
     courtForum: 'Court Forum',
     refused: 'Refused',
     isolatedParagraph: 'Isolated Paragraph',
-    visionQuoteNote: 'Extracted from the document. Please verify this quote against the original order.',
+    visionQuoteNote: 'Translated for readability. Please verify it against the original court order.',
     deadline: 'Deadline:',
     forum: 'Forum:',
     noSteps: 'No future compliance steps were identified for this order.',
@@ -30,7 +30,7 @@ const RESULT_LABELS = {
     courtForum: 'अदालत',
     refused: 'विश्लेषण रोका गया',
     isolatedParagraph: 'अलग किया गया मुख्य पैराग्राफ',
-    visionQuoteNote: 'दस्तावेज़ से निकाला गया। कृपया मूल आदेश से इस उद्धरण की पुष्टि करें।',
+    visionQuoteNote: 'पढ़ने में आसानी के लिए अनुवादित। कृपया इसे मूल अदालत आदेश से सत्यापित करें।',
     deadline: 'अंतिम तिथि:',
     forum: 'अदालत/स्थान:',
     noSteps: 'इस आदेश में आगे पालन करने के लिए कोई कदम नहीं मिला।',
@@ -42,7 +42,7 @@ const RESULT_LABELS = {
     courtForum: 'আদালত',
     refused: 'বিশ্লেষণ বন্ধ',
     isolatedParagraph: 'আলাদা করা মূল অনুচ্ছেদ',
-    visionQuoteNote: 'নথি থেকে নেওয়া হয়েছে। মূল আদেশের সঙ্গে উদ্ধৃতিটি মিলিয়ে দেখুন।',
+    visionQuoteNote: 'সহজে পড়ার জন্য অনুবাদ করা হয়েছে। মূল আদালতের আদেশের সঙ্গে মিলিয়ে দেখুন।',
     deadline: 'সময়সীমা:',
     forum: 'আদালত/স্থান:',
     noSteps: 'এই আদেশে ভবিষ্যতে পালন করার কোনো পদক্ষেপ পাওয়া যায়নি।',
@@ -54,7 +54,7 @@ const RESULT_LABELS = {
     courtForum: 'நீதிமன்றம்',
     refused: 'பகுப்பாய்வு நிறுத்தப்பட்டது',
     isolatedParagraph: 'தனியாகப் பிரித்த முக்கியப் பத்தி',
-    visionQuoteNote: 'ஆவணத்திலிருந்து எடுக்கப்பட்டது. மூல உத்தரவுடன் இந்த மேற்கோளைச் சரிபார்க்கவும்.',
+    visionQuoteNote: 'எளிதாகப் படிக்க மொழிபெயர்க்கப்பட்டது. மூல நீதிமன்ற உத்தரவுடன் சரிபார்க்கவும்.',
     deadline: 'காலக்கெடு:',
     forum: 'நீதிமன்றம்/இடம்:',
     noSteps: 'இந்த உத்தரவுக்கு எதிர்கால இணக்க நடவடிக்கைகள் எதுவும் கண்டறியப்படவில்லை.',
@@ -66,7 +66,7 @@ const RESULT_LABELS = {
     courtForum: 'న్యాయస్థానం',
     refused: 'విశ్లేషణ నిలిపివేయబడింది',
     isolatedParagraph: 'వేరు చేసిన ముఖ్య పేరా',
-    visionQuoteNote: 'పత్రం నుండి తీసుకోబడింది. ఈ ఉటంకింపును అసలు ఆదేశంతో సరిచూడండి.',
+    visionQuoteNote: 'సులభంగా చదవడానికి అనువదించబడింది. అసలు కోర్టు ఆదేశంతో సరిచూడండి.',
     deadline: 'గడువు:',
     forum: 'న్యాయస్థానం/స్థలం:',
     noSteps: 'ఈ ఆదేశానికి భవిష్యత్తులో పాటించాల్సిన చర్యలు ఏవీ గుర్తించబడలేదు.',
@@ -78,7 +78,7 @@ const RESULT_LABELS = {
     courtForum: 'न्यायालय',
     refused: 'विश्लेषण थांबवले',
     isolatedParagraph: 'वेगळा केलेला मुख्य परिच्छेद',
-    visionQuoteNote: 'दस्तऐवजातून काढलेले. कृपया मूळ आदेशाशी हा उतारा पडताळा.',
+    visionQuoteNote: 'सहज वाचण्यासाठी भाषांतरित केले आहे. कृपया मूळ न्यायालयीन आदेशाशी पडताळा.',
     deadline: 'अंतिम मुदत:',
     forum: 'न्यायालय/ठिकाण:',
     noSteps: 'या आदेशासाठी पुढील पालनाची कोणतीही पायरी आढळली नाही.',
@@ -90,7 +90,7 @@ const RESULT_LABELS = {
     courtForum: 'કોર્ટ',
     refused: 'વિશ્લેષણ રોકાયું',
     isolatedParagraph: 'અલગ કરેલો મુખ્ય ફકરો',
-    visionQuoteNote: 'દસ્તાવેજમાંથી કાઢવામાં આવ્યું. કૃપા કરીને મૂળ આદેશ સાથે આ અવતરણ ચકાસો.',
+    visionQuoteNote: 'સરળતાથી વાંચવા માટે અનુવાદિત. કૃપા કરીને મૂળ કોર્ટના આદેશ સાથે ચકાસો.',
     deadline: 'સમયમર્યાદા:',
     forum: 'કોર્ટ/સ્થળ:',
     noSteps: 'આ આદેશ માટે ભવિષ્યમાં પાલન કરવાના કોઈ પગલાં મળ્યા નથી.',
@@ -102,7 +102,7 @@ const RESULT_LABELS = {
     courtForum: 'ਅਦਾਲਤ',
     refused: 'ਵਿਸ਼ਲੇਸ਼ਣ ਰੋਕਿਆ ਗਿਆ',
     isolatedParagraph: 'ਅਲੱਗ ਕੀਤਾ ਮੁੱਖ ਪੈਰਾ',
-    visionQuoteNote: 'ਦਸਤਾਵੇਜ਼ ਵਿੱਚੋਂ ਕੱਢਿਆ ਗਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਮੂਲ ਹੁਕਮ ਨਾਲ ਇਸ ਹਵਾਲੇ ਦੀ ਜਾਂਚ ਕਰੋ।',
+    visionQuoteNote: 'ਆਸਾਨੀ ਨਾਲ ਪੜ੍ਹਨ ਲਈ ਅਨੁਵਾਦ ਕੀਤਾ ਗਿਆ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਮੂਲ ਅਦਾਲਤੀ ਹੁਕਮ ਨਾਲ ਜਾਂਚ ਕਰੋ।',
     deadline: 'ਆਖਰੀ ਮਿਤੀ:',
     forum: 'ਅਦਾਲਤ/ਸਥਾਨ:',
     noSteps: 'ਇਸ ਹੁਕਮ ਲਈ ਭਵਿੱਖ ਵਿੱਚ ਪਾਲਣਾ ਕਰਨ ਵਾਲਾ ਕੋਈ ਕਦਮ ਨਹੀਂ ਮਿਲਿਆ।',
@@ -123,6 +123,10 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
   // Selected explanation & audio script
   const plainExplanation = analysis.plainLanguageExplanations?.[selectedLanguage] || analysis.plainLanguageExplanations?.[selectedLanguage === 'hi' ? 'en' : 'hi'] || t.analysisCompleted;
   const audioScript = analysis.audioScripts?.[selectedLanguage] || analysis.audioScripts?.[selectedLanguage === 'hi' ? 'en' : 'hi'] || plainExplanation;
+  const operativeDirection =
+    analysis.operativeDirectionTranslations?.[selectedLanguage] ||
+    analysis.operativeDirectionVerbatim ||
+    '';
 
   return (
     <div className="max-w-7xl mx-auto py-6 px-4 space-y-6">
@@ -178,7 +182,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
             </div>
           </div>
 
-          {/* Verbatim Operative Ruling Card */}
+          {/* Localized Operative Ruling Card */}
           <div className={`p-5 rounded-2xl border shadow-xs space-y-3 ${
             isRefusal ? 'bg-slate-100 border-slate-300' : 'bg-slate-900 text-white border-black'
           }`}>
@@ -204,7 +208,7 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
             ) : (
               <div className="space-y-2">
                 <p className="text-xs sm:text-sm font-mono font-medium leading-relaxed bg-black/60 p-3 rounded-xl border border-slate-700/50 italic text-slate-100">
-                  "{analysis.operativeDirectionVerbatim}"
+                  "{operativeDirection}"
                 </p>
                 <p className="text-[11px] text-slate-300">
                   {labels.visionQuoteNote}

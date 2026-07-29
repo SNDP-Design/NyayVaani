@@ -220,6 +220,10 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
     analysis.plainLanguageExplanations?.[selectedLanguage] ||
     analysis.plainLanguageExplanations?.en ||
     '';
+  const operativeDirection =
+    analysis.operativeDirectionTranslations?.[selectedLanguage] ||
+    analysis.operativeDirectionVerbatim ||
+    '';
   const documentIntroduction = useMemo(() => {
     const parts = [plainExplanation];
     if (analysis.nextSteps?.length) {
@@ -547,8 +551,8 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
           hour: '2-digit',
           minute: '2-digit',
         }),
-        keyFact: analysis.operativeDirectionVerbatim
-          ? `${coreLabels.operativeRuling}: "${analysis.operativeDirectionVerbatim.substring(0, 160)}..."`
+        keyFact: operativeDirection
+          ? `${coreLabels.operativeRuling}: "${operativeDirection.substring(0, 160)}..."`
           : undefined,
       };
       setMessages([initialMessage]);
@@ -717,14 +721,14 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
               </p>
             </div>
 
-            {analysis.operativeDirectionVerbatim && (
+            {operativeDirection && (
               <div className="rounded-2xl bg-black text-white p-4">
                 <div className="flex items-center gap-2 text-xs font-extrabold mb-2">
                   <ShieldCheck className="h-4 w-4" />
                   {t.operativeDirectionTitle}
                 </div>
                 <p className="text-xs sm:text-sm leading-relaxed text-slate-100">
-                  “{analysis.operativeDirectionVerbatim}”
+                  “{operativeDirection}”
                 </p>
               </div>
             )}

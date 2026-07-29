@@ -756,8 +756,12 @@ ${JSON.stringify(COURT_ANALYSIS_SCHEMA)}`,
   const localizedExplanation = await translateExplanation(
     analysis.plainLanguageExplanations.en,
   );
+  const localizedOperativeDirection = await translateExplanation(
+    analysis.operativeDirectionVerbatim || "",
+  );
   analysis.plainLanguageExplanations = localizedExplanation;
   analysis.audioScripts = localizedExplanation;
+  analysis.operativeDirectionTranslations = localizedOperativeDirection;
   analysis.nextSteps = await translateNextSteps(analysis.nextSteps, language);
   return analysis;
 }

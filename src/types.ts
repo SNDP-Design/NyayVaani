@@ -42,6 +42,16 @@ export interface AnalysisResult {
   refusalReason?: string;
   refusalConfidence?: number;
   operativeDirectionVerbatim?: string;
+  operativeDirectionTranslations?: {
+    hi: string;
+    en: string;
+    bn: string;
+    ta: string;
+    te: string;
+    mr: string;
+    gu: string;
+    pa?: string;
+  };
   operativeParagraphNumbers?: number[];
   paragraphs: TaggedParagraph[];
   nextSteps: NextStep[];
