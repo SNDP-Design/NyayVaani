@@ -181,6 +181,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
   const spokenAudioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const silenceFrameRef = useRef<number | null>(null);
+  const speechDetectedRef = useRef(false);
   const conversationActiveRef = useRef(false);
   const autoSpeakRef = useRef(true);
   const isListeningRef = useRef(false);
@@ -309,6 +310,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
       const now = Date.now();
       if (volume > 0.035) {
         heardSpeech = true;
+        speechDetectedRef.current = true;
         lastSpeechAt = now;
       }
       if (
@@ -365,6 +367,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
       }
       mediaStreamRef.current = stream;
       audioChunksRef.current = [];
+      speechDetectedRef.current = false;
 
       const preferredMimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']
         .find((type) => MediaRecorder.isTypeSupported(type));
@@ -388,7 +391,7 @@ export const VoiceAIAgent: React.FC<VoiceAIAgentProps> = ({
         const audioBlob = new Blob(audioChunksRef.current, {
           type: recorder.mimeType || 'audio/webm',
         });
-        if (audioBlob.size > 0) {
+        if (speechDetectedRef.current && audioBlob.size > 0) {
           void transcribeRecording(audioBlob);
         }
       };
