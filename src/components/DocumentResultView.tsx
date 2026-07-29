@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, AudioLines, Bot, Calendar, MapPin, FileText, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import { AudioLines, Bot, Calendar, MapPin, FileText, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
 import { CourtDocumentCase, SupportedLanguage } from '../types';
 import { VoiceAIAgent } from './VoiceAIAgent';
 import { LitigantAudioPlayer } from './LitigantAudioPlayer';
@@ -8,7 +8,6 @@ import { getTranslation } from '../utils/translations';
 interface DocumentResultViewProps {
   currentCase: CourtDocumentCase;
   selectedLanguage: SupportedLanguage;
-  onBackToUpload: () => void;
 }
 
 const RESULT_LABELS = {
@@ -113,7 +112,6 @@ const RESULT_LABELS = {
 export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
   currentCase,
   selectedLanguage,
-  onBackToUpload,
 }) => {
   const [isVoiceAgentOpen, setIsVoiceAgentOpen] = useState(false);
   const t = getTranslation(selectedLanguage);
@@ -132,18 +130,8 @@ export const DocumentResultView: React.FC<DocumentResultViewProps> = ({
       {/* Top Header Navigation Bar */}
       <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         
-        {/* Back Button and Title */}
+        {/* Document title */}
         <div className="flex items-center gap-3">
-          <button
-            onClick={onBackToUpload}
-            className="p-2 bg-slate-100 hover:bg-slate-200 hover:text-black text-slate-800 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-bold border border-slate-300"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>{t.backToUpload}</span>
-          </button>
-
-          <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
-
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-bold text-slate-900">{currentCase.title}</h2>

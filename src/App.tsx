@@ -94,7 +94,6 @@ export default function App() {
           <DocumentResultView
             currentCase={currentCase}
             selectedLanguage={selectedLanguage}
-            onBackToUpload={handleBackToUpload}
           />
         )}
       </main>

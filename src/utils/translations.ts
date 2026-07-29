@@ -49,7 +49,6 @@ export interface TranslationDictionary {
   connectionError: string;
 
   // Result View & Sections
-  backToUpload: string;
   operativeDirectionTitle: string;
   operativeDirectionSub: string;
   plainSummaryTitle: string;
@@ -146,7 +145,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     analysisFailedError: "NyayVaani could not analyze this court document. Please try again.",
     connectionError: "NyayVaani could not connect to the AI service. Check your connection and try again.",
 
-    backToUpload: "Back to Upload",
     operativeDirectionTitle: "Isolated Operative Court Direction",
     operativeDirectionSub: "Verbatim judge order extracted directly from the court document",
     plainSummaryTitle: "Plain Language Summary",
@@ -238,7 +236,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     analysisFailedError: "न्यायवाणी इस अदालत दस्तावेज़ का विश्लेषण नहीं कर सकी। कृपया फिर कोशिश करें।",
     connectionError: "न्यायवाणी AI सेवा से जुड़ नहीं सकी। अपना इंटरनेट जांचकर फिर कोशिश करें।",
 
-    backToUpload: "वापस जाएं",
     operativeDirectionTitle: "अदालत का मुख्य आदेश (ऑपरेटिव डायरेक्शन)",
     operativeDirectionSub: "कोर्ट के फैसले से सीधे निकाला गया शब्दशः न्यायाधीश का आदेश",
     plainSummaryTitle: "सरल भाषा में सारांश",
@@ -330,7 +327,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     analysisFailedError: "ন্যায়বাণী এই আদালতের নথি বিশ্লেষণ করতে পারেনি। আবার চেষ্টা করুন।",
     connectionError: "ন্যায়বাণী AI পরিষেবার সঙ্গে সংযোগ করতে পারেনি। ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।",
 
-    backToUpload: "ফিরে যান",
     operativeDirectionTitle: "আদালতের প্রধান নির্দেশ (অপারেটিভ ডিরেকশন)",
     operativeDirectionSub: "আদালতের নথি থেকে সরাসরি নেওয়া বিচারকের মূল রায়",
     plainSummaryTitle: "সহজ ভাষায় সারসংক্ষেপ",
@@ -422,7 +418,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     analysisFailedError: "நியாயவாணியால் இந்த நீதிமன்ற ஆவணத்தைப் பகுப்பாய்வு செய்ய முடியவில்லை. மீண்டும் முயலுங்கள்.",
     connectionError: "நியாயவாணியால் AI சேவையை அணுக முடியவில்லை. இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயலுங்கள்.",
 
-    backToUpload: "திரும்பிச் செல்",
     operativeDirectionTitle: "நீதிமன்றத்தின் முக்கிய உத்தரவு",
     operativeDirectionSub: "நீதிமன்ற ஆவணத்திலிருந்து நேரடியாக எடுக்கப்பட்ட நீதிபதியின் தீர்ப்பு",
     plainSummaryTitle: "எளிய மொழிச் சுருக்கம்",
@@ -514,7 +509,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     analysisFailedError: "న్యాయవాణి ఈ కోర్టు పత్రాన్ని విశ్లేషించలేకపోయింది. మళ్లీ ప్రయత్నించండి.",
     connectionError: "న్యాయవాణి AI సేవను చేరుకోలేకపోయింది. ఇంటర్నెట్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
 
-    backToUpload: "వెనుకకు వెళ్లండి",
     operativeDirectionTitle: "కోర్టు ముఖ్య ఆదేశం",
     operativeDirectionSub: "కోర్టు పత్రం నుండి నేరుగా తీసుకోబడిన తీర్పు",
     plainSummaryTitle: "సులభమైన భాషలో సారాంశం",
@@ -606,7 +600,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     analysisFailedError: "न्यायवाणीला या न्यायालयीन दस्तऐवजाचे विश्लेषण करता आले नाही. पुन्हा प्रयत्न करा.",
     connectionError: "न्यायवाणी AI सेवेशी जोडू शकली नाही. इंटरनेट तपासून पुन्हा प्रयत्न करा.",
 
-    backToUpload: "मागे जा",
     operativeDirectionTitle: "कोर्टाचा मुख्य आदेश (ऑपरेटिव्ह डायरेक्शन)",
     operativeDirectionSub: "कोर्टाच्या निकालातून थेट काढलेला न्यायाधीशांचा आदेश",
     plainSummaryTitle: "सोप्या भाषेतील सारांश",
@@ -698,7 +691,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     analysisFailedError: "ન્યાયવાણી આ કોર્ટ દસ્તાવેજનું વિશ્લેષણ કરી શક્યું નથી. ફરી પ્રયાસ કરો.",
     connectionError: "ન્યાયવાણી AI સેવા સુધી પહોંચી શકી નથી. ઇન્ટરનેટ તપાસીને ફરી પ્રયાસ કરો.",
 
-    backToUpload: "પાછા જાઓ",
     operativeDirectionTitle: "કોર્ટનો મુખ્ય આદેશ (ઓપરેટિવ ડાયરેક્શન)",
     operativeDirectionSub: "કોર્ટના ચુકાદામાંથી સીધો કાઢવામાં આવેલો જજ સાહેબનો ઓર્ડર",
     plainSummaryTitle: "સરળ ભાષામાં સારાંશ",
@@ -790,7 +782,6 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     analysisFailedError: "ਨਿਆਇਵਾਣੀ ਇਸ ਅਦਾਲਤੀ ਦਸਤਾਵੇਜ਼ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਨਹੀਂ ਕਰ ਸਕੀ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
     connectionError: "ਨਿਆਇਵਾਣੀ AI ਸੇਵਾ ਨਾਲ ਜੁੜ ਨਹੀਂ ਸਕੀ। ਇੰਟਰਨੈੱਟ ਜਾਂਚ ਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
 
-    backToUpload: "ਵਾਪਸ ਜਾਓ",
     operativeDirectionTitle: "ਅਦਾਲਤ ਦਾ ਮੁੱਖ ਹੁਕਮ (ਓਪਰੇਟਿਵ ਡਾਇਰੈਕਸ਼ਨ)",
     operativeDirectionSub: "ਅਦਾਲਤ ਦੇ ਫੈਸਲੇ ਤੋਂ ਸਿੱਧਾ ਕੱਢਿਆ ਗਿਆ ਜੱਜ ਸਾਹਿਬ ਦਾ ਹੁਕਮ",
     plainSummaryTitle: "ਸਰਲ ਭਾਸ਼ਾ ਵਿੱਚ ਸਾਰਾਂਸ਼",
