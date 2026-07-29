@@ -638,7 +638,7 @@ async function analyzeCourtText(
       chunks.map(async (chunk, index) => {
         const completion = await sarvam.chat.completions(
           {
-            model: "sarvam-30b",
+            model: "sarvam-105b",
             messages: [
               {
                 role: "system",
@@ -726,7 +726,7 @@ ${analysisText}
     try {
       const fallbackCompletion = await sarvam.chat.completions(
         {
-          model: "sarvam-30b",
+          model: "sarvam-105b",
           messages: [
             ...messages,
             {
@@ -807,7 +807,7 @@ app.get("/api/health", (_req, res) => {
     models: {
       document: "Sarvam Vision",
       analysis: "Sarvam-105B",
-      conversation: "Sarvam-30B",
+      conversation: "Sarvam-105B",
       speechToText: "Saaras v3",
       textToSpeech: "Bulbul v3",
     },
@@ -908,7 +908,7 @@ ${question.trim()}`,
     try {
       const completion = await client.chat.completions(
         {
-          model: "sarvam-30b",
+          model: "sarvam-105b",
           messages,
           temperature: 0.2,
           max_tokens: 4096,
@@ -920,7 +920,7 @@ ${question.trim()}`,
       if (error?.message !== "SARVAM_EMPTY_RESPONSE") throw error;
       const retry = await client.chat.completions(
         {
-          model: "sarvam-30b",
+          model: "sarvam-105b",
           messages: [
             messages[0],
             messages[messages.length - 1],
