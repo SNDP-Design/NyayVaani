@@ -587,15 +587,73 @@ async function analyzeCourtText(
     throw new Error("Sarvam AI is not configured.");
   }
 
+  const splitForAnalysis = (text: string, maxCharacters = 26000): string[] => {
+    const chunks: string[] = [];
+    let cursor = 0;
+    while (cursor < text.length) {
+      let end = Math.min(cursor + maxCharacters, text.length);
+      if (end < text.length) {
+        const paragraphBreak = text.lastIndexOf("\n\n", end);
+        if (paragraphBreak > cursor + Math.floor(maxCharacters * 0.65)) {
+          end = paragraphBreak;
+        }
+      }
+      chunks.push(text.slice(cursor, end).trim());
+      cursor = end;
+    }
+    return chunks.filter(Boolean);
+  };
+
+  const createLongDocumentDigest = async (text: string): Promise<string> => {
+    const chunks = splitForAnalysis(text);
+    const digests = await Promise.all(
+      chunks.map(async (chunk, index) => {
+        const completion = await sarvam.chat.completions(
+          {
+            model: "sarvam-105b",
+            messages: [
+              {
+                role: "system",
+                content: `Create compact, factual notes from one section of an Indian
+court order for a later whole-document analysis. Preserve exact case numbers, court
+name, dates, party names, paragraph numbers, deadlines, amounts, and the final
+operative directions. Clearly label court findings, petitioner claims, respondent
+claims, and procedural history. Copy decisive court wording verbatim when present.
+Do not add legal advice or facts that are absent. Return plain English text, not JSON.`,
+              },
+              {
+                role: "user",
+                content: `Document section ${index + 1} of ${chunks.length}:
+
+${chunk}`,
+              },
+            ],
+            temperature: 0,
+            reasoning_effort: "low",
+            max_tokens: 2200,
+            n: 1,
+          } as any,
+          { timeoutInSeconds: 90, maxRetries: 1 },
+        );
+        return `SECTION ${index + 1} NOTES:\n${completionText(completion)}`;
+      }),
+    );
+    return digests.join("\n\n");
+  };
+
+  const analysisText =
+    extractedText.length > 24000
+      ? await createLongDocumentDigest(extractedText)
+      : extractedText;
   const messages = [
     { role: "system", content: COURT_ANALYSIS_INSTRUCTION },
     {
       role: "user",
       content: `Preferred user language: ${toLanguageCode(language)}
 
-SARVAM VISION EXTRACTED COURT DOCUMENT:
+${analysisText === extractedText ? "EXTRACTED COURT DOCUMENT" : "FULL-DOCUMENT FACTUAL DIGEST"}:
 """
-${extractedText}
+${analysisText}
 """`,
     },
   ];
