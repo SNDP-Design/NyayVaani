@@ -49,7 +49,13 @@ export default function App() {
         setCurrentStep('result');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        alert(response.status === 413 ? t.uploadSizeError : t.analysisFailedError);
+        alert(
+          response.status === 413
+            ? t.uploadSizeError
+            : data?.code === 'PDF_PAGE_LIMIT'
+              ? t.uploadPageLimitError
+              : t.analysisFailedError,
+        );
       }
     } catch (err: any) {
       console.error('Analysis call error:', err);

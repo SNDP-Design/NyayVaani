@@ -4,6 +4,7 @@ import os from "os";
 import { randomUUID } from "crypto";
 import { mkdtemp, readFile, rm, writeFile } from "fs/promises";
 import { strFromU8, unzipSync, zipSync } from "fflate";
+import { PDFDocument } from "pdf-lib";
 import { SarvamAIClient } from "sarvamai";
 import dotenv from "dotenv";
 
@@ -13,6 +14,8 @@ const app = express();
 app.use(express.json({ limit: "4.25mb" }));
 
 const SARVAM_API_KEY = process.env.SARVAM_API_KEY || "";
+const SARVAM_DOCUMENT_PAGE_LIMIT = 10;
+const NYAYVAANI_PDF_PAGE_LIMIT = 50;
 const sarvam = SARVAM_API_KEY
   ? new SarvamAIClient({ apiSubscriptionKey: SARVAM_API_KEY })
   : null;
@@ -452,24 +455,12 @@ async function extractDocumentText(
   }
 
   const tempDir = await mkdtemp(path.join(os.tmpdir(), "nyayvaani-"));
-  const inputPath =
-    pdfFiles.length === 1
-      ? path.join(tempDir, "court-order.pdf")
-      : path.join(tempDir, "court-order-pages.zip");
-  const outputPath = path.join(tempDir, "sarvam-vision-output.zip");
 
-  try {
-    if (pdfFiles.length === 1) {
-      await writeFile(inputPath, pdfFiles[0].bytes);
-    } else {
-      const pages: Record<string, Uint8Array> = {};
-      files.forEach((file, index) => {
-        const pageNumber = String(index + 1).padStart(2, "0");
-        pages[`page-${pageNumber}.${file.extension}`] = file.bytes;
-      });
-      await writeFile(inputPath, zipSync(pages, { level: 6 }));
-    }
-
+  const digitizeFile = async (
+    inputPath: string,
+    outputPath: string,
+    sectionLabel: string,
+  ): Promise<string> => {
     const job = await sarvam.documentIntelligence.createJob({
       language: toLanguageCode(language) as any,
       outputFormat: "md",
@@ -485,7 +476,7 @@ async function extractDocumentText(
       status.job_state !== "PartiallyCompleted"
     ) {
       throw new Error(
-        status.error_message || "Sarvam Vision could not digitize this document.",
+        status.error_message || "The document could not be digitized.",
       );
     }
 
@@ -494,7 +485,10 @@ async function extractDocumentText(
     const markdownFiles = Object.entries(archive)
       .filter(([name]) => name.toLowerCase().endsWith(".md"))
       .sort(([left], [right]) => left.localeCompare(right))
-      .map(([name, bytes]) => `\n\n--- ${name} ---\n${strFromU8(bytes)}`);
+      .map(
+        ([name, bytes]) =>
+          `\n\n--- ${sectionLabel} • ${name} ---\n${strFromU8(bytes)}`,
+      );
 
     if (markdownFiles.length > 0) {
       return markdownFiles.join("").trim();
@@ -503,12 +497,83 @@ async function extractDocumentText(
     const jsonFiles = Object.entries(archive)
       .filter(([name]) => name.toLowerCase().endsWith(".json"))
       .sort(([left], [right]) => left.localeCompare(right))
-      .map(([name, bytes]) => `\n\n--- ${name} ---\n${strFromU8(bytes)}`);
+      .map(
+        ([name, bytes]) =>
+          `\n\n--- ${sectionLabel} • ${name} ---\n${strFromU8(bytes)}`,
+      );
 
     if (jsonFiles.length === 0) {
-      throw new Error("Sarvam Vision returned no readable document content.");
+      throw new Error("The document service returned no readable content.");
     }
     return jsonFiles.join("").trim();
+  };
+
+  try {
+    if (pdfFiles.length === 1) {
+      const sourcePdf = await PDFDocument.load(pdfFiles[0].bytes);
+      const pageCount = sourcePdf.getPageCount();
+      if (pageCount < 1) {
+        throw new Error("The uploaded PDF has no readable pages.");
+      }
+      if (pageCount > NYAYVAANI_PDF_PAGE_LIMIT) {
+        const error = new Error(
+          `This PDF has ${pageCount} pages. NyayVaani currently supports PDFs up to ${NYAYVAANI_PDF_PAGE_LIMIT} pages.`,
+        ) as Error & { statusCode?: number; code?: string };
+        error.statusCode = 422;
+        error.code = "PDF_PAGE_LIMIT";
+        throw error;
+      }
+
+      const batchStarts = Array.from(
+        { length: Math.ceil(pageCount / SARVAM_DOCUMENT_PAGE_LIMIT) },
+        (_, index) => index * SARVAM_DOCUMENT_PAGE_LIMIT,
+      );
+      const batchTexts = await Promise.all(
+        batchStarts.map(async (startPage, batchIndex) => {
+          const endPage = Math.min(
+            startPage + SARVAM_DOCUMENT_PAGE_LIMIT,
+            pageCount,
+          );
+          const batchPdf = await PDFDocument.create();
+          const pageIndexes = Array.from(
+            { length: endPage - startPage },
+            (_, index) => startPage + index,
+          );
+          const copiedPages = await batchPdf.copyPages(sourcePdf, pageIndexes);
+          copiedPages.forEach((page) => batchPdf.addPage(page));
+
+          const inputPath = path.join(
+            tempDir,
+            `court-order-pages-${startPage + 1}-${endPage}.pdf`,
+          );
+          const outputPath = path.join(
+            tempDir,
+            `document-output-${batchIndex + 1}.zip`,
+          );
+          await writeFile(inputPath, await batchPdf.save());
+          return digitizeFile(
+            inputPath,
+            outputPath,
+            `Pages ${startPage + 1}-${endPage}`,
+          );
+        }),
+      );
+      return batchTexts.join("\n\n").trim();
+    } else {
+      const inputPath = path.join(tempDir, "court-order-pages.zip");
+      const outputPath = path.join(tempDir, "document-output.zip");
+      const pages: Record<string, Uint8Array> = {};
+      files.forEach((file, index) => {
+        const pageNumber = String(index + 1).padStart(2, "0");
+        pages[`page-${pageNumber}.${file.extension}`] = file.bytes;
+      });
+      await writeFile(inputPath, zipSync(pages, { level: 6 }));
+      return await digitizeFile(
+        inputPath,
+        outputPath,
+        `Pages 1-${files.length}`,
+      );
+    }
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
@@ -602,25 +667,28 @@ ${JSON.stringify(COURT_ANALYSIS_SCHEMA)}`,
 }
 
 function sarvamErrorMessage(error: any): string {
+  if (error?.code === "PDF_PAGE_LIMIT") {
+    return error.message;
+  }
   const statusCode = error?.statusCode || error?.status;
   const errorCode = error?.body?.error?.code;
   if (statusCode === 403 || errorCode === "invalid_api_key_error") {
-    return "Sarvam authentication is unavailable. Please contact the NyayVaani team.";
+    return "Document analysis is temporarily unavailable. Please contact the NyayVaani team.";
   }
   if (statusCode === 429) {
-    return "Sarvam is busy right now. Please wait briefly and try again.";
+    return "Document analysis is busy right now. Please wait briefly and try again.";
   }
   if (
     error?.message === "SARVAM_EMPTY_RESPONSE" ||
     error?.message === "SARVAM_INVALID_JSON_RESPONSE" ||
     error?.message === "SARVAM_REFUSED_RESPONSE"
   ) {
-    return "Sarvam could not produce a complete response. Please try again.";
+    return "NyayVaani could not produce a complete response. Please try again.";
   }
   if (statusCode === 400) {
-    return "Sarvam could not process this request. Please try a shorter document or question.";
+    return "NyayVaani could not process this request. Please try again.";
   }
-  return "NyayVaani could not complete the Sarvam request. Please try again.";
+  return "NyayVaani could not complete this request. Please try again.";
 }
 
 function errorStatus(error: any): number {
@@ -680,13 +748,13 @@ app.post("/api/analyze-document", async (req, res) => {
     }
 
     const analysis = await analyzeCourtText(extractedText, language);
-    analysis.sourceDocumentText = extractedText.slice(0, 48000);
+    analysis.sourceDocumentText = extractedText.slice(0, 140000);
     return res.json({ success: true, analysis });
   } catch (error: any) {
     console.error("Sarvam document analysis error:", error);
     return res.status(errorStatus(error)).json({
       error: sarvamErrorMessage(error),
-      code: "SARVAM_ANALYSIS_FAILED",
+      code: error?.code || "DOCUMENT_ANALYSIS_FAILED",
     });
   }
 });

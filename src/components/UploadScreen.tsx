@@ -15,9 +15,12 @@ interface UploadedFileInfo {
   size: string;
   dataUrl: string;
   isPdf: boolean;
+  pageCount: number;
 }
 
 const MAX_HOSTED_UPLOAD_BYTES = 3 * 1024 * 1024;
+const MAX_IMAGE_FILES = 10;
+const MAX_PDF_PAGES = 50;
 
 const approximateDataUrlBytes = (dataUrl: string): number => {
   const base64 = dataUrl.split(',', 2)[1] || '';
@@ -168,7 +171,7 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     const totalCount = uploadedFiles.length + fileArray.length;
     const totalPdfCount = existingPdfCount + incomingPdfCount;
 
-    if (totalCount > 10) {
+    if (totalPdfCount === 0 && totalCount > MAX_IMAGE_FILES) {
       setUploadError(t.uploadPageLimitError);
       return;
     }
@@ -186,20 +189,37 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
         const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
 
         reader.onload = async (event) => {
-          const rawDataUrl = (event.target?.result as string) || '';
-          let finalDataUrl = rawDataUrl;
+          try {
+            const rawDataUrl = (event.target?.result as string) || '';
+            const finalDataUrl = rawDataUrl;
+            let pageCount = 1;
 
-          const approximateBytes = approximateDataUrlBytes(finalDataUrl);
-          const sizeInMB = (approximateBytes / (1024 * 1024)).toFixed(2);
-          const sizeStr = approximateBytes >= 1024 * 1024 ? `${sizeInMB} MB` : `${Math.round(approximateBytes / 1024)} KB`;
+            if (isPdf) {
+              const { PDFDocument } = await import('pdf-lib');
+              const pdfDocument = await PDFDocument.load(await file.arrayBuffer());
+              pageCount = pdfDocument.getPageCount();
+              if (pageCount > MAX_PDF_PAGES) {
+                setUploadError(t.uploadPageLimitError);
+                reject(new Error('PDF_PAGE_LIMIT'));
+                return;
+              }
+            }
 
-          resolve({
-            id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 5)}-${index}`,
-            name: file.name,
-            size: sizeStr,
-            dataUrl: finalDataUrl,
-            isPdf,
-          });
+            const approximateBytes = approximateDataUrlBytes(finalDataUrl);
+            const sizeInMB = (approximateBytes / (1024 * 1024)).toFixed(2);
+            const sizeStr = approximateBytes >= 1024 * 1024 ? `${sizeInMB} MB` : `${Math.round(approximateBytes / 1024)} KB`;
+
+            resolve({
+              id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 5)}-${index}`,
+              name: file.name,
+              size: sizeStr,
+              dataUrl: finalDataUrl,
+              isPdf,
+              pageCount,
+            });
+          } catch (error) {
+            reject(error);
+          }
         };
         reader.onerror = () => reject(new Error(`Could not read ${file.name}`));
         reader.readAsDataURL(file);
@@ -218,8 +238,10 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
         return;
       }
       setUploadedFiles(combined);
-    } catch {
-      setUploadError(t.uploadReadError);
+    } catch (error: any) {
+      if (error?.message !== 'PDF_PAGE_LIMIT') {
+        setUploadError(t.uploadReadError);
+      }
     } finally {
       setIsCompressing(false);
     }
@@ -262,6 +284,8 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
     setUploadedFiles([]);
     setUploadError('');
   };
+
+  const selectedPdf = uploadedFiles.find((file) => file.isPdf);
 
   // Handle Click on "Read the Document"
   const handleStartReading = () => {
@@ -341,7 +365,9 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
                 <div className="flex items-center gap-2">
                   <Layers className="h-5 w-5 text-black" />
                   <span className="font-extrabold text-slate-900 text-sm sm:text-base">
-                    {uploadedFiles.length} {uploadedFiles.length === 1 ? t.fileSelected : t.filesSelected}
+                    {selectedPdf
+                      ? t.pdfPagesSelected.replace('{count}', String(selectedPdf.pageCount))
+                      : `${uploadedFiles.length} ${uploadedFiles.length === 1 ? t.fileSelected : t.filesSelected}`}
                   </span>
                   <span className="bg-black text-white text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
                     {t.multiPageReady}
@@ -395,7 +421,11 @@ export const UploadScreen: React.FC<UploadScreenProps> = ({ onReadDocument, isLo
 
                     {/* Page badge */}
                     <div className="w-full flex items-center justify-between text-[10px] font-mono font-bold text-slate-700 px-1">
-                      <span>{t.pageLabel.toUpperCase()} {idx + 1}</span>
+                      <span>
+                        {file.isPdf
+                          ? `PDF • ${file.pageCount}`
+                          : `${t.pageLabel.toUpperCase()} ${idx + 1}`}
+                      </span>
                       <span>{file.size}</span>
                     </div>
 
